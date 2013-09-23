@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'south',
     'gunicorn',
+    'widget_tweaks',
     'airtkts.apps.events',
 )
 
