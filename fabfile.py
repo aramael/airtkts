@@ -57,7 +57,7 @@ def open():
         local('/usr/bin/open \'http://127.0.0.1:8000/\'')
         local('python manage.py runserver')
     else:
-        local('heroku open --remote {heroku_app}'.format(**env))
+        local('heroku open --app {heroku_app}'.format(**env))
 
 # === DB ===
 def resetdb():
@@ -67,9 +67,9 @@ def resetdb():
     else:
 
         if raw_input('\nDo you really want to RESET DATABASE of {heroku_app}? YES or [NO]: '.format(**env)) == 'YES':
-            local('heroku run python manage.py syncdb --noinput --settings={settings} --remote {heroku_app}'.format(
+            local('heroku run python manage.py syncdb --noinput --settings={settings} --app {heroku_app}'.format(
                 **env))
-            local('heroku run python manage.py migrate --settings={settings} --remote {heroku_app}'.format(**env))
+            local('heroku run python manage.py migrate --settings={settings} --app {heroku_app}'.format(**env))
         else:
             print '\nRESET DATABASE aborted'
 
@@ -84,7 +84,7 @@ def migrate():
     else:
 
         if raw_input('\nDo you really want to MIGRATE DATABASE of {heroku_app}? YES or [NO]: '.format(**env)) == 'YES':
-            local('heroku run python manage.py migrate --settings={settings} --remote {heroku_app}'.format(**env))
+            local('heroku run python manage.py migrate --settings={settings} --app {heroku_app}'.format(**env))
         else:
             print '\nMIGRATE DATABASE aborted'
 
@@ -96,33 +96,33 @@ def updatedb(app_names):
 
 # === Heroku ===
 def ps():
-    local('heroku ps --remote {heroku_app}'.format(**env))
+    local('heroku ps --app {heroku_app}'.format(**env))
 
 
 def restart():
     if raw_input('\nDo you really want to RESTART (web/worker) {heroku_app}? YES or [NO]: '.format(**env)) == 'YES':
-        local('heroku ps:restart web --remote {heroku_app}'.format(**env))
+        local('heroku ps:restart web --app {heroku_app}'.format(**env))
     else:
         print '\nRESTART aborted'
 
 
 def tail():
-    local('heroku logs --tail --remote {heroku_app}'.format(**env))
+    local('heroku logs --tail --app {heroku_app}'.format(**env))
 
 
 def shell():
     if env.env == 'development':
         local('python manage.py shell --settings={settings}'.format(**env))
     else:
-        local('heroku run bash --remote {heroku_app}'.format(**env))
+        local('heroku run bash --app {heroku_app}'.format(**env))
 
 
 def config():
-    local('heroku config --remote {heroku_app}'.format(**env))
+    local('heroku config --app {heroku_app}'.format(**env))
 
 
 def set(key=None, value=None):
     if key and value:
-        local('heroku config:add {}={} --remote {heroku_app}'.format(key, value, **env))
+        local('heroku config:add {}={} --app {heroku_app}'.format(key, value, **env))
     else:
         print '\nErr!'
