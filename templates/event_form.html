@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{#{% load simple_forms %}#}
+
+{% block content %}
+
+    <h1>New Event</h1>
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <form method="post" class="form-horizontal"{% if has_file_field %} enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+
+        {% for fieldset in form.formatted_fieldset %}
+            {% if fieldset.title %}<h2>{{ fieldset.title }}</h2>{% endif %}
+            {% for field in fieldset.fields.values %}
+                {% include 'bootstrap_horizontal_field.html' %}
+            {% endfor %}
+        {% endfor %}
+
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-10 col-md-offset-2 hidden-xs">
+                <input type="submit" class="btn btn-primary" value="Add User" class="default" name="_save">
+                <input type="submit" class="btn btn-info" value="Add User & Add Another" name="_addanother">
+                <input type="submit" class="btn" value="Add User & Continue Editing" name="_continue">
+            </div>
+        </div>
+
+        <div class="form-actions hidden-md hidden-lg hidden-sm ">
+            <input type="submit" class="btn btn-primary btn-block btn-lg" value="Add User" class="default" name="_save">
+            <input type="submit" class="btn btn-info btn-block btn-lg" value="Add User & Add Another" name="_addanother">
+            <input type="submit" class="btn btn-block btn-lg" value="Add User & Continue Editing" name="_continue">
+        </div>
+    </form>
+
+{% endblock %}
