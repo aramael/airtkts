@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 
 class Event(models.Model):
+    slug = models.SlugField()
     name = models.CharField(max_length=100)
     owner = models.ManyToManyField(User, related_name='owner')
     description = models.TextField()
