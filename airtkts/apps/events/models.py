@@ -37,3 +37,18 @@ class TicketSale(models.Model):
 
     def __unicode__(self):
         return "{event}: {name}".format(name=self.name, event=self.event.name)
+
+
+class TicketOrder(models.Model):
+    customer = models.CharField(max_length=50)
+    charge = models.CharField(max_length=100)
+    purchase_time = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+
+class Ticket(models.Model):
+    sale = models.ForeignKey(TicketSale)
+    purchase = models.ForeignKey(TicketOrder)
+    validated = models.BooleanField(default=False)
+    name = models.CharField(max_length=75)
