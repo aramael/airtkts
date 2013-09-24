@@ -22,3 +22,18 @@ class Event(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class TicketSale(models.Model):
+    event = models.ForeignKey(Event)
+    name = models.CharField(max_length=100)
+    quantity = models.IntegerField()
+    price = models.PositiveIntegerField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    minimum_ordered = models.PositiveIntegerField(default=1)
+    maximum_ordered = models.PositiveIntegerField()
+    show_remaining_count = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return "{event}: {name}".format(name=self.name, event=self.event.name)
