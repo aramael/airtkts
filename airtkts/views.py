@@ -46,6 +46,7 @@ def event_form(request, event_id=None, event_slug=None):
 
     context = {
         'form': form,
+        'event': event,
     }
 
     return render(request, 'event_form.html', context)
