@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load widget_tweaks %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static "css/dual_listbox.css" %}">
@@ -8,7 +9,7 @@
 {% endblock %}
 {% block content %}
 
-    <h1>{% if event.name %}Edit '{{ event.name }}' {% else %}Create New Event{% endif %}</h1>
+    <h1>{% if event.name %}Edit '{{ event.name }}' {% else %}Create an Event{% endif %}</h1>
 
     {% if form.non_field_errors %}
         <div class="alert alert-error">
@@ -20,12 +21,45 @@
     <form method="post" class="form-horizontal"{% if has_file_field %} enctype="multipart/form-data"{% endif %}>
         {% csrf_token %}
 
-        {% for fieldset in form.formatted_fieldset %}
-            {% if fieldset.title %}<h2>{{ fieldset.title }}</h2>{% endif %}
-            {% for field in fieldset.fields.values %}
-                {% include 'bootstrap_horizontal_field.html' %}
-            {% endfor %}
-        {% endfor %}
+        <h2>Add your Event Details</h2>
+
+        <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.name.html_name }}">Your Event {{ form.name.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.name class+="form-control" %}
+                    <p class="help-block">{{ form.name.help_text|safe }}{% if form.name.errors %}<strong>{{ form.name.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.location.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.location.html_name }}">{{ form.location.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.location class+="form-control" %}
+                    <p class="help-block">{{ form.location.help_text|safe }}{% if form.location.errors %}<strong>{{ form.description.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.location.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.location.html_name }}">Date & Time</label>
+                <div class="col-lg-10">
+                <div class="input-group">
+                    {% render_field form.start_time class+="form-control" %}
+                    <span class="input-group-addon">until</span>
+                    {% render_field form.end_time class+="form-control" %}
+                </div>
+
+                    <p class="help-block">{{ form.start_time.help_text|safe }} {{ form.end_time.help_text|safe }}{% if form.start_time.errors %}<strong>{{ form.start_time.errors }}</strong>{% endif %} {% if form.end_time.errors %}<strong>{{ form.end_time.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.description.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.description.html_name }}">{{ form.description.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.description class+="form-control" %}
+                    <p class="help-block">{{ form.description.help_text|safe }}{% if form.description.errors %}<strong>{{ form.description.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
 
         {% for field in form.hidden_fields %}
             {{ field }}
