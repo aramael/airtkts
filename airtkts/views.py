@@ -52,6 +52,21 @@ def event_form(request, event_id=None, event_slug=None):
     return render(request, 'event_form.html', context)
 
 
+def ticketsales_home(request, event_id=None):
+    """    Display the Landing Page    """
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    sales = TicketSale.objects.filter(event=event)
+
+    context = {
+        'sales': sales,
+        'event': event,
+    }
+
+    return render(request, 'ticketsales_home.html', context)
+
+
 def ticketsales_form(request, event_id=None, ticket_id=None):
     """    Display the Landing Page    """
 
