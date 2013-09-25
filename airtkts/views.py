@@ -4,8 +4,8 @@ Django views for airtkts project.
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
-from airtkts.apps.events.forms import EventForm
-from airtkts.apps.events.models import Event
+from airtkts.apps.events.forms import EventForm, TicketSaleForm
+from airtkts.apps.events.models import Event, TicketSale
 
 
 def home(request):
@@ -50,3 +50,28 @@ def event_form(request, event_id=None, event_slug=None):
     }
 
     return render(request, 'event_form.html', context)
+
+
+def ticketsales_form(request, event_id=None, ticket_id=None):
+    """    Display the Landing Page    """
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    if ticket_id is not None:
+            ticket = get_object_or_404(TicketSale, pk=ticket_id)
+    else:
+        ticket = None
+
+    form = TicketSaleForm(instance=ticket, initial={'event':event, }, data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        location_redirect = form.save()
+        return redirect(**location_redirect)
+
+    context = {
+        'form': form,
+        'ticket': ticket,
+        'event': event,
+    }
+
+    return render(request, 'ticketsales_form.html', context)
