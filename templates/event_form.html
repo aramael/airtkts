@@ -35,7 +35,7 @@
                 <label class="col-lg-2 control-label" for="id_{{ form.location.html_name }}">{{ form.location.label }}</label>
                 <div class="col-lg-10">
                     {% render_field form.location class+="form-control" %}
-                    <p class="help-block">{{ form.location.help_text|safe }}{% if form.location.errors %}<strong>{{ form.description.errors }}</strong>{% endif %}</p>
+                    <p class="help-block">{{ form.location.help_text|safe }}{% if form.location.errors %}<strong>{{ form.location.errors }}</strong>{% endif %}</p>
                 </div>
         </div>
 
@@ -67,16 +67,14 @@
 
         <div class="row">
             <div class="col-md-10 col-md-offset-2 hidden-xs">
-                <input type="submit" class="btn btn-primary" value="Add Event" class="default" name="_save">
-                <input type="submit" class="btn btn-info" value="Add Event & Add Another" name="_addanother">
-                <input type="submit" class="btn" value="Add Event & Continue Editing" name="_continue">
+                <input type="submit" class="btn btn-primary" value="Continue & Add Tickets" class="default" name="_continue">
+                <input type="submit" class="btn" value="Save Event & Add Tickets Later" name="_save">
             </div>
         </div>
 
         <div class="form-actions hidden-md hidden-lg hidden-sm ">
-            <input type="submit" class="btn btn-primary btn-block btn-lg" value="Add Event" class="default" name="_save">
-            <input type="submit" class="btn btn-info btn-block btn-lg" value="Add Event & Add Another" name="_addanother">
-            <input type="submit" class="btn btn-block btn-lg" value="Add Event & Continue Editing" name="_continue">
+            <input type="submit" class="btn btn-primary btn-block btn-lg" value="Continue & Add Tickets" class="default" name="_continue">
+            <input type="submit" class="btn btn-block btn-lg" value="Save Event & Add Tickets Later" name="_save">
         </div>
     </form>
 
