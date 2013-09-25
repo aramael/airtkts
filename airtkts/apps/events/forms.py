@@ -53,8 +53,8 @@ class TicketSaleForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
 
     def location_redirect(self, action, instance):
         if action == '_save':
-            return {"to": 'ticketsale_home'}
+            return {"to": 'ticketsales_home', 'event_id': instance.event.pk}
         elif action == '_addanother':
-            return {"to": 'ticketsale_new'}
+            return {"to": 'ticketsales_new', 'event_id': instance.event.pk}
         elif action == '_continue':
-            return {"to": 'ticketsale_edit', 'ticketsale_id': instance.pk}
+            return {"to": 'ticketsales_edit', 'event_id': instance.event.pk,'ticket_id': instance.pk}
