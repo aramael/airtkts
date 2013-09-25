@@ -38,7 +38,7 @@ def event_form(request, event_id=None, event_slug=None):
     else:
         event = None
 
-    form = EventForm(instance=event, data=request.POST or None, files=request.FILES or None)
+    form = EventForm(instance=event, initial={'owners': [request.user, ], }, data=request.POST or None, files=request.FILES or None)
 
     if form.is_valid():
         location_redirect = form.save()
