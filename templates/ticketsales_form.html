@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}New Ticket for {{ event.name }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static "css/vendor/datetimepicker/datetimepicker.css" %}">
+{% endblock %}
+{% block content %}
+
+    <h1>New Ticket for {{ event.name }}</h1>
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <form method="post" class="form-horizontal"{% if has_file_field %} enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+
+        <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.name.html_name }}">Your Ticket {{ form.name.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.name class+="form-control" %}
+                    <p class="help-block">{{ form.name.help_text|safe }}{% if form.name.errors %}<strong>{{ form.name.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.price.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.price.html_name }}">{{ form.price.label }}</label>
+                <div class="col-lg-10">
+                    <div class="input-group">
+                        <span class="input-group-addon">$</span>
+                    {% render_field form.price class+="form-control" %}
+                        <span class="input-group-addon">USD</span>
+                    </div>
+                    <p class="help-block">{{ form.price.help_text|safe }}{% if form.price.errors %}<strong>{{ form.price.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.quantity.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.quantity.html_name }}">Ticket {{ form.quantity.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.quantity class+="form-control" %}
+                    <p class="help-block">{{ form.quantity.help_text|safe }}{% if form.quantity.errors %}<strong>{{ form.quantity.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.show_remaining_count.errors %}has-error{% endif %}">
+            <div class="col-lg-offset-2 col-lg-10">
+                <div class="checkbox">
+                    <label for="id_{{ form.show_remaining_count.html_name }}">
+                        {{ form.show_remaining_count }} {{ form.show_remaining_count.label }}
+                    </label>
+                </div>
+                <p class="help-block">{{ form.show_remaining_count.help_text|safe }}</p>
+            </div>
+        </div>
+
+        <div class="form-group {% if form.start_time.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.start_time.html_name }}">Date & Time</label>
+                <div class="col-lg-10">
+                    <div class="input-group">
+                        {% render_field form.start_time class+="form-control" %}
+                        <span class="input-group-addon">until</span>
+                        {% render_field form.end_time class+="form-control" %}
+                    </div>
+
+                    <p class="help-block">{{ form.start_time.help_text|safe }} {{ form.end_time.help_text|safe }}{% if form.start_time.errors %}<strong>{{ form.start_time.errors }}</strong>{% endif %} {% if form.end_time.errors %}<strong>{{ form.end_time.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.quantity.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.quantity.html_name }}">Tickets permitted per order</label>
+                <div class="col-lg-1">
+                    <p class="form-control-static">Minimum</p>
+                </div>
+                <div class="col-lg-2">
+                    {% render_field form.minimum_ordered class+="form-control" %}
+                </div>
+                <div class="col-lg-1">
+                    <p class="form-control-static">Maximum</p>
+                </div>
+                <div class="col-lg-2">
+                    {% render_field form.maximum_ordered class+="form-control" %}
+                </div>
+                <p class="help-block">{{ form.quantity.help_text|safe }}{% if form.quantity.errors %}<strong>{{ form.quantity.errors }}</strong>{% endif %}</p>
+        </div>
+
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-10 col-md-offset-2 hidden-xs">
+                <input type="submit" class="btn btn-primary" value="Save Ticket" class="default" name="_save">
+                <input type="submit" class="btn btn-info" value="Save Ticket & Add Another" name="_addanother">
+                <input type="submit" class="btn" value="Save Ticket & Continue Editing" name="_continue">
+            </div>
+        </div>
+
+        <div class="form-actions hidden-md hidden-lg hidden-sm ">
+            <input type="submit" class="btn btn-primary btn-block btn-lg" value="Save Ticket" class="default" name="_save">
+            <input type="submit" class="btn btn-info btn-block btn-lg" value="Save Ticket & Add Another" name="_addanother">
+            <input type="submit" class="btn btn-block btn-lg" value="Save Ticket & Continue Editing" name="_continue">
+        </div>
+    </form>
+
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static "js/vendor/datetimepicker/bootstrap-datetimepicker.js" %}"></script>
+    <script>
+    $('#id_start_time, #id_end_time').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 0
+    });
+    </script>
+{% endblock %}
