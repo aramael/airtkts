@@ -5,6 +5,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'airtkts.views.home', name='home'),
+    url(r'^event/(?P<event_id>[0-9]+)/(?P<event_slug>\w+)', 'airtkts.views.ticket_office', name='ticket_office'),
 
     # Account Event Pages
     url(r'^accounts/event/$', 'airtkts.views.event_home', name='event_home'),

@@ -16,6 +16,22 @@ def home(request):
     return render(request, '', context)
 
 
+def ticket_office(request, event_id=None, event_slug=None):
+
+    if event_id is not None:
+        event = get_object_or_404(Event, pk=event_id)
+        if event_slug != event.slug:
+            redirect('event_edit', event_id=event.pk, event_slug=event.slug)
+    else:
+        event = None
+
+    context = {
+        'event': event,
+    }
+
+    return render(request, 'ticket_office_home.html', context)
+
+
 def event_home(request):
     """    Display the Landing Page    """
 
