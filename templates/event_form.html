@@ -4,7 +4,7 @@
 {% load widget_tweaks %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static "css/dual_listbox.css" %}">
+    <link rel="stylesheet" href="{% static "css/vendor/admin/dual_listbox.css" %}">
     <link rel="stylesheet" href="{% static "css/vendor/datetimepicker/datetimepicker.css" %}">
 {% endblock %}
 {% block content %}
@@ -90,7 +90,7 @@
 
 {% endblock %}
 {% block extra_js %}
-    <script src="{% static "js/dual_listbox.js" %}"></script>
+    <script src="{% static "js/vendor/admin/dual_listbox.js" %}"></script>
     <script src="{% static "js/vendor/datetimepicker/bootstrap-datetimepicker.js" %}"></script>
     <script>
     $('#id_owner').bootstrapDualListbox();
