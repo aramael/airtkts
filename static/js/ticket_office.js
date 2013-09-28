@@ -1,11 +1,14 @@
 $(document).ready(function (){
 
+    // Stripe Call
+    Stripe.setPublishableKey('pk_test_TSQ7mAraIKeoGRhSUnFc8SI1');
+
     var steps = {
         1: $('.step-1'),
         information: $('.step-information'),
         guest: $('.step-guest-information'),
         payment: $('.step-payment-method'),
-        stripe: $('.step-payment'),
+        pay: $('.step-payment'),
         4: $('.step-4')
     };
 
@@ -15,6 +18,7 @@ $(document).ready(function (){
         steps[step_number].transition('fade in');
     }
 
+    var card = new Skeuocard($("#skeuocard"));
     var ticket_type = $('.ticket-type');
     var payment_type = $('.payment-type');
     var ticket_type_input = $('#id_ticket_type');
@@ -57,8 +61,6 @@ $(document).ready(function (){
         $(this).addClass('teal selected');
         payment_type_input.val($(this).attr('id')).trigger('blur');
     });
-
-
 
     steps['information'].find('.form').form({
 		firstName: {
@@ -141,7 +143,45 @@ $(document).ready(function (){
         inline: true,
         on: 'Blur',
         onSuccess: function(){
-            $(this).closest('form').submit();
+
+            var payment_method = steps['payment'].find('.form').form('get field', 'payment_type');
+            if (payment_method.val() == 'credit'){
+                change_step('pay');
+                return;
+            }
+
+            change_step('thanks');
+        }
+    });
+
+    $('form#airtkts').submit(function (e){
+        if (card.isValid()){
+
+            e.preventDefault();
+
+            $(this).find('button').prop('disabled', true);
+
+            Stripe.card.createToken({
+                number: $('#cc_number').val(),
+                cvc: $('#cc_cvc').val(),
+                exp_month: $('#cc_exp_month').val(),
+                exp_year: $('#cc_exp_year').val(),
+                name: $('#cc_name').val()
+            }, function (status, response){
+                if (response.error) {
+
+                    console.log(response.error.message);
+
+                } else {
+                    // token contains id, last4, and card type
+                    var token = response['id'];
+
+                    $('#stripeToken').val(token);
+
+                    // Sever Side Validation of Credit Card Form
+
+                }
+            });
         }
     });
 

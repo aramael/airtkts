@@ -7,6 +7,10 @@ html {
   font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 }
 
+#skeuocard {
+    margin: 20px auto;
+}
+
 .icon.credit.card:before {
   content: "\f09d";
 }

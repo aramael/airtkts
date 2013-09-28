@@ -4,9 +4,14 @@
 
 {% block title %}{{ event.title }}{% endblock %}
 
+{% block extra_css %}
+    <link href="{% static 'css/vendor/skeuocard/skeuocard.reset.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/vendor/skeuocard/skeuocard.css' %}" rel="stylesheet" media="screen">
+{% endblock %}
+
 {% block content %}
 
-<form method="POST">
+<form method="POST" id="airtkts">
 {% csrf_token %}
 
     <div class="countdown-ticket step-1">
@@ -219,8 +224,8 @@
         </div>
     </div>
 
-    <div class="form-step step-stripe hide">
-        <div class="ui form segment">
+    <div class="form-step step-payment hide">
+        <div class="ui segment">
 
             <div class="ui small four steps">
               <a class="ui step" onclick="change_section(1);">
@@ -242,7 +247,35 @@
                     <div class="sub header">Just fill out your credit card information below and you'll be on your way. </div>
                 </div>
             </h2>
-            
+
+            <div class="credit-card-input no-js" id="skeuocard">
+                <p class="no-support-warning">
+                Either you have Javascript disabled, or you're using an unsupported browser, amigo! That's why you're seeing this old-school credit card input form instead of a fancy new Skeuocard. On the other hand, at least you know it gracefully degrades...
+                </p>
+                <label for="cc_type">Card Type</label>
+                <select name="cc_type">
+                    <option value="">...</option>
+                    <option value="visa">Visa</option>
+                    <option value="mastercard">MasterCard</option>
+                    <option value="amex">American Express</option>
+                    <option value="jcb">JCB</option>
+                    <option value="discover">Discover</option>
+                    <option value="dinersclubintl">Diners Club</option>
+                </select>
+                <label for="cc_number">Card Number</label>
+                <input type="text" name="cc_number" id="cc_number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" size="19">
+                <label for="cc_exp_month">Expiration Month</label>
+                <input type="text" name="cc_exp_month" id="cc_exp_month" placeholder="00">
+                <label for="cc_exp_year">Expiration Year</label>
+                <input type="text" name="cc_exp_year" id="cc_exp_year" placeholder="00">
+                <label for="cc_name">Cardholder's Name</label>
+                <input type="text" name="cc_name" id="cc_name" placeholder="John Doe">
+                <label for="cc_cvc">Card Validation Code</label>
+                <input type="text" name="cc_cvc" id="cc_cvc" placeholder="123" maxlength="3" size="3">
+            </div>
+
+            <input type='hidden' name="stripeToken" id="stripeToken"/>
+
             <button type="submit" class="ui blue submit button">Next</button>
         </div>
     </div>
@@ -252,5 +285,8 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script src="{% static 'js/vendor/cssua/cssua.min.js' %}"></script>
+    <script src="{% static 'js/vendor/skeuocard/skeuocard.min.js' %}"></script>
     <script src="{% static 'js/ticket_office.js' %}"></script>
 {% endblock %}
