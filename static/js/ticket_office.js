@@ -44,7 +44,7 @@ $(document).ready(function (){
         });
         $(this).removeClass('blue');
         $(this).addClass('teal selected');
-        ticket_type_input.val($(this).attr('id'));
+        ticket_type_input.val($(this).attr('id')).trigger('blur');
         ticket_type_display.html($(this).find('.description').text());
     });
 
@@ -96,7 +96,6 @@ $(document).ready(function (){
             }
 
             change_step('payment');
-            return;
         }
     });
 
