@@ -7,6 +7,10 @@ html {
   font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 }
 
+.icon.credit.card:before {
+  content: "\f09d";
+}
+
 .error .ticket-type {
     border: 1px solid #E7BEBE !important;
     border-left-width: 0;
@@ -20,8 +24,16 @@ html {
     visibility: hidden;
 }
 
-.equal.height .segment {
+.ticket-types, .payment-types {
+    margin-bottom: 15px;
+}
+
+.ticket-types .equal.height .segment {
     height: 230px;
+}
+
+.payment-types .equal.height .segment {
+    height: 193px;
 }
 
 .form-step {

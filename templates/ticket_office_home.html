@@ -92,6 +92,56 @@
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
+
+    <div class="form-step step-3 hide">
+        <div class="ui form segment">
+
+            <div class="ui small four steps">
+              <a class="ui step" onclick="change_section(1);">
+                Information
+              </a>
+              <div class="ui active step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    You've decided to buy <span id="ticket-choice"></span>
+                    <div class="sub header">Please select how you wish to pay. Don't worry we haven't forgotten about your +1, we'll get to that in a moment. </div>
+                </div>
+            </h2>
+            <div class="ui two field column grid payment-types">
+                <div class="equal height row">
+                    <div class="column">
+                        <div class="ui blue inverted segment payment-type tertiary" id="cash">
+                            <div class="ui icon header">
+                                <i class="icon money circle"></i>Pay Cash @ Door
+                                <div class="sub header">Pay when you show an and are ready to party. <strong>$12.00 USD</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="ui blue inverted segment payment-type tertiary" id="credit">
+                            <div class="ui icon header">
+                                <i class="icon credit card circle"></i>Pay Now
+                                <div class="sub header">Pay now and and waltz right in later. No Hassle and Save. <strong>$10.00 USD</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="payment_type" id="id_payment_type"/>
+            </div>
+            <a class="ui blue submit button">Next</a>
+        </div>
+    </div>
+
+
 {% endblock %}
 
 {% block extra_js %}

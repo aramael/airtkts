@@ -1,15 +1,27 @@
 $(document).ready(function (){
 
-    var step1 = $('.step-1');
-    var ticket_type = $('.ticket-type');
-    var ticket_type_input = $('#id_ticket_type');
+    var steps = ['',
+        $('.step-1'),
+        $('.step-2'),
+        $('.step-3'),
+        $('.step-4')
+    ];
 
-    step1.click(function (){
-        $(this).transition('fade out');
-        $('.step-2').transition('fade in');
+    function change_step(step_number){
+        $('[class*=step-]:visible').transition('fade out');
+        steps[step_number].transition('fade in');
+    }
+
+    var ticket_type = $('.ticket-type');
+    var payment_type = $('.payment-type');
+    var ticket_type_input = $('#id_ticket_type');
+    var payment_type_input = $('#id_payment_type');
+
+    steps[1].click(function (){
+        change_step(2);
     });
 
-    ticket_type.hover(function(){
+    ticket_type.add(payment_type).hover(function(){
         if(!$(this).hasClass('selected')){
             $(this).removeClass('tertiary');
             $(this).addClass('primary');
@@ -31,9 +43,19 @@ $(document).ready(function (){
         ticket_type_input.val($(this).attr('id'));
     });
 
+    payment_type.click(function (){
+        $(payment_type).each(function (){
+            $(this).removeClass('teal selected');
+            $(this).addClass('blue');
+        });
+        $(this).removeClass('blue');
+        $(this).addClass('teal selected');
+        payment_type_input.val($(this).attr('id'));
+    });
 
 
-	$('.step-2 .form').form({
+
+    steps[2].find('.form').form({
 		firstName: {
 			identifier  : 'first-name',
 			rules: [{
@@ -57,7 +79,26 @@ $(document).ready(function (){
         }
 	},{
         inline: true,
-        on: 'Blur'
+        on: 'Blur',
+        onSuccess: function(){
+            change_step(3);
+        }
+    });
+
+    steps[3].find('.form').form({
+        ticket: {
+            identifier : 'payment_method',
+            rules:[{
+                type   : 'empty',
+                prompt : 'select a payment method'
+            }]
+        }
+	},{
+        inline: true,
+        on: 'Blur',
+        onSuccess: function(){
+            change_step(4);
+        }
     });
 
 });
