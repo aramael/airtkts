@@ -1,0 +1,99 @@
+{% extends 'ticket_office_base.html' %}
+
+{% load static %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+
+    <div class="countdown-ticket step-1">
+        <div class="content">
+            <a class="start-process">Admit One</a>
+        </div><!-- .content -->
+    </div>
+
+    <div class="form-step step-2 hide">
+        <div class="ui {# warning #} form segment">
+
+            <div class="ui small four steps">
+              <div class="ui active step">
+                Information
+              </div>
+              <div class="ui disabled step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    You've been invited to {{ event.name }}
+                    <div class="sub header">{{ event.organisers }} need a little bit of information from you before they can finish planning their party. Do them a solid and fill out the information below: </div>
+                </div>
+            </h2>
+            <div class="ui tiny header">What should we call you?</div>
+            <div class="two {# error #} fields">
+                <div class="field">
+                    <label>First Name</label>
+                    <div class="ui labeled input">
+                    <input placeholder="First Name" name="first-name" type="text">
+                        <div class="ui corner label">
+                            <i class="asterisk icon"></i>
+                        </div>
+                    </div>
+{#                    <div class="ui red pointing above ui label">Enter a first name</div>#}
+                </div>
+                <div class="field">
+                    <label>Last Name</label>
+                    <div class="ui labeled input">
+                        <input placeholder="Last Name" name="last-name" type="text">
+                        <div class="ui corner label">
+                            <i class="asterisk icon"></i>
+                        </div>
+                    </div>
+{#                    <div class="ui red pointing above ui label">Enter a last name</div>#}
+                </div>
+            </div>
+            <div class="ui tiny header">What type of ticket would you like?</div>
+            <div class="ui two field column grid ticket-types">
+                <div class="equal height row">
+                    <div class="column">
+                        <div class="ui blue inverted segment ticket-type tertiary" id="general-admission">
+                            <div class="ui icon header">
+                                <i class="icon ticket circle"></i>General Admission
+                                <div class="sub header">Free Non-Alcoholic Drinks as long as you want.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="ui blue inverted segment ticket-type tertiary" id="open-bar">
+                            <div class="ui icon header">
+                                <i class="icon glass circle"></i>General Admission + Open Bar
+                                <div class="sub header">All the alcohol you can drink, all night long.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="ticket_type" id="id_ticket_type"/>
+            </div>
+
+            <div class="ui tiny header">Do you want to bring a friend?</div>
+            <div class="inline field">
+                <div class="ui checkbox">
+                    <input type="checkbox" id="terms">
+                    <label for="terms"></label>
+                </div>
+                <label>I want to bring a +1 with me.</label>
+            </div>
+            <a class="ui blue submit button">Next</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/ticket_office.js' %}"></script>
+{% endblock %}
