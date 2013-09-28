@@ -55,7 +55,7 @@ $(document).ready(function (){
         });
         $(this).removeClass('blue');
         $(this).addClass('teal selected');
-        payment_type_input.val($(this).attr('id'));
+        payment_type_input.val($(this).attr('id')).trigger('blur');
     });
 
 
@@ -131,7 +131,7 @@ $(document).ready(function (){
 
     steps['payment'].find('.form').form({
         ticket: {
-            identifier : 'payment_method',
+            identifier : 'payment_type',
             rules:[{
                 type   : 'empty',
                 prompt : 'select a payment method'

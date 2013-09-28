@@ -11,7 +11,8 @@ html {
   content: "\f09d";
 }
 
-.field.error .ticket-type {
+.field.error .ticket-type,
+.field.error .payment-type {
     border: 1px solid #E7BEBE !important;
     border-left-width: 0;
     box-shadow: rgb(217, 92, 92) 3px 0px 0px 0px inset !important;
