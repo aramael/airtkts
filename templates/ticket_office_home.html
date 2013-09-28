@@ -6,13 +6,16 @@
 
 {% block content %}
 
+<form method="POST">
+{% csrf_token %}
+
     <div class="countdown-ticket step-1">
         <div class="content">
             <a class="start-process">Admit One</a>
         </div><!-- .content -->
     </div>
 
-    <div class="form-step step-2 hide">
+    <div class="form-step step-information hide">
         <div class="ui {# warning #} form segment">
 
             <div class="ui small four steps">
@@ -55,7 +58,17 @@
                             <i class="asterisk icon"></i>
                         </div>
                     </div>
-{#                    <div class="ui red pointing above ui label">Enter a last name</div>#}
+{#                    <div class="ui red pointing above label">Enter a last name</div>#}
+                </div>
+            </div>
+            <div class="field">
+                <label>Email Address</label>
+                <div class="ui left labeled icon input">
+                    <input type="text" name="email" placeholder="them@domain.com">
+                    <i class="mail icon"></i>
+                    <div class="ui corner label">
+                        <i class="icon asterisk"></i>
+                    </div>
                 </div>
             </div>
             <div class="ui tiny header">What type of ticket would you like?</div>
@@ -64,7 +77,7 @@
                     <div class="column">
                         <div class="ui blue inverted segment ticket-type tertiary" id="general-admission">
                             <div class="ui icon header">
-                                <i class="icon ticket circle"></i>General Admission
+                                <i class="icon ticket circle"></i><span class="description">General Admission</span>
                                 <div class="sub header">Free Non-Alcoholic Drinks as long as you want.</div>
                             </div>
                         </div>
@@ -72,7 +85,7 @@
                     <div class="column">
                         <div class="ui blue inverted segment ticket-type tertiary" id="open-bar">
                             <div class="ui icon header">
-                                <i class="icon glass circle"></i>General Admission + Open Bar
+                                <i class="icon glass circle"></i><span class="description">General Admission + Open Bar</span>
                                 <div class="sub header">All the alcohol you can drink, all night long.</div>
                             </div>
                         </div>
@@ -84,20 +97,85 @@
             <div class="ui tiny header">Do you want to bring a friend?</div>
             <div class="inline field">
                 <div class="ui checkbox">
-                    <input type="checkbox" id="terms">
-                    <label for="terms"></label>
+                    <input type="checkbox" name="guest_invited" id="guest_invited">
+                    <label for="guest_invited" class="box"></label>
                 </div>
-                <label>I want to bring a +1 with me.</label>
+                <label form="guest_invited">I want to bring a +1 with me.</label>
             </div>
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
 
-    <div class="form-step step-3 hide">
+    <div class="form-step step-guest-information hide">
         <div class="ui form segment">
 
             <div class="ui small four steps">
-              <a class="ui step" onclick="change_section(1);">
+              <div class="ui active step">
+                Information
+              </div>
+              <div class="ui disabled step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    We're glad you're coming. We're even more excited you're bringing a friend!
+                    <div class="sub header">Give us a little bit of background on them so there are no awkward introductions. We'll invite them on your behalf! No biggie. </div>
+                </div>
+            </h2>
+            <div class="ui tiny header">What can we call your friend?</div>
+            <div class="two {# error #} fields">
+                <div class="field">
+                    <label>Guest's First Name</label>
+                    <div class="ui labeled input">
+                    <input placeholder="First Name" name="guest_first_name" type="text">
+                        <div class="ui corner label">
+                            <i class="asterisk icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Guest's Last Name</label>
+                    <div class="ui labeled input">
+                        <input placeholder="Last Name" name="guest_last_name" type="text">
+                        <div class="ui corner label">
+                            <i class="asterisk icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <label>Guest's Email Address</label>
+                <div class="ui left labeled icon input">
+                    <input type="text" name="guest_email" placeholder="you@domain.com">
+                    <i class="mail icon"></i>
+                    <div class="ui corner label">
+                        <i class="icon asterisk"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui form">
+                <div class="field">
+                    <label>Do you want to add a note to your friend?</label>
+                    <textarea name="guest_note" id="guest_note"></textarea>
+                </div>
+            </div>
+            <a class="ui blue submit button">Next</a>
+        </div>
+    </div>
+
+    <div class="form-step step-payment-method hide">
+        <div class="ui form segment">
+
+            <div class="ui small four steps">
+              <a class="ui step">
                 Information
               </a>
               <div class="ui active step">
@@ -112,8 +190,8 @@
             </div>
             <h2 class="ui header">
                 <div class="content">
-                    You've decided to buy <span id="ticket-choice"></span>
-                    <div class="sub header">Please select how you wish to pay. Don't worry we haven't forgotten about your +1, we'll get to that in a moment. </div>
+                    Now back to you! You've decided to buy <span id="ticket-choice"></span>
+                    <div class="sub header">Please select how you wish to pay.</div>
                 </div>
             </h2>
             <div class="ui two field column grid payment-types">
@@ -141,6 +219,35 @@
         </div>
     </div>
 
+    <div class="form-step step-stripe hide">
+        <div class="ui form segment">
+
+            <div class="ui small four steps">
+              <a class="ui step" onclick="change_section(1);">
+                Information
+              </a>
+              <div class="ui active step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    You're almost there.
+                    <div class="sub header">Just fill out your credit card information below and you'll be on your way. </div>
+                </div>
+            </h2>
+            
+            <button type="submit" class="ui blue submit button">Next</button>
+        </div>
+    </div>
+
+</form>
 
 {% endblock %}
 

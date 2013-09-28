@@ -1,24 +1,28 @@
 $(document).ready(function (){
 
-    var steps = ['',
-        $('.step-1'),
-        $('.step-2'),
-        $('.step-3'),
-        $('.step-4')
-    ];
+    var steps = {
+        1: $('.step-1'),
+        information: $('.step-information'),
+        guest: $('.step-guest-information'),
+        payment: $('.step-payment-method'),
+        stripe: $('.step-payment'),
+        4: $('.step-4')
+    };
 
     function change_step(step_number){
         $('[class*=step-]:visible').transition('fade out');
+        alert('EVERYTHING IS INVISIBLE: NOW SHOWING' + step_number);
         steps[step_number].transition('fade in');
     }
 
     var ticket_type = $('.ticket-type');
     var payment_type = $('.payment-type');
     var ticket_type_input = $('#id_ticket_type');
+    var ticket_type_display = $('#ticket-choice');
     var payment_type_input = $('#id_payment_type');
 
     steps[1].click(function (){
-        change_step(2);
+        change_step('information');
     });
 
     ticket_type.add(payment_type).hover(function(){
@@ -41,6 +45,7 @@ $(document).ready(function (){
         $(this).removeClass('blue');
         $(this).addClass('teal selected');
         ticket_type_input.val($(this).attr('id'));
+        ticket_type_display.html($(this).find('.description').text());
     });
 
     payment_type.click(function (){
@@ -55,7 +60,7 @@ $(document).ready(function (){
 
 
 
-    steps[2].find('.form').form({
+    steps['information'].find('.form').form({
 		firstName: {
 			identifier  : 'first-name',
 			rules: [{
@@ -81,11 +86,51 @@ $(document).ready(function (){
         inline: true,
         on: 'Blur',
         onSuccess: function(){
-            change_step(3);
+
+            if (steps['information'].find('.form').form('has field', 'guest_invited')){
+                var guest_invited = steps['information'].find('.form').form('get field', 'guest_invited');
+                if (guest_invited.is(':checked')){
+                    change_step('guest');
+                    return;
+                }
+            }
+
+            change_step('payment');
+            return;
         }
     });
 
-    steps[3].find('.form').form({
+    steps['guest'].find('.form').form({
+		firstName: {
+			identifier  : 'guest_first_name',
+			rules: [{
+				type   : 'empty',
+				prompt : 'enter their first name'
+			}]
+		},
+		lastName: {
+			identifier  : 'guest_last_name',
+			rules: [{
+				type   : 'empty',
+				prompt : 'enter their last name'
+			}]
+		},
+        email: {
+            identifier : 'guest_email',
+            rules:[{
+                type   : 'email',
+                prompt : 'enter a valid email'
+            }]
+        }
+	},{
+        inline: true,
+        on: 'Blur',
+        onSuccess: function(){
+            change_step('payment');
+        }
+    });
+
+    steps['payment'].find('.form').form({
         ticket: {
             identifier : 'payment_method',
             rules:[{
@@ -97,7 +142,7 @@ $(document).ready(function (){
         inline: true,
         on: 'Blur',
         onSuccess: function(){
-            change_step(4);
+            $(this).closest('form').submit();
         }
     });
 
