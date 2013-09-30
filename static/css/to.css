@@ -15,6 +15,17 @@ html {
   content: "\f09d";
 }
 
+.order.confirm .user.info {
+    display: inline-block;
+    border-bottom: 1px dashed #999;
+    text-decoration: none;
+}
+
+.order.confirm .user.info:hover {
+    background: #cdeffc;
+}
+
+
 .field.error .ticket-type,
 .field.error .payment-type {
     border: 1px solid #E7BEBE !important;

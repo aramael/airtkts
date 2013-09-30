@@ -166,11 +166,9 @@
                 </div>
             </div>
 
-            <div class="ui form">
-                <div class="field">
-                    <label>Do you want to add a note to your friend?</label>
-                    <textarea name="guest_note" id="guest_note"></textarea>
-                </div>
+            <div class="field">
+                <label>Do you want to add a note to your friend?</label>
+                <textarea name="guest_note" id="guest_note"></textarea>
             </div>
             <a class="ui blue submit button">Next</a>
         </div>
@@ -228,7 +226,7 @@
         <div class="ui segment">
 
             <div class="ui small four steps">
-              <a class="ui step" onclick="change_section(1);">
+              <a class="ui step">
                 Information
               </a>
               <div class="ui active step">
@@ -277,8 +275,42 @@
             <input type='hidden' name="stripeToken" id="stripeToken"/>
 
             <button type="submit" class="ui blue submit button">Next</button>
+            <a class="ui blue submit button">Next</a>
         </div>
     </div>
+
+    <div class="form-step step-confirm hide">
+        <div class="ui segment">
+
+            <div class="ui small four steps">
+              <a class="ui step">
+                Information
+              </a>
+              <div class="ui step">
+                Payment
+              </div>
+              <div class="ui active step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    Just Some Double Checking
+                    <div class="sub header">This is the information we have gotten from you, just check to make sure it is correct. If any of it is incorrect just click on the information and we'll take you back to change it.</div>
+                </div>
+            </h2>
+
+            <p class="huge order confirm">We're excited that you, <a class="user info" id="full-name"></a>, are attending {{ event.name }}. <span class="bring guest hide"> and are bringing you're friend <a class="user info" id="guest-full-name"></a>. We can contact <a class="user info" id="guest-first-name"></a> at <a class="user info" id="guest-email"></a>. We're also going to send the following note from you:</span></p>
+            <div class="ui blue segment bring guest hide" id="guest-note"></div>
+            <p class="huge order confirm"><a class="user info" id="first-name"></a>, you decided that you were going to get the <a class="user info" id="ticket-type"></a> <span id="pay-now" class="hide">and you are paying using you're card that ends in <a class="user info" id="cc-last-four"></a></span><span id="pay-at-door" class="hide">and you are paying at the door </span> for a total of $<a class="user info" id="ticket-price"></a>USD. We're excited to see you there on {{ event.start_time }}</p>
+
+            <button type="submit" class="ui blue submit button">Sounds Right</button>
+        </div>
+    </div>
+
 
 </form>
 

@@ -9,12 +9,11 @@ $(document).ready(function (){
         guest: $('.step-guest-information'),
         payment: $('.step-payment-method'),
         pay: $('.step-payment'),
-        4: $('.step-4')
+        confirm: $('.step-confirm')
     };
 
     function change_step(step_number){
         $('[class*=step-]:visible').transition('fade out');
-        alert('EVERYTHING IS INVISIBLE: NOW SHOWING' + step_number);
         steps[step_number].transition('fade in');
     }
 
@@ -24,6 +23,20 @@ $(document).ready(function (){
     var ticket_type_input = $('#id_ticket_type');
     var ticket_type_display = $('#ticket-choice');
     var payment_type_input = $('#id_payment_type');
+
+    // Confrim Information
+    var confrim_full_name = $('#full-name');
+    var confrim_first_name = $('#first-name');
+    var confrim_guest_full_name = $('#guest-full-name');
+    var confrim_guest_first_name = $('#guest-first-name');
+    var confrim_guest_email = $('#guest-email');
+    var confrim_guest_note = $('#guest-note');
+    var confrim_ticket_type = $('#ticket-type');
+    var confrim_ticket_price = $('#ticket-price');
+    var confrim_cc = $('#cc-last-four');
+    var confrim_pay_now = $('#pay-now');
+    var confrim_pay_later = $('#pay-at-door');
+    var confrim_bring_guest = $('.bring.guest');
 
     steps[1].click(function (){
         change_step('information');
@@ -89,8 +102,17 @@ $(document).ready(function (){
         on: 'Blur',
         onSuccess: function(){
 
-            if (steps['information'].find('.form').form('has field', 'guest_invited')){
-                var guest_invited = steps['information'].find('.form').form('get field', 'guest_invited');
+            form = steps['information'].find('.form');
+
+            // Fill Out Confirm Dialogue
+            fname = form.form('get field', 'first-name').val();
+            lname = form.form('get field', 'last-name').val();
+            confrim_first_name.text(fname);
+            confrim_full_name.text(fname + ' ' + lname);
+            confrim_ticket_type.text(form.form('get field', 'ticket_type').val());
+
+            if (form.form('has field', 'guest_invited')){
+                var guest_invited = form.form('get field', 'guest_invited');
                 if (guest_invited.is(':checked')){
                     change_step('guest');
                     return;
@@ -127,6 +149,28 @@ $(document).ready(function (){
         inline: true,
         on: 'Blur',
         onSuccess: function(){
+
+            console.log(steps['guest'].find('.form'));
+
+            window.guest_form = steps['guest'].find('.form');
+
+            form = steps['guest'].find('.form');
+
+            // Fill Out Confirm Dialogue
+            fname = form.form('get field', 'guest_first_name').val();
+            lname = form.form('get field', 'guest_last_name').val();
+            email = form.form('get field', 'guest_email').val();
+            note = form.form('get field', 'guest_note').val();
+
+            console.log(form.form('get field', 'guest_first_name'));
+            console.log(fname);
+
+            confrim_guest_first_name.text(fname);
+            confrim_guest_full_name.text(fname + ' ' + lname);
+            confrim_guest_email.text(email);
+            confrim_guest_note.text(note);
+            confrim_bring_guest.removeClass('hide');
+
             change_step('payment');
         }
     });
@@ -146,18 +190,20 @@ $(document).ready(function (){
 
             var payment_method = steps['payment'].find('.form').form('get field', 'payment_type');
             if (payment_method.val() == 'credit'){
+                confrim_pay_now.removeClass('hide');
                 change_step('pay');
                 return;
             }
 
-            change_step('thanks');
+            // Fill Out Confirm Dialogue
+            confrim_pay_later.removeClass('hide');
+
+            change_step('confirm');
         }
     });
 
-    $('form#airtkts').submit(function (e){
+    steps['pay'].find('.submit').click(function (){
         if (card.isValid()){
-
-            e.preventDefault();
 
             $(this).find('button').prop('disabled', true);
 
@@ -178,11 +224,16 @@ $(document).ready(function (){
 
                     $('#stripeToken').val(token);
 
-                    // Sever Side Validation of Credit Card Form
+                    num = $('#cc_number').val();
+                    confrim_cc.text(num.substr(num.length - 4));
+
+                    change_step('confirm');
 
                 }
             });
         }
     });
+
+    $('form#airtkts').submit(function (e){});
 
 });
