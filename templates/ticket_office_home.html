@@ -1,0 +1,322 @@
+{% extends 'ticket_office_base.html' %}
+
+{% load static %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block extra_css %}
+    <link href="{% static 'css/vendor/skeuocard/skeuocard.reset.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/vendor/skeuocard/skeuocard.css' %}" rel="stylesheet" media="screen">
+{% endblock %}
+
+{% block content %}
+
+<form method="POST" id="airtkts">
+{% csrf_token %}
+
+    <div class="countdown-ticket step-1">
+        <div class="content">
+            <a class="start-process">Admit One</a>
+        </div><!-- .content -->
+    </div>
+
+    <div class="form-step step-information hide">
+        <div class="ui {# warning #} form segment">
+
+            <div class="ui small four steps">
+              <div class="ui active step">
+                Information
+              </div>
+              <div class="ui disabled step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    You've been invited to {{ event.name }}
+                    <div class="sub header">{{ event.organisers }} need a little bit of information from you before they can finish planning their party. Do them a solid and fill out the information below: </div>
+                </div>
+            </h2>
+            <div class="ui tiny header">What should we call you?</div>
+            <div class="two fields">
+                <div class="field">
+                    <label for="id_{{ form.first_name.html_name }}">{{ form.first_name.label }}</label>
+                    <div class="ui labeled input">
+                        {{ form.first_name }}
+                        <div class="ui corner label">
+                            <i class="asterisk icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="id_{{ form.last_name.html_name }}">{{ form.last_name.label }}</label>
+                    <div class="ui labeled input">
+                        {{ form.last_name }}
+                        <div class="ui corner label">
+                            <i class="asterisk icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <label for="id_{{ form.email.html_name }}">{{ form.email.label }}</label>
+                <div class="ui left labeled icon input">
+                    {{ form.email }}
+                    <i class="mail icon"></i>
+                    <div class="ui corner label">
+                        <i class="icon asterisk"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="ui tiny header">What type of ticket would you like?</div>
+            <div class="ui two field column grid ticket-types">
+                <div class="equal height row">
+                    <div class="column">
+                        <div class="ui blue inverted segment ticket-type tertiary" id="general-admission">
+                            <div class="ui icon header">
+                                <i class="icon ticket circle"></i><span class="description">General Admission</span>
+                                <div class="sub header">Free Non-Alcoholic Drinks as long as you want.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="ui blue inverted segment ticket-type tertiary" id="open-bar">
+                            <div class="ui icon header">
+                                <i class="icon glass circle"></i><span class="description">General Admission + Open Bar</span>
+                                <div class="sub header">All the alcohol you can drink, all night long.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="ticket_type" id="id_ticket_type"/>
+            </div>
+
+            <div class="ui tiny header">Do you want to bring a friend?</div>
+            <div class="inline field">
+                <div class="ui checkbox">
+                    {{ form.guest_invited }}
+                    <label for="guest_invited" class="box"></label>
+                </div>
+                <label for="id_{{ form.guest_invited.html_name }}">{{ form.guest_invited.label }}</label>
+            </div>
+            <a class="ui blue submit button">Next</a>
+        </div>
+    </div>
+
+    <div class="form-step step-guest-information hide">
+        <div class="ui form segment">
+
+            <div class="ui small four steps">
+              <div class="ui active step">
+                Information
+              </div>
+              <div class="ui disabled step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    We're glad you're coming. We're even more excited you're bringing a friend!
+                    <div class="sub header">Give us a little bit of background on them so there are no awkward introductions. We'll invite them on your behalf! No biggie. </div>
+                </div>
+            </h2>
+            <div class="ui tiny header">What can we call your friend?</div>
+            <div class="two fields">
+                <div class="field">
+                    <label for="id_{{ form.guest_first_name.html_name }}">{{ form.guest_first_name.label }}</label>
+                    <div class="ui labeled input">
+                        {{ form.guest_first_name }}
+                        <div class="ui corner label">
+                            <i class="asterisk icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="id_{{ form.guest_last_name.html_name }}">{{ form.guest_last_name.label }}</label>
+                    <div class="ui labeled input">
+                        {{ form.guest_last_name }}
+                        <div class="ui corner label">
+                            <i class="asterisk icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <label for="id_{{ form.guest_email.html_name }}">{{ form.guest_email.label }}</label>
+                <div class="ui left labeled icon input">
+                        {{ form.guest_email }}
+                    <i class="mail icon"></i>
+                    <div class="ui corner label">
+                        <i class="icon asterisk"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="id_{{ form.guest_note.html_name }}">{{ form.guest_note.label }}</label>
+                {{ form.guest_note }}
+            </div>
+            <a class="ui blue submit button">Next</a>
+        </div>
+    </div>
+
+    <div class="form-step step-payment-method hide">
+        <div class="ui form segment">
+
+            <div class="ui small four steps">
+              <a class="ui step">
+                Information
+              </a>
+              <div class="ui active step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    Now back to you! You've decided to buy <span id="ticket-choice"></span>
+                    <div class="sub header">Please select how you wish to pay.</div>
+                </div>
+            </h2>
+            <div class="ui two field column grid payment-types">
+                <div class="equal height row">
+                    <div class="column">
+                        <div class="ui blue inverted segment payment-type tertiary" id="cash">
+                            <div class="ui icon header">
+                                <i class="icon money circle"></i>Pay Cash @ Door
+                                <div class="sub header">Pay when you show an and are ready to party. <strong>$12.00 USD</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="ui blue inverted segment payment-type tertiary" id="credit">
+                            <div class="ui icon header">
+                                <i class="icon credit card circle"></i>Pay Now
+                                <div class="sub header">Pay now and and waltz right in later. No Hassle and Save. <strong>$10.00 USD</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="payment_type" id="id_payment_type"/>
+            </div>
+            <a class="ui blue submit button">Next</a>
+        </div>
+    </div>
+
+    <div class="form-step step-payment hide">
+        <div class="ui segment">
+
+            <div class="ui small four steps">
+              <a class="ui step">
+                Information
+              </a>
+              <div class="ui active step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    You're almost there.
+                    <div class="sub header">Just fill out your credit card information below and you'll be on your way. </div>
+                </div>
+            </h2>
+
+            <div class="credit-card-input no-js" id="skeuocard">
+                <p class="no-support-warning">
+                Either you have Javascript disabled, or you're using an unsupported browser, amigo! That's why you're seeing this old-school credit card input form instead of a fancy new Skeuocard. On the other hand, at least you know it gracefully degrades...
+                </p>
+                <label for="cc_type">Card Type</label>
+                <select name="cc_type">
+                    <option value="">...</option>
+                    <option value="visa">Visa</option>
+                    <option value="mastercard">MasterCard</option>
+                    <option value="amex">American Express</option>
+                    <option value="jcb">JCB</option>
+                    <option value="discover">Discover</option>
+                    <option value="dinersclubintl">Diners Club</option>
+                </select>
+                <label for="cc_number">Card Number</label>
+                <input type="text" name="cc_number" id="cc_number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" size="19">
+                <label for="cc_exp_month">Expiration Month</label>
+                <input type="text" name="cc_exp_month" id="cc_exp_month" placeholder="00">
+                <label for="cc_exp_year">Expiration Year</label>
+                <input type="text" name="cc_exp_year" id="cc_exp_year" placeholder="00">
+                <label for="cc_name">Cardholder's Name</label>
+                <input type="text" name="cc_name" id="cc_name" placeholder="John Doe">
+                <label for="cc_cvc">Card Validation Code</label>
+                <input type="text" name="cc_cvc" id="cc_cvc" placeholder="123" maxlength="3" size="3">
+            </div>
+
+            <input type='hidden' name="stripeToken" id="stripeToken"/>
+
+            <button type="submit" class="ui blue submit button">Next</button>
+            <a class="ui blue submit button">Next</a>
+        </div>
+    </div>
+
+    <div class="form-step step-confirm hide">
+        <div class="ui segment">
+
+            <div class="ui small four steps">
+              <a class="ui step">
+                Information
+              </a>
+              <div class="ui step">
+                Payment
+              </div>
+              <div class="ui active step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    Just Some Double Checking
+                    <div class="sub header">This is the information we have gotten from you, just check to make sure it is correct. If any of it is incorrect just click on the information and we'll take you back to change it.</div>
+                </div>
+            </h2>
+
+            <p class="huge order confirm">We're excited that you, <a class="user info" id="full-name"></a>, are attending {{ event.name }}. <span class="bring guest hide"> and are bringing you're friend <a class="user info" id="guest-full-name"></a>. We can contact <a class="user info" id="guest-first-name"></a> at <a class="user info" id="guest-email"></a>. We're also going to send the following note from you:</span></p>
+            <div class="ui blue segment bring guest hide" id="guest-note"></div>
+            <p class="huge order confirm"><a class="user info" id="first-name"></a>, you decided that you were going to get the <a class="user info" id="ticket-type"></a> <span id="pay-now" class="hide">and you are paying using you're card that ends in <a class="user info" id="cc-last-four"></a></span><span id="pay-at-door" class="hide">and you are paying at the door </span> for a total of $<a class="user info" id="ticket-price"></a>USD. We're excited to see you there on {{ event.start_time }}</p>
+
+            <button type="submit" class="ui blue submit button">Sounds Right</button>
+        </div>
+    </div>
+
+
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script src="{% static 'js/vendor/cssua/cssua.min.js' %}"></script>
+    <script src="{% static 'js/vendor/skeuocard/skeuocard.min.js' %}"></script>
+    <script src="{% static 'js/ticket_office.js' %}"></script>
+{% endblock %}

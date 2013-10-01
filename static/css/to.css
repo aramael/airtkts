@@ -1,0 +1,145 @@
+html {
+  background: url(../images/large-solo.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+#skeuocard {
+    margin: 20px auto;
+}
+
+.icon.credit.card:before {
+  content: "\f09d";
+}
+
+.order.confirm .user.info {
+    display: inline-block;
+    border-bottom: 1px dashed #999;
+    text-decoration: none;
+}
+
+.order.confirm .user.info:hover {
+    background: #cdeffc;
+}
+
+
+.field.error .ticket-type,
+.field.error .payment-type {
+    border: 1px solid #E7BEBE !important;
+    border-left-width: 0;
+    box-shadow: rgb(217, 92, 92) 3px 0px 0px 0px inset !important;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.hide {
+    display: none;
+    visibility: hidden;
+}
+
+.ticket-types, .payment-types {
+    margin-bottom: 15px;
+}
+
+.ticket-types .equal.height .segment {
+    height: 230px;
+}
+
+.payment-types .equal.height .segment {
+    height: 193px;
+}
+
+.form-step {
+    padding-right: 15px;
+    padding-left: 15px;
+    width: 481px;
+    overflow: auto; /* Recommended in case content is larger than the form-step */
+    margin: 50px auto; /* Center the item vertically & horizontally */
+}
+
+.form-step:before,
+.form-step:after {
+    display: table;
+    content: " ";
+}
+
+.form-step:after {
+    clear: both;
+}
+
+.form-step:before,
+.form-step:after {
+    display: table;
+    content: " ";
+}
+
+.form-step:after {
+    clear: both;
+}
+
+.start-process {
+    font-family: "Arial Black", sans-serif;
+    text-transform: uppercase;
+    color: #daa24c;
+    font-size: 5em;
+    line-height: 1em;
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+}
+
+::selection {
+    background: #d5e5dd;
+}
+
+::-moz-selection {
+    background: #d5e5dd;
+}
+
+.countdown-ticket {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    background: url(../images/sprite-tickets.png) no-repeat 0 0;
+    width: 517px;
+    height: 271px;
+    overflow: auto; /* Recommended in case content is larger than the form-step */
+    margin: auto; /* Center the item vertically & horizontally */
+    top: 0; left: 0; bottom: 0; right: 0; /* Set the bounds in which to center it, relative to its parent/form-step */
+    position: fixed;
+    z-index: 999;
+}
+
+@media screen and (max-width: 480px){
+    .countdown-ticket {
+        background-position: -1px -462px;
+        background-size: 259px 135px;
+        width: 259px;
+        height: 135px;
+    }
+
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio:2),only screen and (min-device-pixel-ratio:2){
+    .countdown-ticket {
+        background-image: url(../images/sprite-tickets@2x.png);
+        background-size: 517px 401px;
+    }
+
+}
+
+.countdown-ticket .content {
+    margin: 0 auto;
+    padding: 45px 0 0;
+    width: 305px;
+}
+
+@media screen and (max-width: 480px){
+    .countdown-ticket .content {
+        padding: 20px 0 0;
+        width: 200px;
+    }
+}

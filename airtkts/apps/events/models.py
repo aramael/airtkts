@@ -40,8 +40,18 @@ class TicketSale(models.Model):
 
 
 class TicketOrder(models.Model):
+
+    CREDIT_CARD = 'cc'
+    CASH = 'cash'
+
+    PAYMENT_METHODS = (
+        (CASH, 'Cash'),
+        (CREDIT_CARD, 'Credit Card')
+    )
+
     customer = models.CharField(max_length=50)
-    charge = models.CharField(max_length=100)
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default=CREDIT_CARD)
+    charge = models.CharField(max_length=100, blank=True, null=True)
     purchase_time = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=100)
     email = models.EmailField()

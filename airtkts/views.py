@@ -3,8 +3,10 @@ Django views for airtkts project.
 
 """
 
+import json
+
 from django.shortcuts import render, redirect, get_object_or_404
-from airtkts.apps.events.forms import EventForm, TicketSaleForm
+from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm
 from airtkts.apps.events.models import Event, TicketSale
 
 
@@ -14,6 +16,25 @@ def home(request):
     context = {}
 
     return render(request, '', context)
+
+
+def ticket_office(request, event_id=None, event_slug=None):
+
+    if event_id is not None:
+        event = get_object_or_404(Event, pk=event_id)
+        if event_slug != event.slug:
+            redirect('event_edit', event_id=event.pk, event_slug=event.slug)
+    else:
+        event = None
+
+    form = TicketOfficeSaleForm(data=request.POST or None, files=request.FILES or None)
+
+    context = {
+        'event': event,
+        'form': form,
+    }
+
+    return render(request, 'ticket_office_home.html', context)
 
 
 def event_home(request):
