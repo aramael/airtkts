@@ -77,3 +77,6 @@ class Invitation(models.Model):
     max_guest_count = models.PositiveIntegerField(help_text='How many guests can this person invite?'
                                                    ' If they are not allowed to invite guests then set this to 0.')
     guests = models.ManyToManyField('self', blank=True, null=True)
+
+    def __unicode__(self):
+        return self.first_name + ' ' + self.last_name
