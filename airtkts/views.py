@@ -6,8 +6,8 @@ Django views for airtkts project.
 import json
 
 from django.shortcuts import render, redirect, get_object_or_404
-from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm
-from airtkts.apps.events.models import Event, TicketSale
+from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm, InviteForm
+from airtkts.apps.events.models import Event, TicketSale, Invitation
 
 
 def home(request):
@@ -71,6 +71,21 @@ def event_form(request, event_id=None, event_slug=None):
     }
 
     return render(request, 'event_form.html', context)
+
+
+def invites_home(request, event_id=None):
+    """    Display the Landing Page    """
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    invites = Invitation.objects.filter(event=event)
+
+    context = {
+        'invites': invites,
+        'event': event,
+    }
+
+    return render(request, 'invite_home.html', context)
 
 
 def ticketsales_home(request, event_id=None):
