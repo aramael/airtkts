@@ -6,6 +6,12 @@ Django views for airtkts project.
 from django.shortcuts import render, redirect, get_object_or_404
 from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm, InviteForm, QuickInviteForm
 from airtkts.apps.events.models import Event, TicketSale, Invitation
+from .helpers import has_model_permissions, has_global_permissions
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.http import HttpResponseForbidden
+from airtkts.libs.users.managers import UserManager
+from airtkts.libs.users.forms import UserCreationForm, UserEditForm
 
 
 def home(request):
@@ -167,3 +173,75 @@ def ticketsales_form(request, event_id=None, ticket_id=None):
     }
 
     return render(request, 'ticketsales_form.html', context)
+
+#==============================================================================
+# Users Pages
+#==============================================================================
+
+@login_required
+def users_home(request):
+
+    if not has_global_permissions(request.user, UserManager, 'change', 'auth'):
+        return HttpResponseForbidden('403 Forbidden')
+
+    manager = UserManager()
+
+    if request.POST:
+        if '_bulkactions' in request.POST:
+
+            items = []
+            for item in request.POST.getlist('_selected_action'):
+                item = User.objects.get(pk=int(item))
+                items.append(item)
+
+            manager.process_bulk_actions(request=request, action=request.POST['action'], queryset=items)
+
+    users = User.objects.all()
+
+    context = {
+        'users': users,
+        "actions": manager.bulk_actions ,
+    }
+
+    return render(request, 'users_home.html', context)
+
+@login_required
+def users_new(request):
+
+    if not has_global_permissions(request.user, UserManager, 'add', 'auth'):
+        return HttpResponseForbidden('403 Forbidden')
+
+    form = UserCreationForm(data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        location_redirect = form.save()
+        return redirect(**location_redirect)
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'users_new.html', context)
+
+@login_required
+def users_edit(request, user_id=None, self_edit=False):
+
+    if not has_global_permissions(request.user, UserManager, 'change', 'auth'):
+        return HttpResponseForbidden('403 Forbidden')
+
+    if self_edit:
+        user = request.user
+    else:
+        user = get_object_or_404(User, pk=user_id)
+
+    form = UserEditForm(instance=user, data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        location_redirect = form.save()
+        return redirect(**location_redirect)
+
+    context = {
+        'form': form
+    }
+
+    return render(request, 'users_edit.html', context)

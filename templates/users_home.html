@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Select Users to Change</h1>
+                <div class="bulk-actions">
+                    <div class="pull-left">
+                        <div>Action:
+                            <select name="action">
+                                <option value="" selected="selected">---------</option>
+                                {% for action in actions %}
+                                    <option value="{{ action.action }}">{{ action.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="submit" class="btn btn-default" value="Go" name="_bulkactions">
+                            <span class="action-counter" style="display: inline;"><span class="selected-count">0</span> of {{ users|length }} selected</span>
+                        </div>
+                    </div>
+                    <div class="pull-right">
+                        <a class="btn btn-primary" href="{% url "users_new" %}">Add User</a>
+                    </div>
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="action-toggle" style="display: inline-block;"></th>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Phone Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ user.pk }}"></td>
+                                <td><a href="{% url "users_edit" user.pk %}">{{ user.username }}</a></td>
+                                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                                <td>{{ user.racallprofile.formatted_phone_number }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2" style="text-align: center">No one was found in this call tree.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static "js/bulk-actions.js" %}"></script>
+    <script>var _max_bulk_item_count={{ users|length }}; var _current_bulk_item_count=0</script>
+{% endblock %}
