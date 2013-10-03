@@ -175,6 +175,20 @@ def ticketsales_form(request, event_id=None, ticket_id=None):
     return render(request, 'ticketsales_form.html', context)
 
 #==============================================================================
+# Account Pages
+#==============================================================================
+
+@login_required
+def accounts_home(request):
+
+    context = {
+        'events': Event.objects.filter(owner=request.user),
+    }
+
+    return render(request, 'accounts/accounts_home.html', context)
+
+
+#==============================================================================
 # Users Pages
 #==============================================================================
 

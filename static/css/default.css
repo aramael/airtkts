@@ -1,1 +1,21 @@
 body { padding-top: 70px; }
+
+.bulletrow {
+margin-bottom: 20px;
+}
+.square-bullet {
+background-color: #2996cc;
+width: 70px;
+height: 70px;
+margin-left: auto;
+margin-right: auto;
+moz-border-radius: 2px;
+border-radius: 2px;
+text-align: center;
+color: white;
+}
+.squarebulleticon {
+width: 70px;
+font-size: 48px;
+margin-top: 6px;
+}

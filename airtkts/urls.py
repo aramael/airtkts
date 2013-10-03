@@ -8,12 +8,14 @@ urlpatterns = patterns('',
     url(r'^$', 'airtkts.views.home', name='home'),
     url(r'^event/(?P<event_id>[0-9]+)/(?P<event_slug>\w+)', 'airtkts.views.ticket_office', name='ticket_office'),
 
+    # Account Home
+    url(r'^accounts/$', 'airtkts.views.accounts_home', name='accounts_home'),
+
     # User Pages
     url(r'^accounts/users/$', 'airtkts.views.users_home', name='users_home'),
     url(r'^accounts/users/new$', 'airtkts.views.users_new', name='users_new'),
     url(r'^accounts/users/(?P<user_id>[0-9]+)/$', 'airtkts.views.users_edit', name='users_edit'),
     url(r'^accounts/users/me/$', 'airtkts.views.users_edit', {'self_edit': True}, name='account_edit'),
-
 
     # Account Event Pages
     url(r'^accounts/event/$', 'airtkts.views.event_home', name='event_home'),
