@@ -39,7 +39,7 @@
                         {% for event in events %}
                             <tr>
                                 <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ event.pk }}"></td>
-                                <td><a href="{% url "event_edit" event.pk event.slug %}">{{ event.name }}</a></td>
+                                <td><a href="{% url "event_dashboard" event.pk %}">{{ event.name }}</a></td>
                                 <td>{{ event.start_time }}</td>
                                 <td>{{ event.end_time }}</td>
                                 <td>{{ event.location }}</td>

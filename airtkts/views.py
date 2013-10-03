@@ -48,14 +48,22 @@ def event_home(request):
 
     return render(request, 'event_home.html', context)
 
+def event_dashboard(request, event_id=None):
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    context = {
+        'event': event,
+    }
+
+    return render(request, 'event_dashboard.html', context)
+
 
 def event_form(request, event_id=None, event_slug=None):
     """    Display the Landing Page    """
 
     if event_id is not None:
         event = get_object_or_404(Event, pk=event_id)
-        if event_slug != event.slug:
-            redirect('event_edit', event_id=event.pk, event_slug=event.slug)
     else:
         event = None
 
