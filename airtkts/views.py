@@ -203,7 +203,7 @@ def users_home(request):
         "actions": manager.bulk_actions ,
     }
 
-    return render(request, 'users_home.html', context)
+    return render(request, 'accounts/users_home.html', context)
 
 @login_required
 def users_new(request):
@@ -221,7 +221,7 @@ def users_new(request):
         'form': form,
     }
 
-    return render(request, 'users_new.html', context)
+    return render(request, 'accounts/users_new.html', context)
 
 @login_required
 def users_edit(request, user_id=None, self_edit=False):
@@ -244,4 +244,4 @@ def users_edit(request, user_id=None, self_edit=False):
         'form': form
     }
 
-    return render(request, 'users_edit.html', context)
+    return render(request, 'accounts/users_edit.html', context)
