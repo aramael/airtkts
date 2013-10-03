@@ -3,15 +3,16 @@ Django views for airtkts project.
 
 """
 
-from django.shortcuts import render, redirect, get_object_or_404
-from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm, InviteForm, QuickInviteForm
-from airtkts.apps.events.models import Event, TicketSale, Invitation
 from .helpers import has_model_permissions, has_global_permissions
+from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm, InviteForm, QuickInviteForm
+from airtkts.apps.events.helpers import get_events
+from airtkts.apps.events.models import Event, TicketSale, Invitation
+from airtkts.libs.users.forms import UserCreationForm, UserEditForm
+from airtkts.libs.users.managers import UserManager
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
-from airtkts.libs.users.managers import UserManager
-from airtkts.libs.users.forms import UserCreationForm, UserEditForm
+from django.shortcuts import render, redirect, get_object_or_404
 
 
 def home(request):
@@ -44,13 +45,12 @@ def ticket_office(request, event_id=None, event_slug=None):
 def event_home(request):
     """    Display the Landing Page    """
 
-    events = Event.objects.all()
-
     context = {
-        'events': events,
+        'events': get_events(request.user),
     }
 
     return render(request, 'event_home.html', context)
+
 
 def event_dashboard(request, event_id=None):
 
@@ -58,6 +58,7 @@ def event_dashboard(request, event_id=None):
 
     context = {
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'event_dashboard.html', context)
@@ -80,6 +81,7 @@ def event_form(request, event_id=None, event_slug=None):
     context = {
         'form': form,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'event_form.html', context)
@@ -95,6 +97,7 @@ def invites_home(request, event_id=None):
     context = {
         'invites': invites,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'invite_home.html', context)
@@ -130,6 +133,7 @@ def invites_form(request, event_id=None, invite_id=None):
         'form': form,
         'invite': invite,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, template, context)
@@ -145,6 +149,7 @@ def ticketsales_home(request, event_id=None):
     context = {
         'sales': sales,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'ticketsales_home.html', context)
@@ -170,6 +175,7 @@ def ticketsales_form(request, event_id=None, ticket_id=None):
         'form': form,
         'ticket': ticket,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'ticketsales_form.html', context)
@@ -182,7 +188,7 @@ def ticketsales_form(request, event_id=None, ticket_id=None):
 def accounts_home(request):
 
     context = {
-        'events': Event.objects.filter(owner=request.user),
+        'events': get_events(request.user),
     }
 
     return render(request, 'accounts/accounts_home.html', context)
@@ -214,7 +220,8 @@ def users_home(request):
 
     context = {
         'users': users,
-        "actions": manager.bulk_actions ,
+        'events': get_events(request.user),
+        "actions": manager.bulk_actions,
     }
 
     return render(request, 'accounts/users_home.html', context)
@@ -233,6 +240,7 @@ def users_new(request):
 
     context = {
         'form': form,
+        'events': get_events(request.user),
     }
 
     return render(request, 'accounts/users_new.html', context)
@@ -255,7 +263,8 @@ def users_edit(request, user_id=None, self_edit=False):
         return redirect(**location_redirect)
 
     context = {
-        'form': form
+        'form': form,
+        'events': get_events(request.user),
     }
 
     return render(request, 'accounts/users_edit.html', context)
