@@ -17,6 +17,9 @@ urlpatterns = patterns('',
         name='ticketsales_edit'),
     url(r'^accounts/event/(?P<event_id>[0-9]+)/tickets/new/$', 'airtkts.views.ticketsales_form', name='ticketsales_new'),
     url(r'^accounts/event/(?P<event_id>[0-9]+)/invites/$', 'airtkts.views.invites_home', name='invites_home'),
+    url(r'^accounts/event/(?P<event_id>[0-9]+)/invites/(?P<invite_id>[0-9]+)/$', 'airtkts.views.invites_form',
+        name='invites_edit'),
+    url(r'^accounts/event/(?P<event_id>[0-9]+)/invites/new/$', 'airtkts.views.invites_form', name='invites_new'),
 
     url(r'^admin/', include(admin.site.urls)),
 )

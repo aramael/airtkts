@@ -3,10 +3,8 @@ Django views for airtkts project.
 
 """
 
-import json
-
 from django.shortcuts import render, redirect, get_object_or_404
-from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm, InviteForm
+from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm, InviteForm, QuickInviteForm
 from airtkts.apps.events.models import Event, TicketSale, Invitation
 
 
@@ -23,7 +21,7 @@ def ticket_office(request, event_id=None, event_slug=None):
     if event_id is not None:
         event = get_object_or_404(Event, pk=event_id)
         if event_slug != event.slug:
-            redirect('event_edit', event_id=event.pk, event_slug=event.slug)
+            redirect('ticket_office', event_id=event.pk, event_slug=event.slug)
     else:
         event = None
 
@@ -94,6 +92,41 @@ def invites_home(request, event_id=None):
     }
 
     return render(request, 'invite_home.html', context)
+
+
+def invites_form(request, event_id=None, invite_id=None):
+    """    Display the Landing Page    """
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    if invite_id is not None:
+            invite = get_object_or_404(Invitation, pk=invite_id)
+    else:
+        invite = None
+
+    initial_data = {'event': event, }
+
+    if 'quick' in request.GET:
+        form_class = QuickInviteForm
+        template = 'invite_quick_form.html'
+    else:
+        form_class = InviteForm
+        template = 'invite_form.html'
+
+    form = form_class(instance=invite, initial=initial_data,
+                      data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        location_redirect = form.save()
+        return redirect(**location_redirect)
+
+    context = {
+        'form': form,
+        'invite': invite,
+        'event': event,
+    }
+
+    return render(request, template, context)
 
 
 def ticketsales_home(request, event_id=None):

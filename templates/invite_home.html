@@ -22,7 +22,8 @@
                         </div>
                     </div>
                     <div class="pull-right">
-                        <a class="btn btn-primary" href="{% url "invites_new" event.pk %}">Add Invitation</a>
+                        <a class="btn btn-primary" href="{% url "invites_new" event.pk %}?quick=true">Quick Add Invitation</a>
+                        <a class="btn btn-default" href="{% url "invites_new" event.pk %}">Add Invitation</a>
                     </div>
                 </div>
                 <table class="table table-striped">
