@@ -1,0 +1,15 @@
+{% extends "users/account_base.html" %}
+
+{% block title %}Logged Out{% endblock %}
+
+{% block content %}
+    <h1>Log Out</h1>
+
+    <p>You have been logged out.
+
+    {% url 'auth_login' as auth_login_url %}
+    {% if auth_login_url %}
+        <a href="{{ auth_login_url }}">Log In Again</a>
+    {% endif %}
+    </p>
+{% endblock %}

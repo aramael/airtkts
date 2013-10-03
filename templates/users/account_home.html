@@ -1,0 +1,29 @@
+{% extends "users/account_base.html" %}
+
+{% load simple_forms %}
+
+{% block title %}About Me{% endblock %}
+
+{% block content %}
+    <h1>Edit Account</h1>
+
+    {% if form.non_field_errors or form.this_is_the_login_form.errors %}
+        {% for error in form.non_field_errors|add:form.this_is_the_login_form.errors %}
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">×</a>{{ error }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="" accept-charset="UTF-8">
+        {% csrf_token %}
+
+        {% bootstrap_field form.username %}
+        {% bootstrap_field form.first_name %}
+        {% bootstrap_field form.last_name %}
+        {% bootstrap_field form.email %}
+
+        <button type="submit" name="submit" class="btn btn-info btn-block btn-large">Update Info</button>
+    </form>
+
+{% endblock %}
