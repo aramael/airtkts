@@ -49,8 +49,8 @@ class TicketOrder(models.Model):
         (CREDIT_CARD, 'Credit Card')
     )
 
-    customer = models.CharField(max_length=50)
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default=CREDIT_CARD)
+    customer = models.CharField(max_length=50, blank=True, null=True)
     charge = models.CharField(max_length=100, blank=True, null=True)
     purchase_time = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=100)
@@ -62,3 +62,21 @@ class Ticket(models.Model):
     purchase = models.ForeignKey(TicketOrder)
     validated = models.BooleanField(default=False)
     name = models.CharField(max_length=75)
+
+
+class Invitation(models.Model):
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField()
+    user = models.ForeignKey(User, blank=True, null=True)
+
+    event = models.ForeignKey(Event)
+    available_sales = models.ManyToManyField(TicketSale)
+
+    invited_by = models.ForeignKey('self', blank=True, null=True)
+    max_guest_count = models.PositiveIntegerField(help_text='How many guests can this person invite?'
+                                                   ' If they are not allowed to invite guests then set this to 0.')
+    guests = models.ManyToManyField('self', blank=True, null=True)
+
+    def __unicode__(self):
+        return self.first_name + ' ' + self.last_name
