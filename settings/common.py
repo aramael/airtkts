@@ -80,7 +80,7 @@ ROOT_URLCONF = 'airtkts.urls'
 
 # The URL where requests are redirected after login when the contrib.auth.login view gets no next parameter.
 # This is used by the login_required() decorator, for example.
-LOGIN_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'accounts_home'
 
 # The URL where requests are redirected for login, especially when using the login_required() decorator.
 LOGIN_URL = 'auth_login'
