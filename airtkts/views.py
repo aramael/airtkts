@@ -217,9 +217,10 @@ def host_search(request):
             ])
 
             results.append({
-                'value': name,
+                'value': host.username,
                 'tokens': tokens,
-                'name': name
+                'name': name,
+                'pk': host.pk
             })
 
         return HttpResponse(json.dumps(results))
@@ -231,9 +232,6 @@ def host_search(request):
 def hosts_home(request, event_id=None):
 
     event = get_object_or_404(Event, pk=event_id)
-
-    #if not has_model_permissions(request.user, 'change', event) or not has_global_permissions(request.user, Event, 'change', 'events'):
-    #    return HttpResponseForbidden('403 Forbidden')
 
     if request.is_ajax() and 'action' in request.POST:
         errors = []
@@ -250,13 +248,28 @@ def hosts_home(request, event_id=None):
                     return HttpResponse(json.dumps({'success': True, }))
                 else:
                     errors.append('You can not remove your self from your own event')
+        elif request.POST['action'] == 'add_host' and 'host' in request.POST:
+
+            try:
+                host = User.objects.get(username=request.POST['host'])
+            except User.DoesNotExist:
+                computer_errors.append('User does not exist')
+            else:
+                if host not in event.owner.all():
+                    event.owner.add(host)
+                    return HttpResponse(json.dumps({
+                        'success': True,
+                        'host': {
+                            'name': host.get_full_name() if host.get_full_name() != '' else host.username,
+                            'pk': host.pk,
+                            'value': host.username
+                        }
+                    }))
+
         else:
             computer_errors.append('Invalid Action or not all required params are given.')
 
         return HttpResponse(json.dumps({'success': False, 'errors': errors, '_e': computer_errors}))
-
-
-
 
     context = {
         'event': event,
