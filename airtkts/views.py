@@ -3,15 +3,20 @@ Django views for airtkts project.
 
 """
 
-from django.shortcuts import render, redirect, get_object_or_404
-from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm, InviteForm, QuickInviteForm
-from airtkts.apps.events.models import Event, TicketSale, Invitation
-from .helpers import has_model_permissions, has_global_permissions
+import json
+
+from .helpers import has_global_permissions, has_model_permissions
+from airtkts.apps.events.forms import EventForm, HostForm, InviteForm, QuickInviteForm, \
+    TicketOfficeSaleForm, TicketSaleForm
+from airtkts.apps.events.helpers import get_events
+from airtkts.apps.events.models import Event, Invitation, TicketSale
+from airtkts.libs.users.forms import UserCreationForm, UserEditForm
+from airtkts.libs.users.managers import UserManager
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponseForbidden
-from airtkts.libs.users.managers import UserManager
-from airtkts.libs.users.forms import UserCreationForm, UserEditForm
+from django.db.models import Q
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
 
 
 def home(request):
@@ -44,13 +49,12 @@ def ticket_office(request, event_id=None, event_slug=None):
 def event_home(request):
     """    Display the Landing Page    """
 
-    events = Event.objects.all()
-
     context = {
-        'events': events,
+        'events': get_events(request.user),
     }
 
     return render(request, 'event_home.html', context)
+
 
 def event_dashboard(request, event_id=None):
 
@@ -58,6 +62,7 @@ def event_dashboard(request, event_id=None):
 
     context = {
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'event_dashboard.html', context)
@@ -80,6 +85,7 @@ def event_form(request, event_id=None, event_slug=None):
     context = {
         'form': form,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'event_form.html', context)
@@ -95,6 +101,7 @@ def invites_home(request, event_id=None):
     context = {
         'invites': invites,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'invite_home.html', context)
@@ -130,6 +137,7 @@ def invites_form(request, event_id=None, invite_id=None):
         'form': form,
         'invite': invite,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, template, context)
@@ -145,6 +153,7 @@ def ticketsales_home(request, event_id=None):
     context = {
         'sales': sales,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'ticketsales_home.html', context)
@@ -170,9 +179,124 @@ def ticketsales_form(request, event_id=None, ticket_id=None):
         'form': form,
         'ticket': ticket,
         'event': event,
+        'events': get_events(request.user),
     }
 
     return render(request, 'ticketsales_form.html', context)
+
+#==============================================================================
+# Account Pages
+#==============================================================================
+
+@login_required
+def accounts_home(request):
+
+    context = {
+        'events': get_events(request.user),
+    }
+
+    return render(request, 'accounts/accounts_home.html', context)
+
+@login_required
+def host_search(request):
+    if 'q' in request.GET:
+        query = request.GET['q']
+
+        hosts = User.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query)| Q(last_name__icontains=query) | Q(email__icontains=query))
+
+        results = []
+
+        for host in hosts:
+
+            name = host.get_full_name() if host.get_full_name() != '' else host.username
+
+            tokens = filter(None, [
+                host.username,
+                host.first_name,
+                host.last_name,
+                name
+            ])
+
+            results.append({
+                'value': host.username,
+                'tokens': tokens,
+                'name': name,
+                'pk': host.pk
+            })
+
+        return HttpResponse(json.dumps(results))
+
+    return HttpResponseForbidden('403 Forbidden')
+
+
+@login_required
+def hosts_new(request, event_id=None):
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    form = HostForm(data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        location_redirect = form.save(request, event)
+        return redirect(**location_redirect)
+
+    context = {
+        'form': form,
+        'event': event,
+        'events': get_events(request.user),
+    }
+    return render(request, 'events/hosts_new.html', context)
+
+
+@login_required
+def hosts_home(request, event_id=None):
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    if request.is_ajax() and 'action' in request.POST:
+        errors = []
+        computer_errors = []
+        if request.POST['action'] == 'remove_host' and 'host' in request.POST:
+
+            try:
+                host = User.objects.get(pk=request.POST['host'])
+            except User.DoesNotExist:
+                computer_errors.append('User does not exist')
+            else:
+                if host != request.user:
+                    event.owner.remove(host)
+                    return HttpResponse(json.dumps({'success': True, }))
+                else:
+                    errors.append('You can not remove your self from your own event')
+        elif request.POST['action'] == 'add_host' and 'host' in request.POST:
+
+            try:
+                host = User.objects.get(username=request.POST['host'])
+            except User.DoesNotExist:
+                computer_errors.append('User does not exist')
+            else:
+                if host not in event.owner.all():
+                    event.owner.add(host)
+                    return HttpResponse(json.dumps({
+                        'success': True,
+                        'host': {
+                            'name': host.get_full_name() if host.get_full_name() != '' else host.username,
+                            'pk': host.pk,
+                            'value': host.username
+                        }
+                    }))
+
+        else:
+            computer_errors.append('Invalid Action or not all required params are given.')
+
+        return HttpResponse(json.dumps({'success': False, 'errors': errors, '_e': computer_errors}))
+
+    context = {
+        'event': event,
+        'events': get_events(request.user),
+    }
+    return render(request, 'events/hosts_home.html', context)
+
 
 #==============================================================================
 # Users Pages
@@ -200,10 +324,11 @@ def users_home(request):
 
     context = {
         'users': users,
-        "actions": manager.bulk_actions ,
+        'events': get_events(request.user),
+        "actions": manager.bulk_actions,
     }
 
-    return render(request, 'users_home.html', context)
+    return render(request, 'accounts/users_home.html', context)
 
 @login_required
 def users_new(request):
@@ -219,9 +344,10 @@ def users_new(request):
 
     context = {
         'form': form,
+        'events': get_events(request.user),
     }
 
-    return render(request, 'users_new.html', context)
+    return render(request, 'accounts/users_new.html', context)
 
 @login_required
 def users_edit(request, user_id=None, self_edit=False):
@@ -241,7 +367,8 @@ def users_edit(request, user_id=None, self_edit=False):
         return redirect(**location_redirect)
 
     context = {
-        'form': form
+        'form': form,
+        'events': get_events(request.user),
     }
 
-    return render(request, 'users_edit.html', context)
+    return render(request, 'accounts/users_edit.html', context)

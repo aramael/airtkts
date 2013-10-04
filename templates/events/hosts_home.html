@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %} {{ event.name }}'s Hosts{% endblock %}
+
+{% block content %}
+
+    <h1>Manage Hosts</h1>
+
+    <ul class="nav nav-pills nav-stacked" style="margin-bottom: 15px;" id="hosts">
+    {% for host in event.owner.all %}
+        <li class="host {% if host == user %}active{% endif %}"><a href="#">
+            {% if host.first_name %}{{ host.first_name }} {{ host.last_name }}{% else %}{{ host.username }}{% endif %}
+            {% if host != user %}<span class="label label-danger" data-host="{{ host.pk }}">(remove)</span>{% endif %}
+        </a></li>
+    {% endfor %}
+
+    </ul>
+
+    <form method="post" id="form_add_host">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="add_host"/>
+    <div class="well well-lg">
+        <div class="input-group">
+            <input type="text" class="form-control host search typeahead" placeholder="Add a friend!" name="add_host" id="id_add_host">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="submit">Add!</button>
+            </span>
+        </div><!-- /input-group -->
+        <div class="ui horizontal divider">Or</div>
+        <p class="text-center">Don't see who you're looking for, don't worry about it. <a href="{% url 'hosts_new' event.pk %}">Add them!</a></p>
+    </div>
+    </form>
+
+{% endblock %}
+{% block extra_js %}
+<script src="{% static "js/vendor/bootstrap/hogan.js" %}"></script>
+<script src="{% static "js/vendor/bootstrap/typeahead.min.js" %}"></script>
+<script>
+$(document).ready(function (){
+    $('.host .label-danger').click(function (){
+
+        var element = $(this)
+
+        $.post( "{% url "hosts_home" event.pk %}",{host: $(this).data('host'), action:'remove_host'}, function( data ) {
+            data = $.parseJSON(data);
+            if (data['success']){
+                element.closest('li').remove();
+            }else{
+
+            }
+        });
+    });
+
+    $('.host.search.typeahead').typeahead([{
+        name: 'best-picture-winners',
+        remote: '{% url 'host_search' %}?q=%QUERY',
+        template: '{% verbatim %}<p><strong>{{ name }}</strong> -- {{ value }}</p>{% endverbatim %}',
+        engine: Hogan
+    }]);
+
+    $('#form_add_host').submit(function (e){
+        e.preventDefault();
+
+        $.post( "{% url "hosts_home" event.pk %}",{host: $('#id_add_host').val(), action:'add_host'}, function( data ) {
+            data = $.parseJSON(data);
+            if (data['success']){
+                var elem = Hogan.compile('{% verbatim %}<li class="host"><a href="#">{{ name }} <span class="label label-danger" data-host="{{ pk }}">(remove)</span></a></li>{% endverbatim %}');
+                $('#hosts').append(elem.render(data['host']));
+            }else{
+
+            }
+        });
+
+    });
+
+});
+</script>
+{% endblock %}

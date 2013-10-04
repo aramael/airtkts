@@ -64,10 +64,9 @@ class UserCreationForm(ActionMethodForm, forms.ModelForm):
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
         user.email = self.cleaned_data["username"] + "@columbia.edu"
+        user.is_active = True
 
         user.set_password(self.cleaned_data["password1"])
-
-        RACallProfile.objects.create(user=user)
 
         if commit:
             user.save()
@@ -87,6 +86,8 @@ class UserCreationForm(ActionMethodForm, forms.ModelForm):
 
 class UserEditForm(ActionMethodForm, UserChangeForm, FieldsetsForm):
 
+    POSSIBLE_ACTIONS = {'_save', '_addanother', '_continue'}
+
     fieldsets = (
         (None, {
             'fields': ('username', 'password',)
@@ -98,6 +99,9 @@ class UserEditForm(ActionMethodForm, UserChangeForm, FieldsetsForm):
             'fields': ('groups', 'user_permissions', 'is_superuser')
         }),
     )
+
+    class Meta(UserChangeForm.Meta):
+        exclude = ('last_login', 'date_joined', 'active')
 
     def location_redirect(self, action, instance):
         if action == '_save':

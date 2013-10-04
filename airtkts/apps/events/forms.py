@@ -1,12 +1,87 @@
 import stripe
 
+from .models import Event, Invitation, Ticket, TicketOrder, TicketSale
+from airtkts.libs.forms import ActionMethodForm, FieldsetsForm, HideSlugForm
 from django.conf import settings
-from django import forms
-from .models import Event, TicketSale, TicketOrder, Ticket, Invitation
-from airtkts.libs.forms import FieldsetsForm, ActionMethodForm, HideSlugForm
+from django.contrib.auth.models import User
 from django.db import transaction
+from django import forms
+
 
 stripe.api_key = settings.STRIPE_API_KEY
+
+
+class HostForm(ActionMethodForm, forms.ModelForm):
+    """
+    A form that creates a user, with no privileges, from the given username and
+    password.
+    """
+
+    POSSIBLE_ACTIONS = {'_save', '_addanother'}
+
+    error_messages = {
+        'duplicate_username': "An host with that UNI already exists.",
+    }
+    username = forms.RegexField(label="Columbia UNI", max_length=30,
+                                regex=r'^[\w.@+-]+$',
+                                help_text="Required. 30 characters or fewer. Letters, digits and "
+                                          "@/./+/-/_ only.",
+                                error_messages={
+                                    'invalid': "This value may contain only letters, numbers and "
+                                               "@/./+/-/_ characters."})
+
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+
+    max_guest_count = forms.IntegerField(help_text='How many guests can this person invite?'
+                                                   ' If they are not allowed to invite guests then set this to 0.')
+    class Meta:
+        model = User
+        fields = ('username', )
+
+    def clean_username(self):
+        # Since User.username is unique, this check is redundant,
+        # but it sets a nicer error message than the ORM. See #13147.
+        username = self.cleaned_data["username"]
+        try:
+            User._default_manager.get(username=username)
+        except User.DoesNotExist:
+            return username
+        raise forms.ValidationError(self.error_messages['duplicate_username'])
+
+    def save(self, request,  event, commit=True):
+
+        data = self.cleaned_data
+
+        user = User.objects.create_user(username=data['username'])
+
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
+        user.email = self.cleaned_data["username"] + "@columbia.edu"
+
+        if commit:
+
+            invite_profile = Invitation.objects.get(user=request.user)
+
+            profile = Invitation.objects.create(user=user, event=event, first_name=user.first_name,
+                                                last_name=user.last_name, email=user.email, invited_by=invite_profile,
+                                                #available_sales=self.cleaned_data["available_sales"],
+                                                max_guest_count=self.cleaned_data["max_guest_count"])
+
+            user.save()
+            event.owner.add(user)
+            event.save()
+
+        location_redirect = self.location_redirect(data['action'], event)
+
+        return location_redirect
+    save = transaction.commit_on_success(save)
+
+    def location_redirect(self, action, instance):
+        if action == '_save':
+            return {"to": 'hosts_home', 'event_id': instance.pk}
+        elif action == '_addanother':
+            return {"to": 'hosts_new', 'event_id': instance.pk}
 
 
 class EventForm(ActionMethodForm, HideSlugForm, FieldsetsForm, forms.ModelForm):
