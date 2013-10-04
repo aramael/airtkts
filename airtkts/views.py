@@ -3,6 +3,8 @@ Django views for airtkts project.
 
 """
 
+import json
+
 from .helpers import has_model_permissions, has_global_permissions
 from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm, InviteForm, QuickInviteForm
 from airtkts.apps.events.helpers import get_events
@@ -11,7 +13,7 @@ from airtkts.libs.users.forms import UserCreationForm, UserEditForm
 from airtkts.libs.users.managers import UserManager
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 
@@ -192,6 +194,43 @@ def accounts_home(request):
     }
 
     return render(request, 'accounts/accounts_home.html', context)
+
+@login_required
+def hosts_home(request, event_id=None):
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    #if not has_model_permissions(request.user, 'change', event) or not has_global_permissions(request.user, Event, 'change', 'events'):
+    #    return HttpResponseForbidden('403 Forbidden')
+
+    if request.is_ajax() and 'action' in request.POST:
+        errors = []
+        computer_errors = []
+        if request.POST['action'] == 'remove_host' and 'host' in request.POST:
+
+            try:
+                host = User.objects.get(pk=request.POST['host'])
+            except User.DoesNotExist:
+                computer_errors.append('User does not exist')
+            else:
+                if host != request.user:
+                    event.owner.remove(host)
+                    return HttpResponse(json.dumps({'success': True, }))
+                else:
+                    errors.append('You can not remove your self from your own event')
+        else:
+            computer_errors.append('Invalid Action or not all required params are given.')
+
+        return HttpResponse(json.dumps({'success': False, 'errors': errors, '_e': computer_errors}))
+
+
+
+
+    context = {
+        'event': event,
+        'events': get_events(request.user),
+    }
+    return render(request, 'events/hosts_home.html', context)
 
 
 #==============================================================================

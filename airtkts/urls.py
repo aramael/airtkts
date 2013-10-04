@@ -22,10 +22,17 @@ urlpatterns = patterns('',
     url(r'^accounts/event/new/$', 'airtkts.views.event_form', name='event_new'),
     url(r'^accounts/event/(?P<event_id>[0-9]+)/$', 'airtkts.views.event_dashboard', name='event_dashboard'),
     url(r'^accounts/event/(?P<event_id>[0-9]+)/edit/$', 'airtkts.views.event_form', name='event_edit'),
+
+    url(r'^accounts/event/(?P<event_id>[0-9]+)/hosts/$', 'airtkts.views.hosts_home', name='hosts_home'),
+    #url(r'^accounts/event/(?P<event_id>[0-9]+)/hosts/new/$', 'airtkts.views.hosts_new', name='hosts_new'),
+
+    # Ticket Sales
     url(r'^accounts/event/(?P<event_id>[0-9]+)/tickets/$', 'airtkts.views.ticketsales_home', name='ticketsales_home'),
     url(r'^accounts/event/(?P<event_id>[0-9]+)/tickets/(?P<ticket_id>[0-9]+)/$', 'airtkts.views.ticketsales_form',
         name='ticketsales_edit'),
     url(r'^accounts/event/(?P<event_id>[0-9]+)/tickets/new/$', 'airtkts.views.ticketsales_form', name='ticketsales_new'),
+
+    # Invites
     url(r'^accounts/event/(?P<event_id>[0-9]+)/invites/$', 'airtkts.views.invites_home', name='invites_home'),
     url(r'^accounts/event/(?P<event_id>[0-9]+)/invites/(?P<invite_id>[0-9]+)/$', 'airtkts.views.invites_form',
         name='invites_edit'),

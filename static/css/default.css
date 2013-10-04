@@ -19,3 +19,13 @@ width: 70px;
 font-size: 48px;
 margin-top: 6px;
 }
+
+.nav-pills a:not(:hover) .label-danger {
+    visibility: hidden;
+    display: none;
+}
+
+.nav-pills a:hover .label-danger {
+    visibility: visible !important;
+    display: inline-block !important;
+}

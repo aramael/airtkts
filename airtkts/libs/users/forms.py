@@ -101,7 +101,7 @@ class UserEditForm(ActionMethodForm, UserChangeForm, FieldsetsForm):
     )
 
     class Meta(UserChangeForm.Meta):
-        exclude = ('last_login','date_joined')
+        exclude = ('last_login', 'date_joined', 'active')
 
     def location_redirect(self, action, instance):
         if action == '_save':
