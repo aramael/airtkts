@@ -201,7 +201,7 @@ def host_search(request):
     if 'q' in request.GET:
         query = request.GET['q']
 
-        hosts = User.objects.filter(Q(username__iexact=query) | Q(first_name__iexact=query) | Q(last_name__iexact=query) | Q(email__iexact=query))
+        hosts = User.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query)| Q(last_name__icontains=query) | Q(email__icontains=query))
 
         results = []
 
