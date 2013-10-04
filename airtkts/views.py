@@ -229,6 +229,18 @@ def host_search(request):
 
 
 @login_required
+def hosts_new(request, event_id=None):
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    context = {
+        'event': event,
+        'events': get_events(request.user),
+    }
+    return render(request, 'events/hosts_new.html', context)
+
+
+@login_required
 def hosts_home(request, event_id=None):
 
     event = get_object_or_404(Event, pk=event_id)
