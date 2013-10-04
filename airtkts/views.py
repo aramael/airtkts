@@ -13,6 +13,7 @@ from airtkts.libs.users.forms import UserCreationForm, UserEditForm
 from airtkts.libs.users.managers import UserManager
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import HttpResponseForbidden, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -194,6 +195,31 @@ def accounts_home(request):
     }
 
     return render(request, 'accounts/accounts_home.html', context)
+
+@login_required
+def host_search(request):
+    if 'q' in request.GET:
+        query = request.GET['q']
+
+        hosts = User.objects.filter(Q(username__iexact=query) | Q(first_name__iexact=query) | Q(last_name__iexact=query) | Q(email__iexact=query))
+
+        results = []
+
+        for host in hosts:
+            results.append({
+                'value': host.pk,
+                'tokens': [
+                    host.username,
+                    host.first_name,
+                    host.last_name
+                ],
+                'name': host.get_full_name() if host.get_full_name() != '' else host.username
+            })
+
+        return HttpResponse(json.dumps(results))
+
+    return HttpResponseForbidden('403 Forbidden')
+
 
 @login_required
 def hosts_home(request, event_id=None):

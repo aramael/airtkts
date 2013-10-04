@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %} {{ event.name }}'s Hosts{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static "css/vendor/bootstrap/typeahead.css" %}">
+{% endblock %}
 
 {% block content %}
 
@@ -18,7 +24,7 @@
 
     <div class="well well-lg">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="Add a friend!">
+            <input type="text" class="form-control host search typeahead" placeholder="Add a friend!">
             <span class="input-group-btn">
                 <button class="btn btn-default" type="button">Add!</button>
             </span>
@@ -27,6 +33,8 @@
 
 {% endblock %}
 {% block extra_js %}
+<script src="{% static "js/vendor/bootstrap/hogan.js" %}"></script>
+<script src="{% static "js/vendor/bootstrap/typeahead.min.js" %}"></script>
 <script>
 $(document).ready(function (){
     $('.host .label-danger').click(function (){
@@ -42,6 +50,14 @@ $(document).ready(function (){
             }
         });
     });
+    $('.host.search.typeahead').typeahead([{
+        name: 'best-picture-winners',
+        remote: '{% url 'host_search' %}?q=%QUERY',
+        template: '<p><strong>{{name}}</strong></p>',
+        engine: Hogan
+    }]);
+
+    $()
 });
 </script>
 {% endblock %}

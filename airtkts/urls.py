@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     url(r'^accounts/event/(?P<event_id>[0-9]+)/edit/$', 'airtkts.views.event_form', name='event_edit'),
 
     url(r'^accounts/event/(?P<event_id>[0-9]+)/hosts/$', 'airtkts.views.hosts_home', name='hosts_home'),
+    url(r'^accounts/hosts/search/$', 'airtkts.views.host_search', name='host_search'),
     #url(r'^accounts/event/(?P<event_id>[0-9]+)/hosts/new/$', 'airtkts.views.hosts_new', name='hosts_new'),
 
     # Ticket Sales
