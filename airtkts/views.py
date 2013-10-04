@@ -5,17 +5,18 @@ Django views for airtkts project.
 
 import json
 
-from .helpers import has_model_permissions, has_global_permissions
-from airtkts.apps.events.forms import EventForm, TicketSaleForm, TicketOfficeSaleForm, InviteForm, QuickInviteForm
+from .helpers import has_global_permissions, has_model_permissions
+from airtkts.apps.events.forms import EventForm, HostForm, InviteForm, QuickInviteForm, \
+    TicketOfficeSaleForm, TicketSaleForm
 from airtkts.apps.events.helpers import get_events
-from airtkts.apps.events.models import Event, TicketSale, Invitation
+from airtkts.apps.events.models import Event, Invitation, TicketSale
 from airtkts.libs.users.forms import UserCreationForm, UserEditForm
 from airtkts.libs.users.managers import UserManager
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponseForbidden, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
 
 
 def home(request):
@@ -233,7 +234,14 @@ def hosts_new(request, event_id=None):
 
     event = get_object_or_404(Event, pk=event_id)
 
+    form = HostForm(data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        location_redirect = form.save(request, event)
+        return redirect(**location_redirect)
+
     context = {
+        'form': form,
         'event': event,
         'events': get_events(request.user),
     }

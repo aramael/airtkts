@@ -1,7 +1,42 @@
 {% extends 'base.html' %}
 
-{% block title %}
-{% endblock %}
+{% block title %}Add Host for {{ event.name }}{% endblock %}
+
+{% load simple_forms %}
 
 {% block content %}
+
+    <h1>Invite Host</h1>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <form method="post" class="form-horizontal"{% if has_file_field %} enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+
+        {% for field in form.visible_fields %}
+            {% bootstrap_horizontal_field field %}
+        {% endfor %}
+
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-10 col-md-offset-2 hidden-xs">
+                <input type="submit" class="btn btn-primary" value="Add Host" class="default" name="_save">
+                <input type="submit" class="btn btn-info" value="Add Host & Add Another" name="_addanother">
+            </div>
+        </div>
+
+        <div class="form-actions hidden-md hidden-lg hidden-sm ">
+            <input type="submit" class="btn btn-primary btn-block btn-lg" value="Add Host" class="default" name="_save">
+            <input type="submit" class="btn btn-info btn-block btn-lg" value="Add Host & Add Another" name="_addanother">
+        </div>
+    </form>
+
 {% endblock %}
