@@ -46,14 +46,14 @@ $(document).ready(function (){
             }
         });
     });
+
     $('.host.search.typeahead').typeahead([{
         name: 'best-picture-winners',
         remote: '{% url 'host_search' %}?q=%QUERY',
-{#        template: '<p><strong>{{name}}</strong></p>',#}
+        template: '{% verbatim %}<p><strong>{{ name }}</strong> -- {{ value }}</p>{% endverbatim %}',
         engine: Hogan
     }]);
 
-    $()
 });
 </script>
 {% endblock %}

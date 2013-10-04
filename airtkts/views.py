@@ -206,14 +206,20 @@ def host_search(request):
         results = []
 
         for host in hosts:
+
+            name = host.get_full_name() if host.get_full_name() != '' else host.username
+
+            tokens = filter(None, [
+                host.username,
+                host.first_name,
+                host.last_name,
+                name
+            ])
+
             results.append({
-                'value': host.pk,
-                'tokens': [
-                    host.username,
-                    host.first_name,
-                    host.last_name
-                ],
-                'name': host.get_full_name() if host.get_full_name() != '' else host.username
+                'value': name,
+                'tokens': tokens,
+                'name': name
             })
 
         return HttpResponse(json.dumps(results))
