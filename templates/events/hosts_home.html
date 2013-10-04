@@ -4,10 +4,6 @@
 
 {% block title %} {{ event.name }}'s Hosts{% endblock %}
 
-{% block extra_css %}
-    <link rel="stylesheet" href="{% static "css/vendor/bootstrap/typeahead.css" %}">
-{% endblock %}
-
 {% block content %}
 
     <h1>Manage Hosts</h1>
@@ -53,7 +49,7 @@ $(document).ready(function (){
     $('.host.search.typeahead').typeahead([{
         name: 'best-picture-winners',
         remote: '{% url 'host_search' %}?q=%QUERY',
-        template: '<p><strong>{{name}}</strong></p>',
+{#        template: '<p><strong>{{name}}</strong></p>',#}
         engine: Hogan
     }]);
 
