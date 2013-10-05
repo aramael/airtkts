@@ -12,7 +12,23 @@
 
     <div class="row">
         <div class="col-lg-3">
-            <div class="well">This is the sidebar</div>
+            <ul class="nav nav-pills nav-stacked sidebar">
+                <li><a href="{% url "event_dashboard" event.pk %}">
+                    Dashboard
+                </a></li>
+                <li><a href="{% url "event_edit" event.pk  %}">
+                    Edit Event
+                </a></li>
+                <li><a href="{% url "hosts_home" event.pk  %}">
+                    Hosts
+                </a></li>
+                <li><a href="{% url "ticketsales_home" event.pk  %}">
+                    Tickets
+                </a></li>
+                <li><a href="{% url "invites_home" event.pk  %}">
+                    Invitations
+                </a></li>
+            </ul>
         </div>
         <div class="col-lg-9">
             {% block content %}
