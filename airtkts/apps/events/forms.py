@@ -2,6 +2,7 @@ import stripe
 
 from .models import Event, Invitation, Ticket, TicketOrder, TicketSale
 from airtkts.libs.forms import ActionMethodForm, FieldsetsForm, HideSlugForm
+from airtkts.libs.users.managers import send_activation_email
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -72,9 +73,10 @@ class HostForm(ActionMethodForm, forms.ModelForm):
             event.owner.add(user)
             event.save()
 
-        location_redirect = self.location_redirect(data['action'], event)
-
-        return location_redirect
+            send_activation_email(request, user, subject_template='email/host_activation_subject.txt',
+                                  email_template='email/host_activation_email.html',
+                                  extra_context={'event': event, 'invited_by': invite_profile})
+        return self.location_redirect(data['action'], event)
     save = transaction.commit_on_success(save)
 
     def location_redirect(self, action, instance):
