@@ -12,20 +12,21 @@
 
     <div class="row">
         <div class="col-lg-3">
+        {{ section }}
             <ul class="nav nav-pills nav-stacked sidebar">
                 <li><a href="{% url "event_dashboard" event.pk %}">
                     Dashboard
                 </a></li>
-                <li><a href="{% url "event_edit" event.pk  %}">
+                <li {% if section == 'event' %}class="active"{% endif %}><a href="{% url "event_edit" event.pk  %}">
                     Edit Event
                 </a></li>
-                <li><a href="{% url "hosts_home" event.pk  %}">
+                <li {% if section == 'hosts' %}class="active"{% endif %}><a href="{% url "hosts_home" event.pk  %}">
                     Hosts
                 </a></li>
-                <li><a href="{% url "ticketsales_home" event.pk  %}">
+                <li {% if section == 'ticketsales' %}class="active"{% endif %}><a href="{% url "ticketsales_home" event.pk  %}">
                     Tickets
                 </a></li>
-                <li><a href="{% url "invites_home" event.pk  %}">
+                <li {% if section == 'invites' %}class="active"{% endif %}><a href="{% url "invites_home" event.pk  %}">
                     Invitations
                 </a></li>
             </ul>

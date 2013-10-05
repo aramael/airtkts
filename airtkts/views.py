@@ -92,6 +92,7 @@ def event_form(request, event_id=None, event_slug=None):
         return redirect(**location_redirect)
 
     context = {
+        'section': 'event',
         'form': form,
         'event': event,
         'events': get_events(request.user),
@@ -113,6 +114,7 @@ def ticketsales_home(request, event_id=None):
     sales = TicketSale.objects.filter(event=event)
 
     context = {
+        'section': 'ticketsales',
         'sales': sales,
         'event': event,
         'events': get_events(request.user),
@@ -138,6 +140,7 @@ def ticketsales_form(request, event_id=None, ticket_id=None):
         return redirect(**location_redirect)
 
     context = {
+        'section': 'ticketsales',
         'form': form,
         'ticket': ticket,
         'event': event,
@@ -160,6 +163,7 @@ def invites_home(request, event_id=None):
     invites = Invitation.objects.filter(event=event)
 
     context = {
+        'section': 'invites',
         'invites': invites,
         'event': event,
         'events': get_events(request.user),
@@ -195,6 +199,7 @@ def invites_form(request, event_id=None, invite_id=None):
         return redirect(**location_redirect)
 
     context = {
+        'section': 'invites',
         'form': form,
         'invite': invite,
         'event': event,
@@ -252,6 +257,7 @@ def hosts_new(request, event_id=None):
         return redirect(**location_redirect)
 
     context = {
+        'section': 'hosts',
         'form': form,
         'event': event,
         'events': get_events(request.user),
@@ -303,6 +309,7 @@ def hosts_home(request, event_id=None):
         return HttpResponse(json.dumps({'success': False, 'errors': errors, '_e': computer_errors}))
 
     context = {
+        'section': 'hosts',
         'event': event,
         'events': get_events(request.user),
     }
