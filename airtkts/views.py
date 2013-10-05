@@ -13,6 +13,7 @@ from airtkts.apps.events.models import Event, Invitation, TicketSale
 from airtkts.libs.users.forms import UserCreationForm, UserEditForm
 from airtkts.libs.users.managers import UserManager
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseForbidden
@@ -406,3 +407,25 @@ def users_edit(request, user_id=None, self_edit=False):
     }
 
     return render(request, 'accounts/users_edit.html', context)
+
+@login_required
+def users_edit_password(request, user_id=None):
+
+    if not has_global_permissions(request.user, UserManager, 'change', 'auth'):
+        return HttpResponseForbidden('403 Forbidden')
+
+    user = get_object_or_404(User, pk=user_id)
+
+    form = SetPasswordForm(user=user, data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        form.save()
+        return redirect('users_edit',  user_id=user_id)
+
+    context = {
+        'form': form,
+        'ruser': user,
+        'events': get_events(request.user),
+    }
+
+    return render(request, 'accounts/user_password_change.html', context)
