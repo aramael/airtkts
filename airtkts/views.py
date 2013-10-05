@@ -93,6 +93,7 @@ def event_form(request, event_id=None, event_slug=None):
 
     context = {
         'section': 'event',
+        'extends': 'events/event_new.html' if event is None else 'events/base.html',
         'form': form,
         'event': event,
         'events': get_events(request.user),
