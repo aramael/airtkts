@@ -1,4 +1,37 @@
 from django.contrib.auth.models import UserManager
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import int_to_base36
+from django.template import loader
+from django.contrib.sites.models import get_current_site
+from django.core.mail import send_mail
+
+
+def send_activation_email(request, user,
+                          subject_template='email/activation_email_subject.txt',
+                          email_template='email/activation_email.html',
+                          extra_context=None):
+
+    current_site = get_current_site(request)
+    site_name = current_site.name
+    domain = current_site.domain
+
+    context = {
+        'email': user.email,
+        'domain': domain,
+        'site_name': site_name,
+        'uid': int_to_base36(user.pk),
+        'user': user,
+        'token': default_token_generator.make_token(user),
+        'protocol': request.is_secure(),
+    }
+
+    if extra_context is not None:
+        context.update(extra_context)
+    subject = loader.render_to_string(subject_template, context)
+    # Email subject *must not* contain newlines
+    subject = ''.join(subject.splitlines())
+    email = loader.render_to_string(email_template, context)
+    send_mail(subject, email, None, [user.email])
 
 
 class UserManager(UserManager):
@@ -28,7 +61,7 @@ class UserManager(UserManager):
             function = getattr(self, action)
             return function(request, queryset)
 
-    def delete_items(self, queryset):
+    def delete_items(self, request, queryset):
         for item in queryset:
             item.delete()
     delete_items.short_description = 'Delete Selected Items'
@@ -44,9 +77,7 @@ class UserManager(UserManager):
 
         """
 
-        for profile in queryset:
-
-            profile = profile.racallprofile
-
-            profile = profile.resend_activation_email(request)
+        for user in queryset:
+            # Send out Email to Users
+            send_activation_email(request, user)
     resend_activation_email.short_description = 'Resend Activation Email'

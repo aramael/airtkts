@@ -1,0 +1,20 @@
+{% extends "email/base.html" %}
+
+{% block message %}
+<h3>Hi, {{ user.first_name }}</h3>
+<p class="lead">
+    You've been invited to join airTKTS. airTKTS is an intelligent event management system that can help you and your team:
+    <ul>
+        <li>manage ticket sales</li>
+        <li>charge for tickets</li>
+        <li>coordinate invites</li>
+        <li>manage +1's </li>
+        <li>and a whole lot more.</li>
+    </ul>
+</p>
+<!-- Callout Panel -->
+<p class="callout">
+    <a href="{% block reset_link %}{{ protocol }}://{{ domain }}{% url 'auth_password_reset_confirm' uidb36=uid token=token %}{% endblock %}" class="btn btn-primary center">Start using <strong>airTKTS</strong></a> You're username is {{ user.get_username }}
+</p><!-- /Callout Panel -->
+<p>Enjoy! <br/> &mdash; The airTKTS Team</p>
+{% endblock %}
