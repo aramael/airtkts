@@ -53,7 +53,11 @@ def event_home(request):
         'events': get_events(request.user),
     }
 
-    return render(request, 'event_home.html', context)
+    return render(request, 'events/event_home.html', context)
+
+# =======================================
+# Event Edit Pages
+# =======================================
 
 
 def event_dashboard(request, event_id=None):
@@ -65,7 +69,7 @@ def event_dashboard(request, event_id=None):
         'events': get_events(request.user),
     }
 
-    return render(request, 'event_dashboard.html', context)
+    return render(request, 'events/event_dashboard.html', context)
 
 
 def event_form(request, event_id=None, event_slug=None):
@@ -88,7 +92,12 @@ def event_form(request, event_id=None, event_slug=None):
         'events': get_events(request.user),
     }
 
-    return render(request, 'event_form.html', context)
+    return render(request, 'events/event_form.html', context)
+
+
+# =======================================
+# Invites Pages
+# =======================================
 
 
 def invites_home(request, event_id=None):
@@ -104,7 +113,7 @@ def invites_home(request, event_id=None):
         'events': get_events(request.user),
     }
 
-    return render(request, 'invite_home.html', context)
+    return render(request, 'events/invite_home.html', context)
 
 
 def invites_form(request, event_id=None, invite_id=None):
@@ -121,10 +130,10 @@ def invites_form(request, event_id=None, invite_id=None):
 
     if 'quick' in request.GET:
         form_class = QuickInviteForm
-        template = 'invite_quick_form.html'
+        template = 'events/invite_quick_form.html'
     else:
         form_class = InviteForm
-        template = 'invite_form.html'
+        template = 'events/invite_form.html'
 
     form = form_class(instance=invite, initial=initial_data,
                       data=request.POST or None, files=request.FILES or None)
@@ -142,6 +151,10 @@ def invites_form(request, event_id=None, invite_id=None):
 
     return render(request, template, context)
 
+# =======================================
+# Ticket Sales Pages
+# =======================================
+
 
 def ticketsales_home(request, event_id=None):
     """    Display the Landing Page    """
@@ -156,7 +169,7 @@ def ticketsales_home(request, event_id=None):
         'events': get_events(request.user),
     }
 
-    return render(request, 'ticketsales_home.html', context)
+    return render(request, 'events/ticketsales_home.html', context)
 
 
 def ticketsales_form(request, event_id=None, ticket_id=None):
@@ -182,7 +195,7 @@ def ticketsales_form(request, event_id=None, ticket_id=None):
         'events': get_events(request.user),
     }
 
-    return render(request, 'ticketsales_form.html', context)
+    return render(request, 'events/ticketsales_form.html', context)
 
 #==============================================================================
 # Account Pages
@@ -196,6 +209,15 @@ def accounts_home(request):
     }
 
     return render(request, 'accounts/accounts_home.html', context)
+
+#==============================================================================
+# Event Pages
+#==============================================================================
+
+# =======================================
+# Host Pages
+# =======================================
+
 
 @login_required
 def host_search(request):

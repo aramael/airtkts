@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "events/base.html" %}
 {% load static %}
 
 {% block content %}
@@ -7,7 +7,7 @@
         {% csrf_token %}
         <div class="row">
             <div class="col-md-12">
-                <h1>Select Tickets for {{ event.name }} to Change</h1>
+                <h1>Select Events to Change</h1>
                 <div class="bulk-actions">
                     <div class="pull-left">
                         <div>Action:
@@ -18,11 +18,11 @@
                                 {% endfor %}
                             </select>
                             <input type="submit" class="btn btn-default" value="Go" name="_bulkactions">
-                            <span class="action-counter" style="display: inline;"><span class="selected-count">0</span> of {{ sales|length }} selected</span>
+                            <span class="action-counter" style="display: inline;"><span class="selected-count">0</span> of {{ events|length }} selected</span>
                         </div>
                     </div>
                     <div class="pull-right">
-                        <a class="btn btn-primary" href="{% url "ticketsales_new" event.pk %}">Add Ticket Type</a>
+                        <a class="btn btn-primary" href="{% url "event_new" %}">Add User</a>
                     </div>
                 </div>
                 <table class="table table-striped">
@@ -30,21 +30,23 @@
                         <tr>
                             <th><input type="checkbox" id="action-toggle" style="display: inline-block;"></th>
                             <th>Name</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Location</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for sale in sales %}
+                        {% for event in events %}
                             <tr>
-                                <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ sale.pk }}"></td>
-                                <td><a href="{% url 'ticketsales_edit' event.pk sale.pk %}">{{ sale.name }}</a></td>
-                                <td>{{ sale.price }}</td>
-                                <td>{{ sale.quantity }}</td>
+                                <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ event.pk }}"></td>
+                                <td><a href="{% url "event_dashboard" event.pk %}">{{ event.name }}</a></td>
+                                <td>{{ event.start_time }}</td>
+                                <td>{{ event.end_time }}</td>
+                                <td>{{ event.location }}</td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="3" style="text-align: center">No ticket sales were found.<a href="{% url "ticketsales_new" event.pk %}">Add Ticket Type</a></td>
+                                <td colspan="2" style="text-align: center">No one was found in this call tree.</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -56,5 +58,5 @@
 {% endblock %}
 {% block extra_js %}
     <script src="{% static "js/vendor/admin/bulk-actions.js" %}"></script>
-    <script>var _max_bulk_item_count={{ sales|length }}; var _current_bulk_item_count=0</script>
+    <script>var _max_bulk_item_count={{ events|length }}; var _current_bulk_item_count=0</script>
 {% endblock %}
