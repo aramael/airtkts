@@ -46,6 +46,11 @@ def ticket_office(request, event_id=None, event_slug=None):
     return render(request, 'ticket_office_home.html', context)
 
 
+#==============================================================================
+# Event Pages
+#==============================================================================
+
+
 def event_home(request):
     """    Display the Landing Page    """
 
@@ -93,6 +98,53 @@ def event_form(request, event_id=None, event_slug=None):
     }
 
     return render(request, 'events/event_form.html', context)
+
+
+# =======================================
+# Ticket Sales Pages
+# =======================================
+
+
+def ticketsales_home(request, event_id=None):
+    """    Display the Landing Page    """
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    sales = TicketSale.objects.filter(event=event)
+
+    context = {
+        'sales': sales,
+        'event': event,
+        'events': get_events(request.user),
+    }
+
+    return render(request, 'events/ticketsales_home.html', context)
+
+
+def ticketsales_form(request, event_id=None, ticket_id=None):
+    """    Display the Landing Page    """
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    if ticket_id is not None:
+            ticket = get_object_or_404(TicketSale, pk=ticket_id)
+    else:
+        ticket = None
+
+    form = TicketSaleForm(instance=ticket, initial={'event':event, }, data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        location_redirect = form.save()
+        return redirect(**location_redirect)
+
+    context = {
+        'form': form,
+        'ticket': ticket,
+        'event': event,
+        'events': get_events(request.user),
+    }
+
+    return render(request, 'events/ticketsales_form.html', context)
 
 
 # =======================================
@@ -150,69 +202,6 @@ def invites_form(request, event_id=None, invite_id=None):
     }
 
     return render(request, template, context)
-
-# =======================================
-# Ticket Sales Pages
-# =======================================
-
-
-def ticketsales_home(request, event_id=None):
-    """    Display the Landing Page    """
-
-    event = get_object_or_404(Event, pk=event_id)
-
-    sales = TicketSale.objects.filter(event=event)
-
-    context = {
-        'sales': sales,
-        'event': event,
-        'events': get_events(request.user),
-    }
-
-    return render(request, 'events/ticketsales_home.html', context)
-
-
-def ticketsales_form(request, event_id=None, ticket_id=None):
-    """    Display the Landing Page    """
-
-    event = get_object_or_404(Event, pk=event_id)
-
-    if ticket_id is not None:
-            ticket = get_object_or_404(TicketSale, pk=ticket_id)
-    else:
-        ticket = None
-
-    form = TicketSaleForm(instance=ticket, initial={'event':event, }, data=request.POST or None, files=request.FILES or None)
-
-    if form.is_valid():
-        location_redirect = form.save()
-        return redirect(**location_redirect)
-
-    context = {
-        'form': form,
-        'ticket': ticket,
-        'event': event,
-        'events': get_events(request.user),
-    }
-
-    return render(request, 'events/ticketsales_form.html', context)
-
-#==============================================================================
-# Account Pages
-#==============================================================================
-
-@login_required
-def accounts_home(request):
-
-    context = {
-        'events': get_events(request.user),
-    }
-
-    return render(request, 'accounts/accounts_home.html', context)
-
-#==============================================================================
-# Event Pages
-#==============================================================================
 
 # =======================================
 # Host Pages
@@ -319,6 +308,19 @@ def hosts_home(request, event_id=None):
     }
     return render(request, 'events/hosts_home.html', context)
 
+#==============================================================================
+# Account Pages
+#==============================================================================
+
+@login_required
+def accounts_home(request):
+
+    context = {
+        'events': get_events(request.user),
+    }
+
+    return render(request, 'accounts/accounts_home.html', context)
+
 
 #==============================================================================
 # Users Pages
@@ -352,6 +354,7 @@ def users_home(request):
 
     return render(request, 'accounts/users_home.html', context)
 
+
 @login_required
 def users_new(request):
 
@@ -370,6 +373,7 @@ def users_new(request):
     }
 
     return render(request, 'accounts/users_new.html', context)
+
 
 @login_required
 def users_edit(request, user_id=None, self_edit=False):
