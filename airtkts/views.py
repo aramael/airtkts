@@ -52,6 +52,7 @@ def ticket_office(request, event_id=None, event_slug=None):
 #==============================================================================
 
 
+@login_required
 def event_home(request):
     """    Display the Landing Page    """
 
@@ -66,6 +67,7 @@ def event_home(request):
 # =======================================
 
 
+@login_required
 def event_dashboard(request, event_id=None):
 
     event = get_object_or_404(Event, pk=event_id)
@@ -78,6 +80,7 @@ def event_dashboard(request, event_id=None):
     return render(request, 'events/event_dashboard.html', context)
 
 
+@login_required
 def event_form(request, event_id=None, event_slug=None):
     """    Display the Landing Page    """
 
@@ -108,6 +111,7 @@ def event_form(request, event_id=None, event_slug=None):
 # =======================================
 
 
+@login_required
 def ticketsales_home(request, event_id=None):
     """    Display the Landing Page    """
 
@@ -125,6 +129,7 @@ def ticketsales_home(request, event_id=None):
     return render(request, 'events/ticketsales_home.html', context)
 
 
+@login_required
 def ticketsales_form(request, event_id=None, ticket_id=None):
     """    Display the Landing Page    """
 
@@ -157,6 +162,7 @@ def ticketsales_form(request, event_id=None, ticket_id=None):
 # =======================================
 
 
+@login_required
 def invites_home(request, event_id=None):
     """    Display the Landing Page    """
 
@@ -174,6 +180,7 @@ def invites_home(request, event_id=None):
     return render(request, 'events/invite_home.html', context)
 
 
+@login_required
 def invites_form(request, event_id=None, invite_id=None):
     """    Display the Landing Page    """
 
