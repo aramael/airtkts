@@ -210,6 +210,13 @@ def invites_form(request, event_id=None, invite_id=None):
     else:
         invite = None
 
+    user_invite = Invitation.objects.get(user=request.user, event=event)
+
+    own_invite = invite.pk == user_invite.pk
+
+    if not request.user.has_perm('events.view_invitation', invite):
+        return HttpResponseForbidden('403 Forbidden')
+
     initial_data = {'event': event, }
 
     if 'quick' in request.GET:
@@ -325,6 +332,13 @@ def hosts_home(request, event_id=None):
                     for perm in get_perms(host, event):
                         remove_perm(perm, host, event)
 
+                    invite = Invitation.objects.get(user=host, event=event)
+
+                    for perm in get_perms(host, invite):
+                        remove_perm(perm, host, invite)
+
+                    invite.delete()
+
                     return HttpResponse(json.dumps({'success': True, }))
                 else:
                     errors.append('You can not remove your self from your own event')
@@ -363,6 +377,16 @@ def hosts_home(request, event_id=None):
                         assign_perm('events.change_own_invitation', host)
 
                     send_new_event_email(request, host, event, request.user)
+
+                    invite_profile = Invitation.objects.get(user=request.user, event=event)
+
+                    profile = Invitation.objects.create(user=host, event=event, first_name=host.first_name,
+                                                        last_name=host.last_name, email=host.email,
+                                                        invited_by=invite_profile,
+                                                        #available_sales=self.cleaned_data["available_sales"],
+                                                        )
+
+                    assign_perm('events.view_invitation', host, profile)
 
                     return HttpResponse(json.dumps({
                         'success': True,

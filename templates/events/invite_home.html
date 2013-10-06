@@ -1,5 +1,6 @@
 {% extends "events/base.html" %}
 {% load static %}
+{% load permissions %}
 
 {% block content %}
 
@@ -40,7 +41,7 @@
                         {% for invite in invites %}
                             <tr>
                                 <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ invite.pk }}"></td>
-                                <td><a href="{% url "invites_edit" event.pk invite.pk %}">{{ invite.first_name }} {{ invite.last_name }}</a></td>
+                                <td>{% if user has 'events.view_invitation' of invite %}<a href="{% url "invites_edit" event.pk invite.pk %}">{{ invite.first_name }} {{ invite.last_name }}</a>{% else %}{{ invite.first_name }} {{ invite.last_name }}{% endif %}</td>
                                 <td>{{ invite.email }}</td>
                                 <td>{{ invite.invited_by.first_name }} {{ invite.invited_by.last_name }}</td>
                                 <td>{{ invite.max_guest_count }}</td>
