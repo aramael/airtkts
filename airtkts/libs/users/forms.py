@@ -96,12 +96,12 @@ class UserEditForm(ActionMethodForm, UserChangeForm, FieldsetsForm):
             'fields': ('first_name', 'last_name', 'email',)
         }),
         ("Permissions", {
-            'fields': ('groups', 'user_permissions', 'is_superuser')
+            'fields': ('groups', 'user_permissions', 'is_superuser', 'is_active')
         }),
     )
 
     class Meta(UserChangeForm.Meta):
-        exclude = ('last_login', 'date_joined', 'active')
+        exclude = ('last_login', 'date_joined')
 
     def location_redirect(self, action, instance):
         if action == '_save':
