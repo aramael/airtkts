@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'widget_tweaks',
     'airtkts.apps.events',
     'airtkts.libs.forms',
+    'airtkts.libs.users',
 )
 
 #==============================================================================
@@ -92,6 +93,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 ANONYMOUS_USER_ID = -1
+
+REPLACE_BUILTIN_IF = True
 
 #==============================================================================
 # Project URLS and Media settings
