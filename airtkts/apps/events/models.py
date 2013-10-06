@@ -12,6 +12,11 @@ class Event(models.Model):
     end_time = models.DateTimeField()
     location = models.CharField(max_length=100)
 
+    class Meta:
+        permissions = (
+            ('view_event', 'Can view event'),
+        )
+
     def save(self, *args, **kwargs):
 
         # Convert Name of Event to Slug
@@ -34,6 +39,11 @@ class TicketSale(models.Model):
     minimum_ordered = models.PositiveIntegerField(default=1)
     maximum_ordered = models.PositiveIntegerField()
     show_remaining_count = models.BooleanField(default=False)
+
+    class Meta:
+        permissions = (
+            ('view_ticket_sale', 'Can view ticket sale'),
+        )
 
     def __unicode__(self):
         return "{event}: {name}".format(name=self.name, event=self.event.name)
@@ -77,6 +87,12 @@ class Invitation(models.Model):
     max_guest_count = models.PositiveIntegerField(help_text='How many guests can this person invite?'
                                                    ' If they are not allowed to invite guests then set this to 0.')
     guests = models.ManyToManyField('self', blank=True, null=True)
+
+    class Meta:
+        permissions = (
+            ('view_invitation', 'Can view invitation'),
+            ('change_own_invitation', 'Can change own invitation'),
+        )
 
     def __unicode__(self):
         return self.first_name + ' ' + self.last_name
