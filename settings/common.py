@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'south',
     'gunicorn',
+    'guardian',
     'widget_tweaks',
     'airtkts.apps.events',
     'airtkts.libs.forms',
@@ -72,11 +73,8 @@ SETTINGS_DIR, filename = os.path.split(os.path.abspath(__file__))
 SITE_ROOT = os.path.dirname(SETTINGS_DIR)
 
 #==============================================================================
-# Project URLS and Media settings
+# Authentication settings
 #==============================================================================
-
-# Python dotted path to the URLCONF used by Django.
-ROOT_URLCONF = 'airtkts.urls'
 
 # The URL where requests are redirected after login when the contrib.auth.login view gets no next parameter.
 # This is used by the login_required() decorator, for example.
@@ -87,6 +85,20 @@ LOGIN_URL = 'auth_login'
 
 # LOGIN_URL counterpart.
 LOGOUT_URL = 'auth_logout'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # this is default
+    'guardian.backends.ObjectPermissionBackend',
+)
+
+ANONYMOUS_USER_ID = -1
+
+#==============================================================================
+# Project URLS and Media settings
+#==============================================================================
+
+# Python dotted path to the URLCONF used by Django.
+ROOT_URLCONF = 'airtkts.urls'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
