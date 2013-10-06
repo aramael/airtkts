@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django import forms
+from guardian.shortcuts import assign_perm
 
 
 stripe.api_key = settings.STRIPE_API_KEY
@@ -33,6 +34,10 @@ class HostForm(ActionMethodForm, forms.ModelForm):
 
     first_name = forms.CharField()
     last_name = forms.CharField()
+
+    can_edit_event_details = forms.BooleanField(required=False)
+    can_add_ticket_sales = forms.BooleanField(required=False)
+    can_edit_hosts = forms.BooleanField(required=False)
 
     max_guest_count = forms.IntegerField(help_text='How many guests can this person invite?'
                                                    ' If they are not allowed to invite guests then set this to 0.')
@@ -73,6 +78,24 @@ class HostForm(ActionMethodForm, forms.ModelForm):
             event.owner.add(user)
             event.save()
 
+            assign_perm('events.view_event', user, event)
+
+            if self.cleaned_data["can_edit_event_details"]:
+                assign_perm('events.view_event', user, event)
+                assign_perm('events.change_event', user, event)
+
+            if self.cleaned_data["can_add_ticket_sales"]:
+                assign_perm('events.add_ticketsale', user)
+                assign_perm('events.change_ticketsale', user)
+                assign_perm('events.view_ticketsale', user)
+                assign_perm('events.delete_ticketsale', user)
+
+            if self.cleaned_data["can_edit_hosts"]:
+                assign_perm('events.add_hosts', user)
+                assign_perm('events.change_hosts', user)
+                assign_perm('events.delete_hosts', user)
+                assign_perm('events.change_own_invitation', user)
+
             send_activation_email(request, user, subject_template='email/host_activation_subject.txt',
                                   email_template='email/host_activation_email.html',
                                   extra_context={'event': event, 'invited_by': invite_profile})
@@ -104,6 +127,40 @@ class EventForm(ActionMethodForm, HideSlugForm, FieldsetsForm, forms.ModelForm):
 
     class Meta:
         model = Event
+
+    def save(self, request, *args, **kwargs):
+        action = self.cleaned_data['action']
+
+        del self.cleaned_data['action']
+
+        instance = super(ActionMethodForm, self).save(*args, **kwargs)
+
+        owner_invite = Invitation.objects.create(user=request.user, event=instance, first_name=request.user.first_name,
+                                                 last_name=request.user.last_name, email=request.user.email)
+        assign_perm('events.change_invitation', request.user, owner_invite)
+
+        for user in instance.owner.all():
+            if user != request.user:
+                invite = Invitation.objects.create(user=user, event=instance, first_name=user.first_name,
+                                                   last_name=user.last_name, email=user.email, invited_by=owner_invite)
+
+                assign_perm('events.change_invitation', user, invite)
+
+            assign_perm('events.view_event', user, instance)
+            assign_perm('events.change_event', user, instance)
+
+            assign_perm('events.add_ticketsale', user)
+            assign_perm('events.change_ticketsale', user)
+            assign_perm('events.view_ticketsale', user)
+            assign_perm('events.delete_ticketsale', user)
+
+            assign_perm('events.add_hosts', user)
+            assign_perm('events.change_hosts', user)
+            assign_perm('events.delete_hosts', user)
+
+        location_redirect = self.location_redirect(action, instance)
+
+        return location_redirect
 
     def location_redirect(self, action, instance):
         if action == '_save':

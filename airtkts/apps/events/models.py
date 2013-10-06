@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from guardian.shortcuts import assign_perm
 
 
 class Event(models.Model):
@@ -15,6 +16,9 @@ class Event(models.Model):
     class Meta:
         permissions = (
             ('view_event', 'Can view event'),
+            ('add_hosts', 'Can add event hosts'),
+            ('change_hosts', 'Can edit event hosts'),
+            ('delete_hosts', 'Can delete event hosts'),
         )
 
     def save(self, *args, **kwargs):
@@ -42,7 +46,7 @@ class TicketSale(models.Model):
 
     class Meta:
         permissions = (
-            ('view_ticket_sale', 'Can view ticket sale'),
+            ('view_ticketsale', 'Can view ticket sale'),
         )
 
     def __unicode__(self):
