@@ -10,13 +10,14 @@ from airtkts.apps.events.forms import EventForm, HostForm, InviteForm, QuickInvi
 from airtkts.apps.events.helpers import get_events
 from airtkts.apps.events.models import Event, Invitation, TicketSale
 from airtkts.libs.users.forms import UserCreationForm, UserEditForm
-from airtkts.libs.users.managers import UserManager
+from airtkts.libs.users.managers import UserManager, send_new_event_email
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from guardian.shortcuts import assign_perm, get_perms, remove_perm
 
 
 def home(request):
@@ -28,7 +29,6 @@ def home(request):
 
 
 def ticket_office(request, event_id=None, event_slug=None):
-
     if event_id is not None:
         event = get_object_or_404(Event, pk=event_id)
         if event_slug != event.slug:
@@ -68,7 +68,6 @@ def event_home(request):
 
 @login_required
 def event_dashboard(request, event_id=None):
-
     event = get_object_or_404(Event, pk=event_id)
 
     if not request.user.has_perm('events.view_event', event):
@@ -95,7 +94,8 @@ def event_form(request, event_id=None, event_slug=None):
         if not request.user.has_perm('events.add_event'):
             return HttpResponseForbidden('403 Forbidden')
 
-    form = EventForm(instance=event, initial={'owner': [request.user, ], }, data=request.POST or None, files=request.FILES or None)
+    form = EventForm(instance=event, initial={'owner': [request.user, ], }, data=request.POST or None,
+                     files=request.FILES or None)
 
     if form.is_valid():
         location_redirect = form.save(request=request)
@@ -152,7 +152,8 @@ def ticketsales_form(request, event_id=None, ticket_id=None):
     else:
         ticket = None
 
-    form = TicketSaleForm(instance=ticket, initial={'event':event, }, data=request.POST or None, files=request.FILES or None)
+    form = TicketSaleForm(instance=ticket, initial={'event': event, }, data=request.POST or None,
+                          files=request.FILES or None)
 
     if form.is_valid():
         location_redirect = form.save()
@@ -205,7 +206,7 @@ def invites_form(request, event_id=None, invite_id=None):
         return HttpResponseForbidden('403 Forbidden')
 
     if invite_id is not None:
-            invite = get_object_or_404(Invitation, pk=invite_id)
+        invite = get_object_or_404(Invitation, pk=invite_id)
     else:
         invite = None
 
@@ -242,19 +243,19 @@ def invites_form(request, event_id=None, invite_id=None):
 
 @login_required
 def host_search(request):
-
     if not request.user.has_perm('events.search_hosts'):
         return HttpResponseForbidden('403 Forbidden')
 
     if 'q' in request.GET:
         query = request.GET['q']
 
-        hosts = User.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query)| Q(last_name__icontains=query) | Q(email__icontains=query))
+        hosts = User.objects.filter(
+            Q(username__icontains=query) | Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(
+                email__icontains=query))
 
         results = []
 
         for host in hosts:
-
             name = host.get_full_name() if host.get_full_name() != '' else host.username
 
             tokens = filter(None, [
@@ -278,7 +279,6 @@ def host_search(request):
 
 @login_required
 def hosts_new(request, event_id=None):
-
     event = get_object_or_404(Event, pk=event_id)
 
     if not request.user.has_perm('events.add_hosts', event):
@@ -301,13 +301,15 @@ def hosts_new(request, event_id=None):
 
 @login_required
 def hosts_home(request, event_id=None):
-
     event = get_object_or_404(Event, pk=event_id)
 
     if not request.user.has_perm('events.add_hosts', event):
         return HttpResponseForbidden('403 Forbidden')
 
     if request.is_ajax() and 'action' in request.POST:
+
+        print request.POST
+
         errors = []
         computer_errors = []
         if request.POST['action'] == 'remove_host' and 'host' in request.POST:
@@ -319,6 +321,10 @@ def hosts_home(request, event_id=None):
             else:
                 if host != request.user:
                     event.owner.remove(host)
+
+                    for perm in get_perms(host, event):
+                        remove_perm(perm, host, event)
+
                     return HttpResponse(json.dumps({'success': True, }))
                 else:
                     errors.append('You can not remove your self from your own event')
@@ -331,6 +337,33 @@ def hosts_home(request, event_id=None):
             else:
                 if host not in event.owner.all():
                     event.owner.add(host)
+
+                    assign_perm('events.view_event', host, event)
+
+                    if request.POST.get("can_edit_event_details", False) and \
+                       request.POST.get("can_edit_event_details") == 'true':
+
+                        assign_perm('events.change_event', host, event)
+
+                    if request.POST.get("can_add_ticket_sales", False) and \
+                       request.POST.get("can_add_ticket_sales") == 'true':
+
+                        assign_perm('events.add_event_ticketsale', host, event)
+                        assign_perm('events.change_event_ticketsale', host, event)
+                        assign_perm('events.view_event_ticketsale', host, event)
+                        assign_perm('events.delete_event_ticketsale', host, event)
+
+                    if request.POST.get("can_edit_hosts", False) and \
+                       request.POST.get("can_edit_hosts") == 'true':
+
+                        assign_perm('events.search_hosts', host)
+                        assign_perm('events.add_hosts', host, event)
+                        assign_perm('events.change_hosts', host, event)
+                        assign_perm('events.delete_hosts', host, event)
+                        assign_perm('events.change_own_invitation', host)
+
+                    send_new_event_email(request, host, event, request.user)
+
                     return HttpResponse(json.dumps({
                         'success': True,
                         'host': {
@@ -358,7 +391,6 @@ def hosts_home(request, event_id=None):
 
 @login_required
 def accounts_home(request):
-
     context = {
         'events': get_events(request.user),
     }
@@ -372,7 +404,6 @@ def accounts_home(request):
 
 @login_required
 def users_home(request):
-
     if not request.user.has_perm('auth.add_user'):
         return HttpResponseForbidden('403 Forbidden')
 
@@ -401,7 +432,6 @@ def users_home(request):
 
 @login_required
 def users_new(request):
-
     if not request.user.has_perm('auth.add_user'):
         return HttpResponseForbidden('403 Forbidden')
 
@@ -421,7 +451,6 @@ def users_new(request):
 
 @login_required
 def users_edit(request, user_id=None, self_edit=False):
-
     if not request.user.has_perm('auth.add_user'):
         return HttpResponseForbidden('403 Forbidden')
 
@@ -443,9 +472,9 @@ def users_edit(request, user_id=None, self_edit=False):
 
     return render(request, 'accounts/users_edit.html', context)
 
+
 @login_required
 def users_edit_password(request, user_id=None):
-
     if not request.user.has_perm('auth.add_user'):
         return HttpResponseForbidden('403 Forbidden')
 
@@ -455,7 +484,7 @@ def users_edit_password(request, user_id=None):
 
     if form.is_valid():
         form.save()
-        return redirect('users_edit',  user_id=user_id)
+        return redirect('users_edit', user_id=user_id)
 
     context = {
         'form': form,
