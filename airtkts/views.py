@@ -338,7 +338,7 @@ def accounts_home(request):
 @login_required
 def users_home(request):
 
-    if not has_global_permissions(request.user, UserManager, 'change', 'auth'):
+    if not has_global_permissions(request.user, User, 'change', 'auth'):
         return HttpResponseForbidden('403 Forbidden')
 
     manager = UserManager()
@@ -367,7 +367,7 @@ def users_home(request):
 @login_required
 def users_new(request):
 
-    if not has_global_permissions(request.user, UserManager, 'add', 'auth'):
+    if not has_global_permissions(request.user, User, 'add', 'auth'):
         return HttpResponseForbidden('403 Forbidden')
 
     form = UserCreationForm(data=request.POST or None, files=request.FILES or None)
@@ -411,7 +411,7 @@ def users_edit(request, user_id=None, self_edit=False):
 @login_required
 def users_edit_password(request, user_id=None):
 
-    if not has_global_permissions(request.user, UserManager, 'change', 'auth'):
+    if not has_global_permissions(request.user, User, 'change', 'auth'):
         return HttpResponseForbidden('403 Forbidden')
 
     user = get_object_or_404(User, pk=user_id)
