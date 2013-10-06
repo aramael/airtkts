@@ -16,9 +16,14 @@ class Event(models.Model):
     class Meta:
         permissions = (
             ('view_event', 'Can view event'),
+            ('search_hosts', 'Can search event hosts'),
             ('add_hosts', 'Can add event hosts'),
             ('change_hosts', 'Can edit event hosts'),
             ('delete_hosts', 'Can delete event hosts'),
+            ('view_event_ticketsale', 'Can view event ticket sale'),
+            ('add_event_ticketsale', 'Can add event ticket sale'),
+            ('change_event_ticketsale', 'Can edit event ticket sale'),
+            ('delete_event_ticketsale', 'Can delete event ticket sale'),
         )
 
     def save(self, *args, **kwargs):

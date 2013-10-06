@@ -67,7 +67,7 @@ class HostForm(ActionMethodForm, forms.ModelForm):
 
         if commit:
 
-            invite_profile = Invitation.objects.get(user=request.user)
+            invite_profile = Invitation.objects.get(user=request.user, event=event)
 
             profile = Invitation.objects.create(user=user, event=event, first_name=user.first_name,
                                                 last_name=user.last_name, email=user.email, invited_by=invite_profile,
@@ -84,15 +84,16 @@ class HostForm(ActionMethodForm, forms.ModelForm):
                 assign_perm('events.change_event', user, event)
 
             if self.cleaned_data["can_add_ticket_sales"]:
-                assign_perm('events.add_ticketsale', user)
-                assign_perm('events.change_ticketsale', user)
-                assign_perm('events.view_ticketsale', user)
-                assign_perm('events.delete_ticketsale', user)
+                assign_perm('events.add_event_ticketsale', user, event)
+                assign_perm('events.change_event_ticketsale', user, event)
+                assign_perm('events.view_event_ticketsale', user, event)
+                assign_perm('events.delete_event_ticketsale', user, event)
 
             if self.cleaned_data["can_edit_hosts"]:
-                assign_perm('events.add_hosts', user)
-                assign_perm('events.change_hosts', user)
-                assign_perm('events.delete_hosts', user)
+                assign_perm('events.search_hosts', user)
+                assign_perm('events.add_hosts', user, event)
+                assign_perm('events.change_hosts', user, event)
+                assign_perm('events.delete_hosts', user, event)
                 assign_perm('events.change_own_invitation', user)
 
             send_activation_email(request, user, subject_template='email/host_activation_subject.txt',
@@ -148,14 +149,15 @@ class EventForm(ActionMethodForm, HideSlugForm, FieldsetsForm, forms.ModelForm):
             assign_perm('events.view_event', user, instance)
             assign_perm('events.change_event', user, instance)
 
-            assign_perm('events.add_ticketsale', user)
-            assign_perm('events.change_ticketsale', user)
-            assign_perm('events.view_ticketsale', user)
-            assign_perm('events.delete_ticketsale', user)
+            assign_perm('events.add_event_ticketsale', user, instance)
+            assign_perm('events.change_event_ticketsale', user, instance)
+            assign_perm('events.view_event_ticketsale', user, instance)
+            assign_perm('events.delete_event_ticketsale', user, instance)
 
-            assign_perm('events.add_hosts', user)
-            assign_perm('events.change_hosts', user)
-            assign_perm('events.delete_hosts', user)
+            assign_perm('events.search_hosts', user)
+            assign_perm('events.add_hosts', user, instance)
+            assign_perm('events.change_hosts', user, instance)
+            assign_perm('events.delete_hosts', user, instance)
 
         location_redirect = self.location_redirect(action, instance)
 

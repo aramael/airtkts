@@ -88,7 +88,7 @@ def event_form(request, event_id=None, event_slug=None):
 
     if event_id is not None:
         event = get_object_or_404(Event, pk=event_id)
-        if not request.user.has_perm('events.view_event', event):
+        if not request.user.has_perm('events.change_event', event):
             return HttpResponseForbidden('403 Forbidden')
     else:
         event = None
@@ -121,10 +121,10 @@ def event_form(request, event_id=None, event_slug=None):
 def ticketsales_home(request, event_id=None):
     """    Display the Landing Page    """
 
-    if not request.user.has_perm('events.add_ticketsale'):
-        return HttpResponseForbidden('403 Forbidden')
-
     event = get_object_or_404(Event, pk=event_id)
+
+    if not request.user.has_perm('events.add_event_ticketsale', event):
+        return HttpResponseForbidden('403 Forbidden')
 
     sales = TicketSale.objects.filter(event=event)
 
@@ -142,10 +142,10 @@ def ticketsales_home(request, event_id=None):
 def ticketsales_form(request, event_id=None, ticket_id=None):
     """    Display the Landing Page    """
 
-    if not request.user.has_perm('events.add_ticketsale'):
-        return HttpResponseForbidden('403 Forbidden')
-
     event = get_object_or_404(Event, pk=event_id)
+
+    if not request.user.has_perm('events.add_event_ticketsale', event):
+        return HttpResponseForbidden('403 Forbidden')
 
     if ticket_id is not None:
         ticket = get_object_or_404(TicketSale, pk=ticket_id)
@@ -180,6 +180,9 @@ def invites_home(request, event_id=None):
 
     event = get_object_or_404(Event, pk=event_id)
 
+    if not request.user.has_perm('events.view_event', event):
+        return HttpResponseForbidden('403 Forbidden')
+
     invites = Invitation.objects.filter(event=event)
 
     context = {
@@ -197,6 +200,9 @@ def invites_form(request, event_id=None, invite_id=None):
     """    Display the Landing Page    """
 
     event = get_object_or_404(Event, pk=event_id)
+
+    if not request.user.has_perm('events.view_event', event):
+        return HttpResponseForbidden('403 Forbidden')
 
     if invite_id is not None:
             invite = get_object_or_404(Invitation, pk=invite_id)
@@ -237,7 +243,7 @@ def invites_form(request, event_id=None, invite_id=None):
 @login_required
 def host_search(request):
 
-    if not request.user.has_perm('events.add_hosts'):
+    if not request.user.has_perm('events.search_hosts'):
         return HttpResponseForbidden('403 Forbidden')
 
     if 'q' in request.GET:
@@ -273,10 +279,10 @@ def host_search(request):
 @login_required
 def hosts_new(request, event_id=None):
 
-    if not request.user.has_perm('events.add_hosts'):
-        return HttpResponseForbidden('403 Forbidden')
-
     event = get_object_or_404(Event, pk=event_id)
+
+    if not request.user.has_perm('events.add_hosts', event):
+        return HttpResponseForbidden('403 Forbidden')
 
     form = HostForm(data=request.POST or None, files=request.FILES or None)
 
@@ -296,10 +302,10 @@ def hosts_new(request, event_id=None):
 @login_required
 def hosts_home(request, event_id=None):
 
-    if not request.user.has_perm('events.add_hosts'):
-        return HttpResponseForbidden('403 Forbidden')
-
     event = get_object_or_404(Event, pk=event_id)
+
+    if not request.user.has_perm('events.add_hosts', event):
+        return HttpResponseForbidden('403 Forbidden')
 
     if request.is_ajax() and 'action' in request.POST:
         errors = []
