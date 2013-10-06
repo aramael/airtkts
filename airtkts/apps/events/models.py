@@ -85,7 +85,8 @@ class Invitation(models.Model):
 
     invited_by = models.ForeignKey('self', blank=True, null=True)
     max_guest_count = models.PositiveIntegerField(help_text='How many guests can this person invite?'
-                                                   ' If they are not allowed to invite guests then set this to 0.')
+                                                  ' If they are not allowed to invite guests then set this to 0.',
+                                                  null=True, blank=True)
     guests = models.ManyToManyField('self', blank=True, null=True)
 
     class Meta:
