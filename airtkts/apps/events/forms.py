@@ -81,7 +81,6 @@ class HostForm(ActionMethodForm, forms.ModelForm):
             assign_perm('events.view_event', user, event)
 
             if self.cleaned_data["can_edit_event_details"]:
-                assign_perm('events.view_event', user, event)
                 assign_perm('events.change_event', user, event)
 
             if self.cleaned_data["can_add_ticket_sales"]:

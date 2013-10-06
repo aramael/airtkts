@@ -5,7 +5,6 @@ Django views for airtkts project.
 
 import json
 
-from .helpers import has_global_permissions, has_model_permissions
 from airtkts.apps.events.forms import EventForm, HostForm, InviteForm, QuickInviteForm, \
     TicketOfficeSaleForm, TicketSaleForm
 from airtkts.apps.events.helpers import get_events
@@ -72,6 +71,9 @@ def event_dashboard(request, event_id=None):
 
     event = get_object_or_404(Event, pk=event_id)
 
+    if not request.user.has_perm('events.view_event', event):
+        return HttpResponseForbidden('403 Forbidden')
+
     context = {
         'event': event,
         'events': get_events(request.user),
@@ -86,8 +88,12 @@ def event_form(request, event_id=None, event_slug=None):
 
     if event_id is not None:
         event = get_object_or_404(Event, pk=event_id)
+        if not request.user.has_perm('events.view_event', event):
+            return HttpResponseForbidden('403 Forbidden')
     else:
         event = None
+        if not request.user.has_perm('events.add_event'):
+            return HttpResponseForbidden('403 Forbidden')
 
     form = EventForm(instance=event, initial={'owner': [request.user, ], }, data=request.POST or None, files=request.FILES or None)
 
@@ -115,6 +121,9 @@ def event_form(request, event_id=None, event_slug=None):
 def ticketsales_home(request, event_id=None):
     """    Display the Landing Page    """
 
+    if not request.user.has_perm('events.add_ticketsale'):
+        return HttpResponseForbidden('403 Forbidden')
+
     event = get_object_or_404(Event, pk=event_id)
 
     sales = TicketSale.objects.filter(event=event)
@@ -133,10 +142,13 @@ def ticketsales_home(request, event_id=None):
 def ticketsales_form(request, event_id=None, ticket_id=None):
     """    Display the Landing Page    """
 
+    if not request.user.has_perm('events.add_ticketsale'):
+        return HttpResponseForbidden('403 Forbidden')
+
     event = get_object_or_404(Event, pk=event_id)
 
     if ticket_id is not None:
-            ticket = get_object_or_404(TicketSale, pk=ticket_id)
+        ticket = get_object_or_404(TicketSale, pk=ticket_id)
     else:
         ticket = None
 
@@ -224,6 +236,10 @@ def invites_form(request, event_id=None, invite_id=None):
 
 @login_required
 def host_search(request):
+
+    if not request.user.has_perm('events.add_hosts'):
+        return HttpResponseForbidden('403 Forbidden')
+
     if 'q' in request.GET:
         query = request.GET['q']
 
@@ -257,6 +273,9 @@ def host_search(request):
 @login_required
 def hosts_new(request, event_id=None):
 
+    if not request.user.has_perm('events.add_hosts'):
+        return HttpResponseForbidden('403 Forbidden')
+
     event = get_object_or_404(Event, pk=event_id)
 
     form = HostForm(data=request.POST or None, files=request.FILES or None)
@@ -276,6 +295,9 @@ def hosts_new(request, event_id=None):
 
 @login_required
 def hosts_home(request, event_id=None):
+
+    if not request.user.has_perm('events.add_hosts'):
+        return HttpResponseForbidden('403 Forbidden')
 
     event = get_object_or_404(Event, pk=event_id)
 
@@ -345,7 +367,7 @@ def accounts_home(request):
 @login_required
 def users_home(request):
 
-    if not has_global_permissions(request.user, User, 'change', 'auth'):
+    if not request.user.has_perm('auth.add_user'):
         return HttpResponseForbidden('403 Forbidden')
 
     manager = UserManager()
@@ -374,7 +396,7 @@ def users_home(request):
 @login_required
 def users_new(request):
 
-    if not has_global_permissions(request.user, User, 'add', 'auth'):
+    if not request.user.has_perm('auth.add_user'):
         return HttpResponseForbidden('403 Forbidden')
 
     form = UserCreationForm(data=request.POST or None, files=request.FILES or None)
@@ -394,7 +416,7 @@ def users_new(request):
 @login_required
 def users_edit(request, user_id=None, self_edit=False):
 
-    if not has_global_permissions(request.user, UserManager, 'change', 'auth'):
+    if not request.user.has_perm('auth.add_user'):
         return HttpResponseForbidden('403 Forbidden')
 
     if self_edit:
@@ -418,7 +440,7 @@ def users_edit(request, user_id=None, self_edit=False):
 @login_required
 def users_edit_password(request, user_id=None):
 
-    if not has_global_permissions(request.user, User, 'change', 'auth'):
+    if not request.user.has_perm('auth.add_user'):
         return HttpResponseForbidden('403 Forbidden')
 
     user = get_object_or_404(User, pk=user_id)
