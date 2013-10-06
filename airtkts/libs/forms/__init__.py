@@ -31,13 +31,13 @@ class ActionMethodForm(object):
 
         return cleaned_data
 
-    def save(self, commit=True):
+    def save(self, *args, **kwargs):
 
         action = self.cleaned_data['action']
 
         del self.cleaned_data['action']
 
-        instance = super(ActionMethodForm, self).save(commit)
+        instance = super(ActionMethodForm, self).save(*args, **kwargs)
 
         location_redirect = self.location_redirect(action, instance)
 
