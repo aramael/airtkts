@@ -171,6 +171,12 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+from memcacheify import memcacheify
+
+CACHES = memcacheify()
+
 #==============================================================================
 # Miscellaneous Project Settings
 #==============================================================================
