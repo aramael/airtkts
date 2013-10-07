@@ -55,7 +55,18 @@ def ticket_office(request, event_id=None, event_slug=None):
 def event_home(request):
     """    Display the Landing Page    """
 
+    if request.POST:
+        if '_bulkactions' in request.POST:
+
+            items = []
+            for item in request.POST.getlist('_selected_action'):
+                item = Event.objects.get(pk=int(item))
+                items.append(item)
+
+            Event.objects.process_bulk_actions(request=request, action=request.POST['action'], queryset=items)
+
     context = {
+        'actions': Event.objects.bulk_actions,
         'events': get_events(request.user),
     }
 
@@ -128,8 +139,19 @@ def ticketsales_home(request, event_id=None):
 
     sales = TicketSale.objects.filter(event=event)
 
+    if request.POST:
+        if '_bulkactions' in request.POST:
+
+            items = []
+            for item in request.POST.getlist('_selected_action'):
+                item = TicketSale.objects.get(pk=int(item))
+                items.append(item)
+
+            TicketSale.objects.process_bulk_actions(request=request, action=request.POST['action'], queryset=items)
+
     context = {
         'section': 'ticketsales',
+        'actions': TicketSale.objects.bulk_actions,
         'sales': sales,
         'event': event,
         'events': get_events(request.user),
@@ -184,10 +206,21 @@ def invites_home(request, event_id=None):
     if not request.user.has_perm('events.view_event', event):
         return HttpResponseForbidden('403 Forbidden')
 
+    if request.POST:
+        if '_bulkactions' in request.POST:
+
+            items = []
+            for item in request.POST.getlist('_selected_action'):
+                item = Invitation.objects.get(pk=int(item))
+                items.append(item)
+
+            Invitation.objects.process_bulk_actions(request=request, action=request.POST['action'], queryset=items)
+
     invites = Invitation.objects.filter(event=event)
 
     context = {
         'section': 'invites',
+        'actions': Invitation.objects.bulk_actions,
         'invites': invites,
         'event': event,
         'events': get_events(request.user),

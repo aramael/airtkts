@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-from guardian.shortcuts import assign_perm
+from .managers import EventManager, TicketSaleManager, InvitationManager
 
 
 class Event(models.Model):
@@ -12,6 +12,8 @@ class Event(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     location = models.CharField(max_length=100)
+
+    objects = EventManager()
 
     class Meta:
         permissions = (
@@ -48,6 +50,8 @@ class TicketSale(models.Model):
     minimum_ordered = models.PositiveIntegerField(default=1)
     maximum_ordered = models.PositiveIntegerField()
     show_remaining_count = models.BooleanField(default=False)
+
+    objects = TicketSaleManager()
 
     class Meta:
         permissions = (
@@ -97,6 +101,8 @@ class Invitation(models.Model):
                                                   ' If they are not allowed to invite guests then set this to 0.',
                                                   null=True, blank=True)
     guests = models.ManyToManyField('self', blank=True, null=True)
+
+    objects = InvitationManager()
 
     class Meta:
         permissions = (
