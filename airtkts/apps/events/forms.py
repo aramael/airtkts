@@ -1,6 +1,7 @@
 import stripe
 
 from .models import Event, Invitation, Ticket, TicketOrder, TicketSale
+from .helpers import get_available_sales
 from airtkts.libs.forms import ActionMethodForm, FieldsetsForm, HideSlugForm
 from airtkts.libs.users.managers import send_activation_email
 from django.conf import settings
@@ -79,6 +80,7 @@ class HostForm(ActionMethodForm, forms.ModelForm):
             event.save()
 
             assign_perm('events.view_event', user, event)
+            assign_perm('events.view_invitation', user, profile)
 
             if self.cleaned_data["can_edit_event_details"]:
                 assign_perm('events.change_event', user, event)
@@ -198,7 +200,7 @@ class TicketSaleForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
         elif action == '_addanother':
             return {"to": 'ticketsales_new', 'event_id': instance.event.pk}
         elif action == '_continue':
-            return {"to": 'ticketsales_edit', 'event_id': instance.event.pk,'ticket_id': instance.pk}
+            return {"to": 'ticketsales_edit', 'event_id': instance.event.pk, 'ticket_id': instance.pk}
 
 
 class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
@@ -211,39 +213,52 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(InviteForm, self).__init__(*args, **kwargs)
 
-        if 'event' in self.fields:
+        if 'invited_by' in self.fields:
             self.fields['event'].widget = forms.HiddenInput()
+        if 'event' in self.fields:
+            self.fields['invited_by'].widget = forms.HiddenInput()
+        if 'available_sales' in self.fields:
+            self.fields['available_sales'].queryset = get_available_sales(self.initial.get('invited_by', None))
+            self.fields['available_sales'].initial = get_available_sales(self.initial.get('invited_by', None))
+
+    def save(self, *args, **kwargs):
+
+        redirect = super(InviteForm, self).save(*args, **kwargs)
+
+        instance = redirect['instance']
+
+        if type(instance.invited_by.user) is User:
+            assign_perm('events.view_invitation', instance.invited_by.user, instance)
+
+        del redirect['instance']
+
+        return redirect
 
     def location_redirect(self, action, instance):
         if action == '_save':
-            return {"to": 'invites_home', 'event_id': instance.event.pk}
+            return {"to": 'invites_home', 'event_id': instance.event.pk, 'instance': instance}
         elif action == '_addanother':
-            return {"to": 'invites_new', 'event_id': instance.event.pk}
+            return {"to": 'invites_new', 'event_id': instance.event.pk, 'instance': instance}
         elif action == '_continue':
-            return {"to": 'invites_edit', 'event_id': instance.event.pk, 'invite_id': instance.pk}
+            return {"to": 'invites_edit', 'event_id': instance.event.pk, 'invite_id': instance.pk, 'instance': instance}
 
 
-class QuickInviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
+class QuickInviteForm(InviteForm):
 
-    POSSIBLE_ACTIONS = {'_save', '_addanother', '_continue'}
+    class Meta(InviteForm.Meta):
+        exclude = ('guests', )
 
-    class Meta:
-        model = Invitation
-        exclude = ('guests')
 
-    def __init__(self, *args, **kwargs):
-        super(QuickInviteForm, self).__init__(*args, **kwargs)
+class LimitedInviteForm(InviteForm):
 
-        self.fields['event'].widget = forms.HiddenInput()
-        self.fields['invited_by'].widget = forms.HiddenInput()
+    class Meta(InviteForm.Meta):
+        exclude = ('guests', 'max_guest_count', 'invited_by', 'event', 'available_sales', 'user')
 
-    def location_redirect(self, action, instance):
-        if action == '_save':
-            return {"to": 'invites_home', 'event_id': instance.event.pk}
-        elif action == '_addanother':
-            return {"to": 'invites_new', 'event_id': instance.event.pk}
-        elif action == '_continue':
-            return {"to": 'invites_edit', 'event_id': instance.event.pk, 'invite_id': instance.pk}
+
+class GuestInviteForm(InviteForm):
+
+    class Meta(InviteForm.Meta):
+        exclude = ('guests', 'invited_by', 'event')
 
 
 class TicketOfficeSaleForm(forms.Form):

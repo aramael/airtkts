@@ -29,6 +29,8 @@ class ActionMethodForm(object):
 
         cleaned_data['action'] = action[0]
 
+        print cleaned_data
+
         return cleaned_data
 
     def save(self, *args, **kwargs):

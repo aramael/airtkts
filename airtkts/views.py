@@ -6,7 +6,7 @@ Django views for airtkts project.
 import json
 
 from airtkts.apps.events.forms import EventForm, HostForm, InviteForm, QuickInviteForm, \
-    TicketOfficeSaleForm, TicketSaleForm
+    TicketOfficeSaleForm, TicketSaleForm, LimitedInviteForm, GuestInviteForm
 from airtkts.apps.events.helpers import get_events
 from airtkts.apps.events.models import Event, Invitation, TicketSale
 from airtkts.libs.users.forms import UserCreationForm, UserEditForm
@@ -212,12 +212,8 @@ def invites_form(request, event_id=None, invite_id=None):
 
     user_invite = Invitation.objects.get(user=request.user, event=event)
 
-    own_invite = invite.pk == user_invite.pk
-
-    if not request.user.has_perm('events.view_invitation', invite):
+    if invite is not None and not request.user.has_perm('events.view_invitation', invite):
         return HttpResponseForbidden('403 Forbidden')
-
-    initial_data = {'event': event, }
 
     if 'quick' in request.GET:
         form_class = QuickInviteForm
@@ -226,7 +222,15 @@ def invites_form(request, event_id=None, invite_id=None):
         form_class = InviteForm
         template = 'events/invite_form.html'
 
-    form = form_class(instance=invite, initial=initial_data,
+    if invite is not None and not request.user.has_perm('events.change_hosts', event):
+        form_class = LimitedInviteForm
+        template = 'events/invite_limited_form.html'
+
+    if invite is not None and invite.invited_by.pk == user_invite.pk:
+        form_class = GuestInviteForm
+        template = 'events/invite_guest_form.html'
+
+    form = form_class(instance=invite, initial={'event': event, 'invited_by': user_invite, },
                       data=request.POST or None, files=request.FILES or None)
 
     if form.is_valid():
