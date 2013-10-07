@@ -14,8 +14,8 @@ urlpatterns = patterns('',
     # User Pages
     url(r'^accounts/users/$', 'airtkts.views.users_home', name='users_home'),
     url(r'^accounts/users/new$', 'airtkts.views.users_new', name='users_new'),
-    url(r'^accounts/users/(?P<user_id>[0-9]+)/$', 'airtkts.views.users_edit', name='users_edit'),
-    url(r'^accounts/users/(?P<user_id>[0-9]+)/password/$', 'airtkts.views.users_edit_password', name='users_edit_password'),
+    url(r'^accounts/users/(?P<user_id>[\-0-9]+)/$', 'airtkts.views.users_edit', name='users_edit'),
+    url(r'^accounts/users/(?P<user_id>[\-0-9]+)/password/$', 'airtkts.views.users_edit_password', name='users_edit_password'),
     url(r'^accounts/users/me/$', 'airtkts.views.users_edit', {'self_edit': True}, name='account_edit'),
 
     # Account Event Pages

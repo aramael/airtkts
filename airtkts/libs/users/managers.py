@@ -34,6 +34,32 @@ def send_activation_email(request, user,
     send_mail(subject, email, None, [user.email])
 
 
+def send_new_event_email(request, user, event, invited_by, subject_template='email/new_event_email_subject.txt',
+                         email_template='email/new_event_email.html', extra_context=None):
+
+    current_site = get_current_site(request)
+    site_name = current_site.name
+    domain = current_site.domain
+
+    context = {
+        'email': user.email,
+        'domain': domain,
+        'event': event,
+        'invited_by': invited_by,
+        'site_name': site_name,
+        'user': user,
+        'protocol': request.is_secure(),
+    }
+
+    if extra_context is not None:
+        context.update(extra_context)
+    subject = loader.render_to_string(subject_template, context)
+    # Email subject *must not* contain newlines
+    subject = ''.join(subject.splitlines())
+    email = loader.render_to_string(email_template, context)
+    send_mail(subject, email, None, [user.email])
+
+
 class UserManager(UserManager):
 
     actions = ['delete_items', 'resend_activation_email', ]

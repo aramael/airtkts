@@ -1,0 +1,134 @@
+{% extends 'events/base.html' %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}New Invite for {{ event.name }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static "css/vendor/admin/dual_listbox.css" %}">
+{% endblock %}
+
+{% block content %}
+
+    <h1>New Invite for {{ event.name }}</h1>
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <form method="post" class="form-horizontal"{% if has_file_field %} enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+
+        <div class="form-group {% if form.first_name.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.first_name.html_name }}">Invitee's {{ form.first_name.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.first_name class+="form-control" %}
+                    <p class="help-block">{{ form.first_name.help_text|safe }}{% if form.first_name.errors %}<strong>{{ form.first_name.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.last_name.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.last_name.html_name }}">Invitee's {{ form.last_name.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.last_name class+="form-control" %}
+                    <p class="help-block">{{ form.last_name.help_text|safe }}{% if form.last_name.errors %}<strong>{{ form.last_name.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.email.html_name }}">Invitee's {{ form.email.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.email class+="form-control" %}
+                    <p class="help-block">{{ form.email.help_text|safe }}{% if form.email.errors %}<strong>{{ form.email.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-lg-offset-2 col-lg-10">
+                <div class="checkbox">
+                    <label for="id_show_user">
+                        <input type="checkbox" name="show_user" id="id_show_user"/> Associate with User Account
+                    </label>
+                </div>
+                <p class="help-block">{{ form.show_remaining_count.help_text|safe }}</p>
+            </div>
+        </div>
+
+        <div class="form-group {% if form.user.errors %}has-error{% endif %} hide" id="id_show_user_select">
+            <label class="col-lg-2 control-label" for="id_{{ form.user.html_name }}">Invitee's {{ form.user.label }}</label>
+            <div class="col-lg-10">
+                {% render_field form.user class+="form-control" %}
+                <p class="help-block">{{ form.user.help_text|safe }}{% if form.user.errors %}<strong>{{ form.user.errors }}</strong>{% endif %}</p>
+            </div>
+        </div>
+
+        <div class="form-group {% if form.available_sales.errors %}has-error{% endif %}">
+            <label class="col-lg-2 control-label" for="id_{{ form.available_sales.html_name }}">{{ form.available_sales.label }}</label>
+            <div class="col-lg-10">
+                {% render_field form.available_sales class+="form-control" %}
+                <p class="help-block">{{ form.available_sales.help_text|safe }}{% if form.available_sales.errors %}<strong>{{ form.available_sales.errors }}</strong>{% endif %}</p>
+            </div>
+        </div>
+
+        <div class="form-group {% if form.invited_by.errors %}has-error{% endif %}">
+            <label class="col-lg-2 control-label" for="id_{{ form.invited_by.html_name }}">{{ form.invited_by.label }}</label>
+            <div class="col-lg-10">
+                {% render_field form.invited_by class+="form-control" %}
+                <p class="help-block">{{ form.invited_by.help_text|safe }}{% if form.invited_by.errors %}<strong>{{ form.invited_by.errors }}</strong>{% endif %}</p>
+            </div>
+        </div>
+
+        <div class="form-group {% if form.max_guest_count.errors %}has-error{% endif %}">
+            <label class="col-lg-2 control-label" for="id_{{ form.max_guest_count.html_name }}">{{ form.max_guest_count.label }}</label>
+            <div class="col-lg-10">
+                {% render_field form.max_guest_count class+="form-control" %}
+                <p class="help-block">{{ form.max_guest_count.help_text|safe }}{% if form.max_guest_count.errors %}<strong>{{ form.max_guest_count.errors }}</strong>{% endif %}</p>
+            </div>
+        </div>
+
+
+        <div class="form-group {% if form.guests.errors %}has-error{% endif %}">
+            <label class="col-lg-2 control-label" for="id_{{ form.guests.html_name }}">{{ form.guests.label }}</label>
+            <div class="col-lg-10">
+                {% render_field form.guests class+="form-control" %}
+                <p class="help-block">{{ form.guests.help_text|safe }}{% if form.guests.errors %}<strong>{{ form.guests.errors }}</strong>{% endif %}</p>
+            </div>
+        </div>
+
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-10 col-md-offset-2 hidden-xs">
+                <input type="submit" class="btn btn-primary" value="Save Ticket" class="default" name="_save">
+                <input type="submit" class="btn btn-info" value="Save Ticket & Add Another" name="_addanother">
+                <input type="submit" class="btn" value="Save Ticket & Continue Editing" name="_continue">
+            </div>
+        </div>
+
+        <div class="form-actions hidden-md hidden-lg hidden-sm ">
+            <input type="submit" class="btn btn-primary btn-block btn-lg" value="Save Ticket" class="default" name="_save">
+            <input type="submit" class="btn btn-info btn-block btn-lg" value="Save Ticket & Add Another" name="_addanother">
+            <input type="submit" class="btn btn-block btn-lg" value="Save Ticket & Continue Editing" name="_continue">
+        </div>
+    </form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "js/vendor/admin/dual_listbox.js" %}"></script>
+<script>
+$('#id_{{ form.available_sales.html_name }}').bootstrapDualListbox();
+$('#id_{{ form.guests.html_name }}').bootstrapDualListbox();
+$(document).ready(function (){
+   $('#id_show_user').on( "click", function (){
+       $('#id_show_user_select').toggleClass('hide');
+   });
+});
+</script>
+{% endblock %}

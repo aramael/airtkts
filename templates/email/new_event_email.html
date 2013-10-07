@@ -1,0 +1,12 @@
+{% extends "email/base.html" %}
+
+{% block message %}
+<h3>Hi, {{ user.first_name }}</h3>
+<p class="lead">
+    {{ invited_by.first_name }} {{ invited_by.last_name }} invited you to an airTKTS event called "{{ event.name }}".</p>
+<!-- Callout Panel -->
+<p class="callout">
+    <a href="{% block event_link %}{{ protocol }}://{{ domain }}{% url 'event_dashboard' event.pk %}{% endblock %}" class="btn btn-primary center">Start editing <strong>{{ event.name }}</strong></a>
+</p><!-- /Callout Panel -->
+<p>Enjoy! <br/> &mdash; The airTKTS Team</p>
+{% endblock %}

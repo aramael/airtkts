@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from .managers import EventManager, TicketSaleManager, InvitationManager
 
 
 class Event(models.Model):
@@ -11,6 +12,21 @@ class Event(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     location = models.CharField(max_length=100)
+
+    objects = EventManager()
+
+    class Meta:
+        permissions = (
+            ('view_event', 'Can view event'),
+            ('search_hosts', 'Can search event hosts'),
+            ('add_hosts', 'Can add event hosts'),
+            ('change_hosts', 'Can edit event hosts'),
+            ('delete_hosts', 'Can delete event hosts'),
+            ('view_event_ticketsale', 'Can view event ticket sale'),
+            ('add_event_ticketsale', 'Can add event ticket sale'),
+            ('change_event_ticketsale', 'Can edit event ticket sale'),
+            ('delete_event_ticketsale', 'Can delete event ticket sale'),
+        )
 
     def save(self, *args, **kwargs):
 
@@ -34,6 +50,13 @@ class TicketSale(models.Model):
     minimum_ordered = models.PositiveIntegerField(default=1)
     maximum_ordered = models.PositiveIntegerField()
     show_remaining_count = models.BooleanField(default=False)
+
+    objects = TicketSaleManager()
+
+    class Meta:
+        permissions = (
+            ('view_ticketsale', 'Can view ticket sale'),
+        )
 
     def __unicode__(self):
         return "{event}: {name}".format(name=self.name, event=self.event.name)
@@ -75,8 +98,17 @@ class Invitation(models.Model):
 
     invited_by = models.ForeignKey('self', blank=True, null=True)
     max_guest_count = models.PositiveIntegerField(help_text='How many guests can this person invite?'
-                                                   ' If they are not allowed to invite guests then set this to 0.')
+                                                  ' If they are not allowed to invite guests then set this to 0.',
+                                                  null=True, blank=True)
     guests = models.ManyToManyField('self', blank=True, null=True)
+
+    objects = InvitationManager()
+
+    class Meta:
+        permissions = (
+            ('view_invitation', 'Can view invitation'),
+            ('change_own_invitation', 'Can change own invitation'),
+        )
 
     def __unicode__(self):
         return self.first_name + ' ' + self.last_name
