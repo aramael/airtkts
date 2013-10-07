@@ -1,7 +1,19 @@
+import datetime
+import hashlib
+import random
+import re
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from .managers import EventManager, TicketSaleManager, InvitationManager
+
+try:
+    from django.utils.timezone import now as datetime_now
+except ImportError:
+    datetime_now = datetime.datetime.now
+
+SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
 
 class Event(models.Model):
@@ -29,7 +41,6 @@ class Event(models.Model):
         )
 
     def save(self, *args, **kwargs):
-
         # Convert Name of Event to Slug
         if self.slug == '':
             self.slug = slugify(unicode(self.name))
@@ -63,7 +74,6 @@ class TicketSale(models.Model):
 
 
 class TicketOrder(models.Model):
-
     CREDIT_CARD = 'cc'
     CASH = 'cash'
 
@@ -88,6 +98,18 @@ class Ticket(models.Model):
 
 
 class Invitation(models.Model):
+    USED_INVITE_KEY = 'ALREADY_BOUGHT_TICKETS'
+
+    NO_ANSWER = '--'
+    ATTENDING = 'ATTENDING'
+    DECLINED = 'DECLINED'
+
+    RSVP_CHOICES = (
+        (NO_ANSWER, '--'),
+        (ATTENDING, 'Attending'),
+        (DECLINED, 'Decline'),
+    )
+
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField()
@@ -97,10 +119,14 @@ class Invitation(models.Model):
     available_sales = models.ManyToManyField(TicketSale)
 
     invited_by = models.ForeignKey('self', blank=True, null=True)
-    max_guest_count = models.PositiveIntegerField(help_text='How many guests can this person invite?'
-                                                  ' If they are not allowed to invite guests then set this to 0.',
+    max_guest_count = models.PositiveIntegerField(help_text='How many guests can this person invite? If '
+                                                            'they are not allowed to invite guests then set this to 0.',
                                                   null=True, blank=True)
     guests = models.ManyToManyField('self', blank=True, null=True)
+
+    invite_key = models.CharField(max_length=40, default='', blank=True, null=True)
+    rsvp_status = models.CharField(choices=RSVP_CHOICES, default=NO_ANSWER, max_length=12)
+    ticket_order = models.ForeignKey(TicketOrder, default=None, blank=True, null=True)
 
     objects = InvitationManager()
 
@@ -110,5 +136,40 @@ class Invitation(models.Model):
             ('change_own_invitation', 'Can change own invitation'),
         )
 
+    def save(self, *args, **kwargs):
+
+        if self.invite_key == '':
+
+                salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+                username = self.email
+                if isinstance(username, unicode):
+                    username = username.encode('utf-8')
+                invite_key = hashlib.sha1(salt+username).hexdigest()
+
+                self.invite_key = invite_key
+
+        return super(Invitation, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return self.first_name + ' ' + self.last_name
+
+    def invitation_key_expired(self):
+        """
+        Determine whether this ``Invitation``'s invite
+        key has expired, returning a boolean -- ``True`` if the key
+        has expired.
+
+        Key expiration is determined by a two-step process:
+
+        1. If the user has already bought a ticket, the key will have been
+           reset to the string constant ``USED_INVITE_KEY``. Reusing an invite
+           is not permitted, and so this method returns ``True`` in
+           this case.
+
+        2. Otherwise, it checks if the event has already passed and
+           therefore the key has expired and this method returns ``True``.
+
+        """
+        return self.invite_key == self.USED_INVITE_KEY or (self.event.start_time <= datetime_now())
+
+    invitation_key_expired.boolean = True
