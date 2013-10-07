@@ -6,7 +6,15 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'airtkts.views.home', name='home'),
-    url(r'^event/(?P<event_id>[0-9]+)/(?P<event_slug>\w+)', 'airtkts.views.ticket_office', name='ticket_office'),
+
+    # Activation keys get matched by \w+ instead of the more specific
+    # [a-fA-F0-9]{40} because a bad activation key should still get to the view;
+    # that way it can return a sensible "invalid key" message instead of a
+    # confusing 404.
+    url(r'^invite/expired/(?P<event_id>[0-9]+)/$', 'airtkts.views.invite_expired', name='invite_expired'),
+    url(r'^invite/invalid/$', 'airtkts.views.invite_invalid', name='invite_invalid'),
+    url(r'^invite/(?P<invite_key>\w+)/$', 'airtkts.views.invite_serve', name='invite_serve'),
+    url(r'^event/(?P<event_id>[0-9]+)/(?P<event_slug>\w+)/$', 'airtkts.views.ticket_office', name='ticket_office'),
 
     # Account Home
     url(r'^accounts/$', 'airtkts.views.accounts_home', name='accounts_home'),

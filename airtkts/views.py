@@ -28,6 +28,26 @@ def home(request):
     return render(request, '', context)
 
 
+def invite_serve(request, invite_key=None):
+
+    location_redirect = Invitation.objects.serve_invite(invite_key=invite_key)
+    return redirect(**location_redirect)
+
+
+def invite_invalid(request):
+    return render(request, 'ticket_office/invite_invalid.html')
+
+
+def invite_expired(request, event_id=None):
+
+    try:
+        event = Event.objects.get(pk=event_id)
+    except Event.DoesNotExist:
+        return redirect('invite_invalid')
+
+    return render(request, 'ticket_office/invite_expired.html', {'event': event})
+
+
 def ticket_office(request, event_id=None, event_slug=None):
     if event_id is not None:
         event = get_object_or_404(Event, pk=event_id)

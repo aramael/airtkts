@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.exceptions import ObjectDoesNotExist
 
 class BulkActionsManager(object):
 
@@ -47,3 +47,15 @@ class TicketSaleManager(BulkActionsManager, models.Manager):
 
 class InvitationManager(BulkActionsManager, models.Manager):
     MODEL_NAME = 'invitation'
+
+    def serve_invite(self, *args, **kwargs):
+
+        try:
+            invite = self.get(*args, **kwargs)
+        except ObjectDoesNotExist:
+            return {'to': 'invite_invalid'}
+        else:
+            if invite.invitation_key_expired():
+                return {'to': 'invite_expired', 'event_id': invite.event.pk}
+
+            return {'to': 'ticket_office', 'event_id': invite.event.pk, 'event_slug': invite.event.slug}
