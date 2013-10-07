@@ -31,6 +31,12 @@ def home(request):
 def invite_serve(request, invite_key=None):
 
     location_redirect = Invitation.objects.serve_invite(invite_key=invite_key)
+
+    if location_redirect.get('invite', False):
+        request.session['invite_id'] = location_redirect.get('invite')
+
+        del location_redirect['invite']
+
     return redirect(**location_redirect)
 
 
@@ -56,7 +62,17 @@ def ticket_office(request, event_id=None, event_slug=None):
     else:
         event = None
 
-    form = TicketOfficeSaleForm(data=request.POST or None, files=request.FILES or None)
+    initial = {}
+
+    if request.session.get('invite', False):
+
+        invite = get_object_or_404(Invitation, pk=request.session.get('invite'))
+
+        initial['first_name'] = invite.first_name
+        initial['last_name'] = invite.last_name
+        initial['email'] = invite.email
+
+    form = TicketOfficeSaleForm(initial=initial, data=request.POST or None, files=request.FILES or None)
 
     context = {
         'event': event,

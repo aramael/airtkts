@@ -53,9 +53,10 @@ class InvitationManager(BulkActionsManager, models.Manager):
         try:
             invite = self.get(*args, **kwargs)
         except ObjectDoesNotExist:
-            return {'to': 'invite_invalid'}
+            return {'to': 'invite_invalid', 'invite': None}
         else:
             if invite.invitation_key_expired():
-                return {'to': 'invite_expired', 'event_id': invite.event.pk}
+                return {'to': 'invite_expired', 'event_id': invite.event.pk, 'invite': invite}
 
-            return {'to': 'ticket_office', 'event_id': invite.event.pk, 'event_slug': invite.event.slug}
+            return {'to': 'ticket_office', 'event_id': invite.event.pk,
+                    'event_slug': invite.event.slug, 'invite': invite}
