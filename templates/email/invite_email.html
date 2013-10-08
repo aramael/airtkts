@@ -1,0 +1,20 @@
+{% extends 'email/invite_base.html' %}
+
+{% block teaser %}
+    You've been invited to {{ event.name }} by {{ invited_by.first_name }} {{ invited_by.last_name }}.<a href="{{ protocol }}://{{ domain }}{% url 'invite_serve' user.invite_key %}">RSVP Now</a>
+{% endblock %}
+
+{{ archive_link }}
+
+{% block header_content %}
+    <img src="http://gallery.mailchimp.com/2425ea8ad3/images/header_placeholder_600px.png" style="max-width:600px;" id="headerImage">
+{% endblock %}
+
+{% block body_content %}
+    {{ user.first_name }}, you've been invited by {{ invited_by.first_name }} {{ invited_by.last_name }} to attend {{ event.name }} on {{ event.start_time }} at {{ event.location }}.
+
+    <center><a style="border-radius:3px;border-left:1px #18639a solid;font-size:16px;border-bottom:1px #0f568b solid;padding:14px 7px 14px 7px;border-top:1px #2270ab solid;display:block;max-width:210px;font-family:'Open Sans','lucida grande','Segoe UI',arial,verdana,'lucida sans unicode',tahoma,sans-serif;text-align:center;background-image:-webkit-gradient(linear,0% 0%,0% 100%,from(rgb(55,163,235)),to(rgb(33,129,207)));width:210px;text-decoration:none;color:white;border-right:1px #18639a solid;font-weight:600;margin:0px auto 0px auto;background-color:#33a0e8" href="{{ protocol }}://{{ domain }}{% url 'invite_serve' user.invite_key %}" target="_blank">RSVP Now</a></center>
+
+{% endblock %}
+
+{% block email_actions %}{% endblock %}

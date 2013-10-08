@@ -209,6 +209,7 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
 
     class Meta:
         model = Invitation
+        exclude = ['ticket_order', ]
 
     def __init__(self, *args, **kwargs):
         super(InviteForm, self).__init__(*args, **kwargs)
@@ -221,7 +222,7 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
             self.fields['available_sales'].queryset = get_available_sales(self.initial.get('invited_by', None))
             self.fields['available_sales'].initial = get_available_sales(self.initial.get('invited_by', None))
 
-    def save(self, *args, **kwargs):
+    def save(self, request, *args, **kwargs):
 
         redirect = super(InviteForm, self).save(*args, **kwargs)
 
@@ -229,6 +230,8 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
 
         if type(instance.invited_by.user) is User:
             assign_perm('events.view_invitation', instance.invited_by.user, instance)
+
+        instance.send_invitation_email(request)
 
         del redirect['instance']
 

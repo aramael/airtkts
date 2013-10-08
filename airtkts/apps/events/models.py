@@ -5,6 +5,9 @@ import re
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.sites.models import get_current_site
+from django.core.mail import send_mail
+from django.template import loader
 from django.utils.text import slugify
 from .managers import EventManager, TicketSaleManager, InvitationManager
 
@@ -173,3 +176,47 @@ class Invitation(models.Model):
         return self.invite_key == self.USED_INVITE_KEY or (self.event.start_time <= datetime_now())
 
     invitation_key_expired.boolean = True
+
+    def mail_guest(self, subject, body):
+        send_mail(subject, body, None, [self.email, ])
+
+    def invitation_email_message(self, request, subject_template='email/invite_email_subject.txt',
+                                 email_template='email/invite_email.html', extra_context=None):
+
+        current_site = get_current_site(request)
+        site_name = current_site.name
+        domain = current_site.domain
+
+        context = {
+            'email': self.email,
+            'domain': domain,
+            'event': self.event,
+            'invited_by': self.invited_by,
+            'site_name': site_name,
+            'user': self,
+            'mailing_address': 'airTKTS <br/> 5980 Lerner Hall <br/>2920 Broadway <br/>New York, NY 10027',
+            'protocol': request.is_secure(),
+        }
+
+        if extra_context is not None:
+            context.update(extra_context)
+        subject = loader.render_to_string(subject_template, context)
+        # Email subject *must not* contain newlines
+        subject = ''.join(subject.splitlines())
+
+        context.update({'subject': subject})
+
+        email = loader.render_to_string(email_template, context)
+
+        return subject, email
+
+    def send_invitation_email(self, *args, **kwargs):
+        """
+        Send out an email to the holder of this ``Invitation`` reminding
+        them to purchase a ticket to the event in question. Only sends
+        out if the user's invite key is still valid
+        """
+
+        if not self.invitation_key_expired():
+            subject, email = self.invitation_email_message(*args, **kwargs)
+            self.mail_guest(subject, email)

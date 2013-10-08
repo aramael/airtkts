@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
+
 class BulkActionsManager(object):
 
     actions = ['delete_items', ]
@@ -47,6 +48,14 @@ class TicketSaleManager(BulkActionsManager, models.Manager):
 
 class InvitationManager(BulkActionsManager, models.Manager):
     MODEL_NAME = 'invitation'
+
+    actions = BulkActionsManager.actions + ['resend_invitation_email', ]
+
+    def resend_invitation_email(self, request, queryset):
+        for item in queryset:
+            if request.user.has_perm('events.view_invitation', item):
+                item.send_invitation_email(request)
+    resend_invitation_email.short_description = 'Resend Invites'
 
     def serve_invite(self, *args, **kwargs):
 

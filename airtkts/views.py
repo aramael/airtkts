@@ -150,7 +150,7 @@ def event_form(request, event_id=None, event_slug=None):
 
     context = {
         'section': 'event',
-        'extends': 'events/event_new.html' if event is None else 'events/base.html',
+        'extends': 'events/event_new.html' if event is None else 'events/system_base.html',
         'form': form,
         'event': event,
         'events': get_events(request.user),
@@ -303,7 +303,7 @@ def invites_form(request, event_id=None, invite_id=None):
                       data=request.POST or None, files=request.FILES or None)
 
     if form.is_valid():
-        location_redirect = form.save()
+        location_redirect = form.save(request)
         return redirect(**location_redirect)
 
     context = {
