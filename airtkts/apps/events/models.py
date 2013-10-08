@@ -119,7 +119,7 @@ class Invitation(models.Model):
     user = models.ForeignKey(User, blank=True, null=True)
 
     event = models.ForeignKey(Event)
-    available_sales = models.ManyToManyField(TicketSale)
+    available_sales = models.ManyToManyField(TicketSale, blank=True, null=True)
 
     invited_by = models.ForeignKey('self', blank=True, null=True)
     max_guest_count = models.PositiveIntegerField(help_text='How many guests can this person invite? If '
