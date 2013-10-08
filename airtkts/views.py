@@ -284,20 +284,31 @@ def invites_form(request, event_id=None, invite_id=None):
     if invite is not None and not request.user.has_perm('events.view_invitation', invite):
         return HttpResponseForbidden('403 Forbidden')
 
-    if 'quick' in request.GET:
+    form_class = InviteForm
+    template = 'events/invite_form.html'
+
+    if invite is None and 'quick' in request.GET:
+        # Pass Along the QuickInvite Form for new guests
         form_class = QuickInviteForm
         template = 'events/invite_quick_form.html'
-    else:
+    elif invite is not None:
+
+        if invite.invited_by is not None and invite.invited_by.pk == user_invite.pk:
+            # The guest is only allowed to edit some things on their own guests
+            # Show the invite form for own guests
+            form_class = GuestInviteForm
+            template = 'events/invite_guest_form.html'
+
+        if not request.user.has_perm('events.change_hosts', event):
+            # If the user is trying to see their own invite
+            # they can once again only see certain events.
+            form_class = LimitedInviteForm
+            template = 'events/invite_limited_form.html'
+
+    if request.user.has_perm('events.change_hosts', event):
+        # If the user can change the hosts then give all public data
         form_class = InviteForm
         template = 'events/invite_form.html'
-
-    if invite is not None and not request.user.has_perm('events.change_hosts', event):
-        form_class = LimitedInviteForm
-        template = 'events/invite_limited_form.html'
-
-    if invite is not None and invite.invited_by.pk == user_invite.pk:
-        form_class = GuestInviteForm
-        template = 'events/invite_guest_form.html'
 
     form = form_class(event=event, user=request.user, instance=invite, initial={'event': event, 'invited_by': user_invite, },
                       data=request.POST or None, files=request.FILES or None)

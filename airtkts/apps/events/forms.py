@@ -209,7 +209,7 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
 
     class Meta:
         model = Invitation
-        exclude = ['ticket_order', ]
+        exclude = ['ticket_order', 'invite_key']
 
     def __init__(self, event, user, *args, **kwargs):
         super(InviteForm, self).__init__(*args, **kwargs)
@@ -249,13 +249,14 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
 class QuickInviteForm(InviteForm):
 
     class Meta(InviteForm.Meta):
-        exclude = InviteForm.Meta.exclude + ['guests', ]
+        exclude = InviteForm.Meta.exclude + ['guests', 'rsvp_status']
 
 
 class LimitedInviteForm(InviteForm):
 
     class Meta(InviteForm.Meta):
-        exclude = InviteForm.Meta.exclude + ['guests', 'max_guest_count', 'invited_by', 'event', 'available_sales', 'user']
+        exclude = InviteForm.Meta.exclude + ['guests', 'max_guest_count', 'invited_by', 'event',
+                                             'available_sales', 'user', 'rsvp_status']
 
 
 class GuestInviteForm(InviteForm):
