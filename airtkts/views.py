@@ -71,10 +71,13 @@ def ticket_office(request, event_id=None, event_slug=None):
         initial['first_name'] = invite.first_name
         initial['last_name'] = invite.last_name
         initial['email'] = invite.email
+    else:
+        invite = None
 
     form = TicketOfficeSaleForm(initial=initial, data=request.POST or None, files=request.FILES or None)
 
     context = {
+        'invite': invite,
         'event': event,
         'form': form,
     }

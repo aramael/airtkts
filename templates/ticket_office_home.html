@@ -97,6 +97,7 @@
                 <input type="hidden" name="ticket_type" id="id_ticket_type"/>
             </div>
 
+            {% if invite.can_bring_guests %}
             <div class="ui tiny header">Do you want to bring a friend?</div>
             <div class="inline field">
                 <div class="ui checkbox">
@@ -105,10 +106,12 @@
                 </div>
                 <label for="id_{{ form.guest_invited.html_name }}">{{ form.guest_invited.label }}</label>
             </div>
+            {% endif %}
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
 
+    {% if invite.can_bring_guests %}
     <div class="form-step step-guest-information hide">
         <div class="ui form segment">
 
@@ -171,6 +174,7 @@
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
+    {% endif %}
 
     <div class="form-step step-payment-method hide">
         <div class="ui form segment">

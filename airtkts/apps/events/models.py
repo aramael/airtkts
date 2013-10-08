@@ -156,6 +156,12 @@ class Invitation(models.Model):
     def __unicode__(self):
         return self.first_name + ' ' + self.last_name
 
+    def can_bring_guests(self):
+        """
+        Determine whether this ``Invitation`` can bring a guest
+        """
+        return self.max_guest_count > 0
+
     def invitation_key_expired(self):
         """
         Determine whether this ``Invitation``'s invite
