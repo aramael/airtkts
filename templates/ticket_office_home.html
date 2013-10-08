@@ -43,38 +43,50 @@
                     <div class="sub header">{{ event.organisers }} need a little bit of information from you before they can finish planning their party. Do them a solid and fill out the information below: </div>
                 </div>
             </h2>
-            <div class="ui tiny header">What should we call you?</div>
-            <div class="two fields">
-                <div class="field">
-                    <label for="id_{{ form.first_name.html_name }}">{{ form.first_name.label }}</label>
-                    <div class="ui labeled input">
-                        {{ form.first_name }}
-                        <div class="ui corner label">
-                            <i class="asterisk icon"></i>
+
+            <div class="{% if invite %}hide{% endif %} invitee information">
+                <div class="ui tiny header">What should we call you?</div>
+                <div class="two fields">
+                    <div class="field">
+                        <label for="id_{{ form.first_name.html_name }}">{{ form.first_name.label }}</label>
+                        <div class="ui labeled input">
+                            {{ form.first_name }}
+                            <div class="ui corner label">
+                                <i class="asterisk icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="id_{{ form.last_name.html_name }}">{{ form.last_name.label }}</label>
+                        <div class="ui labeled input">
+                            {{ form.last_name }}
+                            <div class="ui corner label">
+                                <i class="asterisk icon"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="field">
-                    <label for="id_{{ form.last_name.html_name }}">{{ form.last_name.label }}</label>
-                    <div class="ui labeled input">
-                        {{ form.last_name }}
+                    <label for="id_{{ form.email.html_name }}">{{ form.email.label }}</label>
+                    <div class="ui left labeled icon input">
+                        {{ form.email }}
+                        <i class="mail icon"></i>
                         <div class="ui corner label">
-                            <i class="asterisk icon"></i>
+                            <i class="icon asterisk"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="field">
-                <label for="id_{{ form.email.html_name }}">{{ form.email.label }}</label>
-                <div class="ui left labeled icon input">
-                    {{ form.email }}
-                    <i class="mail icon"></i>
-                    <div class="ui corner label">
-                        <i class="icon asterisk"></i>
-                    </div>
+            <div class="ui tiny header">{% if invite %}<span class="invitee full name">{{ invite.first_name }} {{ invite.last_name }},</span> {% endif %}What type of ticket would you like?</div>
+            {% if invite %}
+            <div class="inline field">
+                <div class="ui checkbox">
+                    <input type="checkbox" name="change_spelling_of_name" id="id_change_spelling_of_name"/>
+                    <label for="id_change_spelling_of_name" class="box"></label>
                 </div>
+                <label for="id_change_spelling_of_name">Correct the spelling of your name</label>
             </div>
-            <div class="ui tiny header">What type of ticket would you like?</div>
+            {% endif %}
             <div class="ui two field column grid ticket-types">
                 <div class="equal height row">
                     <div class="column">
@@ -305,7 +317,7 @@
                 </div>
             </h2>
 
-            <p class="huge order confirm">We're excited that you, <a class="user info" id="full-name"></a>, are attending {{ event.name }}. <span class="bring guest hide"> and are bringing you're friend <a class="user info" id="guest-full-name"></a>. We can contact <a class="user info" id="guest-first-name"></a> at <a class="user info" id="guest-email"></a>. We're also going to send the following note from you:</span></p>
+            <p class="huge order confirm">We're excited that you, <a class="user info invitee full name"></a>, are attending {{ event.name }}. <span class="bring guest hide"> and are bringing you're friend <a class="user info" id="guest-full-name"></a>. We can contact <a class="user info" id="guest-first-name"></a> at <a class="user info" id="guest-email"></a>. We're also going to send the following note from you:</span></p>
             <div class="ui blue segment bring guest hide" id="guest-note"></div>
             <p class="huge order confirm"><a class="user info" id="first-name"></a>, you decided that you were going to get the <a class="user info" id="ticket-type"></a> <span id="pay-now" class="hide">and you are paying using you're card that ends in <a class="user info" id="cc-last-four"></a></span><span id="pay-at-door" class="hide">and you are paying at the door </span> for a total of $<a class="user info" id="ticket-price"></a>USD. We're excited to see you there on {{ event.start_time }}</p>
 

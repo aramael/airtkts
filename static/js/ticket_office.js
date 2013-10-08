@@ -25,7 +25,7 @@ $(document).ready(function (){
     var payment_type_input = $('#id_payment_type');
 
     // Confrim Information
-    var confrim_full_name = $('#full-name');
+    var confrim_full_name = $('.invitee.full.name');
     var confrim_first_name = $('#first-name');
     var confrim_guest_full_name = $('#guest-full-name');
     var confrim_guest_first_name = $('#guest-first-name');
@@ -37,6 +37,10 @@ $(document).ready(function (){
     var confrim_pay_now = $('#pay-now');
     var confrim_pay_later = $('#pay-at-door');
     var confrim_bring_guest = $('.bring.guest');
+
+    $('#id_change_spelling_of_name').on( "click", function (){
+       $('.invitee.information').toggleClass('hide');
+   });
 
     steps[1].click(function (){
         change_step('information');
@@ -105,8 +109,9 @@ $(document).ready(function (){
             form = steps['information'].find('.form');
 
             // Fill Out Confirm Dialogue
-            fname = form.form('get field', 'first-name').val();
-            lname = form.form('get field', 'last-name').val();
+            fname = form.form('get field', 'first_name').val();
+            lname = form.form('get field', 'last_name').val();
+
             confrim_first_name.text(fname);
             confrim_full_name.text(fname + ' ' + lname);
             confrim_ticket_type.text(form.form('get field', 'ticket_type').val());
@@ -233,7 +238,5 @@ $(document).ready(function (){
             });
         }
     });
-
-    $('form#airtkts').submit(function (e){});
 
 });
