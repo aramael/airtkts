@@ -143,3 +143,8 @@ html {
         width: 200px;
     }
 }
+
+.submit.button {
+    margin-top: 20px;
+    display: inline-block;
+}
