@@ -33,7 +33,7 @@ def invite_serve(request, invite_key=None):
     location_redirect = Invitation.objects.serve_invite(invite_key=invite_key)
 
     if location_redirect.get('invite', False):
-        request.session['invite_id'] = location_redirect.get('invite')
+        request.session['invite_id'] = location_redirect.get('invite').pk
 
         del location_redirect['invite']
 
@@ -64,9 +64,9 @@ def ticket_office(request, event_id=None, event_slug=None):
 
     initial = {}
 
-    if request.session.get('invite', False):
+    if request.session.get('invite_id', False):
 
-        invite = get_object_or_404(Invitation, pk=request.session.get('invite'))
+        invite = get_object_or_404(Invitation, pk=request.session.get('invite_id'))
 
         initial['first_name'] = invite.first_name
         initial['last_name'] = invite.last_name
