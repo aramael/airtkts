@@ -299,7 +299,7 @@ def invites_form(request, event_id=None, invite_id=None):
         form_class = GuestInviteForm
         template = 'events/invite_guest_form.html'
 
-    form = form_class(instance=invite, initial={'event': event, 'invited_by': user_invite, },
+    form = form_class(event=event, user=request.user, instance=invite, initial={'event': event, 'invited_by': user_invite, },
                       data=request.POST or None, files=request.FILES or None)
 
     if form.is_valid():

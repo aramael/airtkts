@@ -211,12 +211,12 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
         model = Invitation
         exclude = ['ticket_order', ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, event, user, *args, **kwargs):
         super(InviteForm, self).__init__(*args, **kwargs)
 
-        if 'invited_by' in self.fields:
-            self.fields['event'].widget = forms.HiddenInput()
         if 'event' in self.fields:
+            self.fields['event'].widget = forms.HiddenInput()
+        if 'invited_by' in self.fields and not user.has_perm('events.change_hosts', event):
             self.fields['invited_by'].widget = forms.HiddenInput()
         if 'available_sales' in self.fields:
             self.fields['available_sales'].queryset = get_available_sales(self.initial.get('invited_by', None))
@@ -249,19 +249,19 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
 class QuickInviteForm(InviteForm):
 
     class Meta(InviteForm.Meta):
-        exclude = ('guests', )
+        exclude = InviteForm.Meta.exclude + ['guests', ]
 
 
 class LimitedInviteForm(InviteForm):
 
     class Meta(InviteForm.Meta):
-        exclude = ('guests', 'max_guest_count', 'invited_by', 'event', 'available_sales', 'user')
+        exclude = InviteForm.Meta.exclude + ['guests', 'max_guest_count', 'invited_by', 'event', 'available_sales', 'user']
 
 
 class GuestInviteForm(InviteForm):
 
     class Meta(InviteForm.Meta):
-        exclude = ('guests', 'invited_by', 'event')
+        exclude = InviteForm.Meta.exclude + ['guests', 'invited_by', 'event']
 
 
 class TicketOfficeSaleForm(forms.Form):
