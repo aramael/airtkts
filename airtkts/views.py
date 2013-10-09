@@ -51,7 +51,12 @@ def invite_expired(request, event_id=None):
     except Event.DoesNotExist:
         return redirect('invite_invalid')
 
-    return render(request, 'ticket_office/invite_expired.html', {'event': event})
+    if request.session.get('invite_id', False):
+        invite = get_object_or_404(Invitation, pk=request.session.get('invite_id'))
+    else:
+        invite = None
+
+    return render(request, 'ticket_office/invite_expired.html', {'event': event, 'invite': invite})
 
 
 def ticket_office(request, event_id=None, event_slug=None):
