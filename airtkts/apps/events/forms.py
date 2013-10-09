@@ -310,7 +310,7 @@ class TicketOfficeSaleForm(forms.Form):
 
         data = self.cleaned_data
 
-        invitee_full_name = data['first_name'] + '' + data['last_name']
+        invitee_full_name = data['first_name'] + ' ' + data['last_name']
 
         # Creating TicketOrder
 
