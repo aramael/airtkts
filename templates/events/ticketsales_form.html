@@ -30,6 +30,22 @@
                 </div>
         </div>
 
+        <div class="form-group {% if form.icon_name.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.icon_name.html_name }}">{{ form.icon_name.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.icon_name class+="form-control" %}
+                    <p class="help-block">{{ form.icon_name.help_text|safe }}{% if form.icon_name.errors %}<strong>{{ form.icon_name.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.description.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.description.html_name }}">{{ form.description.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.description class+="form-control" %}
+                    <p class="help-block">{{ form.description.help_text|safe }}{% if form.description.errors %}<strong>{{ form.description.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
         <div class="form-group {% if form.price.errors %}has-error{% endif %}">
                 <label class="col-lg-2 control-label" for="id_{{ form.price.html_name }}">{{ form.price.label }}</label>
                 <div class="col-lg-10">

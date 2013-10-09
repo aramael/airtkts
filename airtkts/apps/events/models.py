@@ -55,8 +55,11 @@ class Event(models.Model):
 
 
 class TicketSale(models.Model):
+    slug = models.SlugField(blank=True, null=True, default=None)
+    icon_name = models.CharField(max_length=25, default='ticket', null=True)
     event = models.ForeignKey(Event)
     name = models.CharField(max_length=100)
+    description = models.TextField(default='', blank=True)
     quantity = models.IntegerField()
     price = models.PositiveIntegerField()
     start_time = models.DateTimeField()
@@ -71,6 +74,13 @@ class TicketSale(models.Model):
         permissions = (
             ('view_ticketsale', 'Can view ticket sale'),
         )
+
+    def save(self, *args, **kwargs):
+        # Convert Name of Event to Slug
+        if self.slug == '':
+            self.slug = slugify(unicode(self.name))
+
+        super(TicketSale, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return "{event}: {name}".format(name=self.name, event=self.event.name)

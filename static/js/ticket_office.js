@@ -20,6 +20,8 @@ $(document).ready(function (){
     var card = new Skeuocard($("#skeuocard"));
     var ticket_type = $('.ticket-type');
     var payment_type = $('.payment-type');
+    var pay_later_price_display = $('#pay-at-door-price');
+    var pay_now_price_display = $('#pay-now-price');
     var ticket_type_input = $('#id_ticket_type');
     var ticket_type_display = $('#ticket-choice');
     var payment_type_input = $('#id_payment_type');
@@ -111,10 +113,17 @@ $(document).ready(function (){
             // Fill Out Confirm Dialogue
             fname = form.form('get field', 'first_name').val();
             lname = form.form('get field', 'last_name').val();
+            ticket_sale = form.form('get field', 'ticket_type').val();
 
             confrim_first_name.text(fname);
             confrim_full_name.text(fname + ' ' + lname);
-            confrim_ticket_type.text(form.form('get field', 'ticket_type').val());
+            confrim_ticket_type.text(_available_tickets[ticket_sale]['name']);
+
+            base_price = _available_tickets[ticket_sale]['price'];
+            door_price = base_price + _door_surcharge;
+
+            pay_now_price_display.text('$' + base_price.toString() +' USD');
+            pay_later_price_display.text('$' + door_price.toString() +' USD');
 
             if (form.form('has field', 'guest_invited')){
                 var guest_invited = form.form('get field', 'guest_invited');
@@ -196,12 +205,14 @@ $(document).ready(function (){
             var payment_method = steps['payment'].find('.form').form('get field', 'payment_type');
             if (payment_method.val() == 'credit'){
                 confrim_pay_now.removeClass('hide');
+                confrim_ticket_price.text(pay_now_price_display.text());
                 change_step('pay');
                 return;
             }
 
             // Fill Out Confirm Dialogue
             confrim_pay_later.removeClass('hide');
+            confrim_ticket_price.text(pay_later_price_display.text());
 
             change_step('confirm');
         }

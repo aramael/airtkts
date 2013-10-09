@@ -88,23 +88,18 @@
             </div>
             {% endif %}
             <div class="ui two field column grid ticket-types">
+
                 <div class="equal height row">
-                    <div class="column">
-                        <div class="ui blue inverted segment ticket-type tertiary" id="general-admission">
-                            <div class="ui icon header">
-                                <i class="icon ticket circle"></i><span class="description">General Admission</span>
-                                <div class="sub header">Free Non-Alcoholic Drinks as long as you want.</div>
+                    {% for ticket in invite.available_sales.all %}
+                        <div class="column">
+                            <div class="ui blue inverted segment ticket-type tertiary" id="{{ ticket.slug }}">
+                                <div class="ui icon header">
+                                    <i class="icon {{ ticket.icon_name }} circle"></i><span class="description">{{ ticket.name }}</span>
+                                    <div class="sub header">{{ ticket.description }}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="column">
-                        <div class="ui blue inverted segment ticket-type tertiary" id="open-bar">
-                            <div class="ui icon header">
-                                <i class="icon glass circle"></i><span class="description">General Admission + Open Bar</span>
-                                <div class="sub header">All the alcohol you can drink, all night long.</div>
-                            </div>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
                 <input type="hidden" name="ticket_type" id="id_ticket_type"/>
             </div>
@@ -217,7 +212,7 @@
                         <div class="ui blue inverted segment payment-type tertiary" id="cash">
                             <div class="ui icon header">
                                 <i class="icon money circle"></i>Pay Cash @ Door
-                                <div class="sub header">Pay when you show an and are ready to party. <strong>$12.00 USD</strong></div>
+                                <div class="sub header">Pay when you show an and are ready to party. <strong id="pay-at-door-price"></strong></div>
                             </div>
                         </div>
                     </div>
@@ -225,7 +220,7 @@
                         <div class="ui blue inverted segment payment-type tertiary" id="credit">
                             <div class="ui icon header">
                                 <i class="icon credit card circle"></i>Pay Now
-                                <div class="sub header">Pay now and and waltz right in later. No Hassle and Save. <strong>$10.00 USD</strong></div>
+                                <div class="sub header">Pay now and and waltz right in later. No Hassle and Save. <strong id="pay-now-price"></strong></div>
                             </div>
                         </div>
                     </div>
@@ -288,7 +283,6 @@
 
             <input type='hidden' name="stripeToken" id="stripeToken"/>
 
-            <button type="submit" class="ui blue submit button">Next</button>
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
@@ -319,7 +313,7 @@
 
             <p class="huge order confirm">We're excited that you, <a class="user info invitee full name"></a>, are attending {{ event.name }}. <span class="bring guest hide"> and are bringing you're friend <a class="user info" id="guest-full-name"></a>. We can contact <a class="user info" id="guest-first-name"></a> at <a class="user info" id="guest-email"></a>. We're also going to send the following note from you:</span></p>
             <div class="ui blue segment bring guest hide" id="guest-note"></div>
-            <p class="huge order confirm"><a class="user info" id="first-name"></a>, you decided that you were going to get the <a class="user info" id="ticket-type"></a> <span id="pay-now" class="hide">and you are paying using you're card that ends in <a class="user info" id="cc-last-four"></a></span><span id="pay-at-door" class="hide">and you are paying at the door </span> for a total of $<a class="user info" id="ticket-price"></a>USD. We're excited to see you there on {{ event.start_time }}</p>
+            <p class="huge order confirm"><a class="user info" id="first-name"></a>, you decided that you were going to get the <a class="user info" id="ticket-type"></a> <span id="pay-now" class="hide">and you are paying using you're card that ends in <a class="user info" id="cc-last-four"></a></span><span id="pay-at-door" class="hide">and you are paying at the door </span> for a total of <a class="user info" id="ticket-price"></a>. We're excited to see you there on {{ event.start_time }}</p>
 
             <button type="submit" class="ui blue submit button">Sounds Right</button>
         </div>
@@ -331,6 +325,12 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script>
+    _available_tickets = {
+        {% for ticket in invite.available_sales.all %}'{{ ticket.slug }}': { price: {{ ticket.price }}, name: '{{ ticket.name }}' },{% endfor %}
+    };
+    _door_surcharge = 2;
+    </script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script src="{% static 'js/vendor/cssua/cssua.min.js' %}"></script>
     <script src="{% static 'js/vendor/skeuocard/skeuocard.min.js' %}"></script>
