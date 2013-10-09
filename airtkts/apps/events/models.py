@@ -180,6 +180,14 @@ class Invitation(models.Model):
         """
         return self.max_guest_count > 0
 
+    def mark_used(self):
+        """
+        Mark this ``Invitation``'s invite key as expired
+        """
+
+        self.invite_key = self.USED_INVITE_KEY
+        self.save()
+
     def invitation_key_expired(self):
         """
         Determine whether this ``Invitation``'s invite

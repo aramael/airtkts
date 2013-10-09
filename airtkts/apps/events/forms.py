@@ -382,6 +382,7 @@ class TicketOfficeSaleForm(forms.Form):
         order.save()
         self.invite.ticket_order = order
         self.invite.rsvp_status = Invitation.ATTENDING
+        self.invite.mark_used()
         self.invite.save()
 
         return order
