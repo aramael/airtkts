@@ -270,16 +270,16 @@ class TicketOfficeSaleForm(forms.Form):
     first_name = forms.CharField(max_length=50, required=True, label='First Name')
     last_name = forms.CharField(max_length=50, required=True, label='Last Name')
     email = forms.EmailField(required=True, label='Email Address')
-    ticket_type = forms.HiddenInput()
+    ticket_type = forms.CharField(max_length=50, widget=forms.HiddenInput)
 
     guest_invited = forms.BooleanField(required=False, label='I want to bring a +1 with me.')
-    guest_first_name = forms.CharField(max_length=50, required=True, label='Guest\'s First Name')
-    guest_last_name = forms.CharField(max_length=50, required=True, label='Guest\'s Last Name')
-    guest_email = forms.EmailField(required=True, label='Guest\'s Email Address')
-    guest_note = forms.CharField(widget=forms.Textarea, label='Do you want to add a note to your friend?')
+    guest_first_name = forms.CharField(max_length=50, required=False, label='Guest\'s First Name')
+    guest_last_name = forms.CharField(max_length=50, required=False, label='Guest\'s Last Name')
+    guest_email = forms.EmailField(required=False, label='Guest\'s Email Address')
+    guest_note = forms.CharField(widget=forms.Textarea, required=False, label='Do you want to add a note to your friend?')
 
-    payment_method = forms.HiddenInput()
-    stripe_token = forms.CharField(max_length=100)
+    payment_method = forms.CharField(max_length=50, widget=forms.HiddenInput)
+    stripe_token = forms.CharField(max_length=100, required=False)
 
     def save(self, event, *args, **kwargs):
 

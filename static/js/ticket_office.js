@@ -24,7 +24,7 @@ $(document).ready(function (){
     var pay_now_price_display = $('#pay-now-price');
     var ticket_type_input = $('#id_ticket_type');
     var ticket_type_display = $('#ticket-choice');
-    var payment_type_input = $('#id_payment_type');
+    var payment_type_input = $('#id_payment_method');
 
     // Confrim Information
     var confrim_full_name = $('.invitee.full.name');
@@ -202,7 +202,7 @@ $(document).ready(function (){
         on: 'Blur',
         onSuccess: function(){
 
-            var payment_method = steps['payment'].find('.form').form('get field', 'payment_type');
+            var payment_method = steps['payment'].find('.form').form('get field', 'payment_method');
             if (payment_method.val() == 'credit'){
                 confrim_pay_now.removeClass('hide');
                 confrim_ticket_price.text(pay_now_price_display.text());
@@ -238,7 +238,7 @@ $(document).ready(function (){
                     // token contains id, last4, and card type
                     var token = response['id'];
 
-                    $('#stripeToken').val(token);
+                    $('#id_stripe_token').val(token);
 
                     num = $('#cc_number').val();
                     confrim_cc.text(num.substr(num.length - 4));
