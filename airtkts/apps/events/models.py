@@ -212,7 +212,7 @@ class Invitation(models.Model):
     def mail_guest(self, subject, body):
         send_mail(subject, body, None, [self.email, ])
 
-    def invitation_email_message(self, request, subject_template='email/invite_email_subject.txt',
+    def invitation_email_message(self, request, note=None, subject_template='email/invite_email_subject.txt',
                                  email_template='email/invite_email.html', extra_context=None):
 
         current_site = get_current_site(request)
@@ -226,6 +226,7 @@ class Invitation(models.Model):
             'invited_by': self.invited_by,
             'site_name': site_name,
             'user': self,
+            'note': note,
             'mailing_address': 'airTKTS <br/> 5980 Lerner Hall <br/>2920 Broadway <br/>New York, NY 10027',
             'protocol': request.is_secure(),
         }

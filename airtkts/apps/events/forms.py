@@ -378,6 +378,7 @@ class TicketOfficeSaleForm(forms.Form):
 
             guest.available_sales = self.invite.available_sales.all()
             guest.save()
+            guest.invitation_email_message(additional_note=data['guest_note'])
 
             self.invite.guests.add(guest)
 
