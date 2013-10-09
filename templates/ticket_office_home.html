@@ -43,7 +43,6 @@
                     <div class="sub header">{{ event.organisers }} need a little bit of information from you before they can finish planning their party. Do them a solid and fill out the information below: </div>
                 </div>
             </h2>
-
             <div class="{% if invite %}hide{% endif %} invitee information">
                 <div class="ui tiny header">What should we call you?</div>
                 <div class="two fields">
@@ -87,8 +86,9 @@
                 <label for="id_change_spelling_of_name">Correct the spelling of your name</label>
             </div>
             {% endif %}
-            <div class="ui two field column grid ticket-types">
 
+            {% if invite.available_sales.all|length|divisibleby:2 %}
+            <div class="ui two field column grid ticket-types">
                 <div class="equal height row">
                     {% for ticket in invite.available_sales.all %}
                         <div class="column">
@@ -103,6 +103,21 @@
                 </div>
                 <input type="hidden" name="ticket_type" id="id_ticket_type"/>
             </div>
+            {% else %}
+                <div class="ticket-types">
+                {% for ticket in invite.available_sales.all %}
+                    <div class="ui blue inverted segment ticket-type tertiary" id="{{ ticket.slug }}">
+                    <h2 class="ui header">
+                        <i class="{{ ticket.icon_name }} icon"></i>
+                        <div class="content">
+                            {{ ticket.name }}
+                            <div class="sub header">{{ ticket.description }}</div>
+                        </div>
+                    </h2>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
 
             {% if invite.can_bring_guests %}
             <div class="ui tiny header">Do you want to bring a friend?</div>
