@@ -55,6 +55,10 @@ class Event(models.Model):
 
 
 class TicketSale(models.Model):
+
+    INVALID = 400
+    SOLD_OUT = 500
+
     slug = models.SlugField(blank=True, null=True, default=None)
     icon_name = models.CharField(max_length=25, default='ticket', null=True)
     event = models.ForeignKey(Event)
@@ -81,6 +85,9 @@ class TicketSale(models.Model):
             self.slug = slugify(unicode(self.name))
 
         super(TicketSale, self).save(*args, **kwargs)
+
+    def has_tickets_remaining(self):
+        return True
 
     def __unicode__(self):
         return "{event}: {name}".format(name=self.name, event=self.event.name)
