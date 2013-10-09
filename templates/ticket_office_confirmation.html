@@ -20,12 +20,11 @@
             Complete
           </div>
         </div>
-        <h2 class="ui header">
-            <div class="content">
-                All Finished
-                <div class="sub header">You're order confirmation number is <strong>{{ order.pk }}</strong></div>
-            </div>
-        </h2>
+        <h1 class="ui header">
+            <div class="ui header">Thank you for your order</div>
+            <div class="sub header">Order number is <strong>{{ order.pk }}</strong></div>
+            <div class="sub header">You will recieve an email confrimation shortly at {{ invite.email }}</div>
+        </h1>
 
     </div>
 </div>

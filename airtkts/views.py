@@ -69,7 +69,7 @@ def ticket_office(request, event_id=None, event_slug=None):
         invite = get_object_or_404(Invitation, pk=request.session.get('invite_id'))
 
         if invite.invitation_key_expired():
-            return redirect('invite_expired')
+            return redirect('invite_expired', event_id=event.pk)
 
         initial['first_name'] = invite.first_name
         initial['last_name'] = invite.last_name
