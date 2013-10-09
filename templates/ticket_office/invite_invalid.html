@@ -1,7 +1,14 @@
 {% extends 'ticket_office_base.html' %}
 
-{% block title %}
-{% endblock %}
+{% block title %}{{ event.title }}{% endblock %}
 
-{% block container %}
+{% block content %}
+<div class="form-step">
+    <div class="ui segment">
+        <h1 class="ui header">
+            <div class="ui header">We were unable to to find your event.</div>
+            <div class="sub header">Can you try clicking on the link that brought you here again, hopefully that should fix it. If you already tried that and are still seeing this message shoot an email to <strong>hello@aramael.com</strong></div>
+        </h1>
+    </div>
+</div>
 {% endblock %}
