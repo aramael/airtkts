@@ -436,8 +436,6 @@ def hosts_home(request, event_id=None):
 
     if request.is_ajax() and 'action' in request.POST:
 
-        print request.POST
-
         errors = []
         computer_errors = []
         if request.POST['action'] == 'remove_host' and 'host' in request.POST:
