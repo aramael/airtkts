@@ -1,0 +1,32 @@
+{% extends 'ticket_office_base.html' %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="form-step">
+    <div class="ui segment">
+
+        <div class="ui small four steps">
+          <a class="ui step">
+            Information
+          </a>
+          <div class="ui step">
+            Payment
+          </div>
+          <div class="ui step">
+            Confirm
+          </div>
+          <div class="ui active step">
+            Complete
+          </div>
+        </div>
+        <h2 class="ui header">
+            <div class="content">
+                All Finished
+                <div class="sub header">You're order confirmation number is <strong>{{ order.pk }}</strong></div>
+            </div>
+        </h2>
+
+    </div>
+</div>
+{% endblock %}

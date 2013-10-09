@@ -281,39 +281,109 @@ class TicketOfficeSaleForm(forms.Form):
     payment_method = forms.CharField(max_length=50, widget=forms.HiddenInput)
     stripe_token = forms.CharField(max_length=100, required=False)
 
-    def save(self, event, *args, **kwargs):
+    def __init__(self, request, invite, event, *args, **kwargs):
+        self.request = request
+        self.invite = invite
+        self.event = event
+
+        super(TicketOfficeSaleForm, self).__init__(*args, **kwargs)
+
+    def clean_ticket_type(self):
+
+        data = self.cleaned_data['ticket_type']
+
+        try:
+            ticket_sale = self.invite.available_sales.get(slug=data, event=self.event)
+        except TicketSale.DoesNotExist:
+            raise forms.ValidationError("Unfortunately we were unable "
+                                        "to locate the ticket type `%(ticket_type)` that you requested. ",
+                                        code=TicketSale.INVALID, params={'ticket_type': data})
+        else:
+            if not ticket_sale.has_tickets_remaining():
+                raise forms.ValidationError("It seems we are all sold out of that type of ticket `%(ticket_type)`. "
+                                            "Our sincerest apologies, please try selecting another ticket type",
+                                            code=TicketSale.SOLD_OUT, params={'ticket_type': data})
+
+        return ticket_sale
+
+    def save(self, *args, **kwargs):
 
         data = self.cleaned_data
 
-        name = data['first_name'] + '' + data['last_name']
+        invitee_full_name = data['first_name'] + '' + data['last_name']
 
         # Creating TicketOrder
 
         order_kwargs = {
-            'name': name,
+            'name': invitee_full_name,
             'email': data['email'],
-            'payment_method': data['payment_method']
         }
-
-        if data['stripe_token'] != '':
-
-            customer = stripe.Customer.create(description=name, email=data['email'], card=data['stripe_token'])
-            order_kwargs['customer'] = customer
 
         order = TicketOrder.objects.create(**order_kwargs)
 
-        try:
-            customer
-        except NameError:
-            pass
+        ticket_sale = data['ticket_type']
+
+        ticket_price = ticket_sale.price
+
+        # Payment Methods
+        if data['stripe_token'] != '':
+
+            try:
+                # Credit Card Processing
+                customer = stripe.Customer.create(description=invitee_full_name, email=data['email'], card=data['stripe_token'])
+                order_kwargs['customer'] = customer.id
+
+                charge = stripe.Charge.create(amount=ticket_price*100, currency='usd',
+                                              customer=customer.id, description='AIRTKTS ORDER: #' + order.pk)
+            except stripe.CardError, e:
+                # Since it's a decline, stripe.CardError will be caught
+                body = e.json_body
+                err = body['error']
+
+                print "Status is: %s" % e.http_status
+                print "Type is: %s" % err['type']
+                print "Code is: %s" % err['code']
+                # param is '' in this case
+                print "Param is: %s" % err['param']
+                print "Message is: %s" % err['message']
+            except stripe.InvalidRequestError, e:
+                # Invalid parameters were supplied to Stripe's API
+                pass
+            except stripe.AuthenticationError, e:
+                # Authentication with Stripe's API failed
+                # (maybe you changed API keys recently)
+                pass
+            except stripe.APIConnectionError, e:
+                # Network communication with Stripe failed
+                pass
+            except stripe.StripeError, e:
+                # Display a very generic error to the user, and maybe send
+                # yourself an email
+                pass
+            else:
+                order.payment_method = TicketOrder.CREDIT_CARD
+                order.charge = charge.id
+                order.balance = 0
         else:
-            ticket_price = 1200
+            # Wait for Event Date @ Door
+            order.balance = -ticket_price
+            order.payment_method = TicketOrder.CASH
 
-            charge = stripe.Charge.create(amount=ticket_price, currency='usd',
-                                          customer=customer.id, description='AIRTKTS ORDER: #' + order.pk)
+        ticket = Ticket.objects.create(name=invitee_full_name, purchase=order, sale=ticket_sale)
 
-            order.charge = charge.id
-            order.save()
+        if self.invite.can_bring_guests() and 'guest_email' in data and data['guest_email'] != '':
+            guest = Invitation.objects.create(event=self.event, first_name=data['guest_first_name'],
+                                              last_name=data['guest_last_name'], email=data['guest_email'],
+                                              invited_by=self.invite, max_guest_count=1,
+                                              available_sales=self.invite.available_sales.all())
 
-        ticket = Ticket.objects.create(name=name, purchase=order, sale='<TicketSale Object>')
+            self.invite.guests.add(guest)
+
+        order.save()
+        self.invite.ticket_order = order
+        self.invite.rsvp_status = Invitation.ATTENDING
+        self.invite.save()
+
+        return order
+
     save = transaction.commit_on_success(save)

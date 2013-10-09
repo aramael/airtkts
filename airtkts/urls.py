@@ -14,7 +14,8 @@ urlpatterns = patterns('',
     url(r'^invite/expired/(?P<event_id>[0-9]+)/$', 'airtkts.views.invite_expired', name='invite_expired'),
     url(r'^invite/invalid/$', 'airtkts.views.invite_invalid', name='invite_invalid'),
     url(r'^invite/(?P<invite_key>\w+)/$', 'airtkts.views.invite_serve', name='invite_serve'),
-    url(r'^event/(?P<event_id>[0-9]+)/(?P<event_slug>\w+)/$', 'airtkts.views.ticket_office', name='ticket_office'),
+    url(r'^event/(?P<event_id>[0-9]+)/(?P<event_slug>\w+)', 'airtkts.views.ticket_office', name='ticket_office'),
+    url(r'^confirm/(?P<order_id>[0-9]+)/$', 'airtkts.views.order_confirmation', name='order_confirmation'),
 
     # Account Home
     url(r'^accounts/$', 'airtkts.views.accounts_home', name='accounts_home'),

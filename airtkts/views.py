@@ -72,9 +72,14 @@ def ticket_office(request, event_id=None, event_slug=None):
         initial['last_name'] = invite.last_name
         initial['email'] = invite.email
     else:
-        invite = None
+        return HttpResponseForbidden('403 Forbidden')
 
-    form = TicketOfficeSaleForm(initial=initial, data=request.POST or None, files=request.FILES or None)
+    form = TicketOfficeSaleForm(initial=initial, request=request, invite=invite, event=event,
+                                data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        instance = form.save(request=request, invite=invite, event=event)
+        return redirect('order_confirmation', order_id=instance.pk)
 
     context = {
         'invite': invite,
@@ -84,6 +89,27 @@ def ticket_office(request, event_id=None, event_slug=None):
 
     return render(request, 'ticket_office_home.html', context)
 
+
+def order_confirmation(request, order_id=None):
+
+    if request.session.get('invite_id', False):
+        invite = get_object_or_404(Invitation, pk=request.session.get('invite_id'))
+
+        order_id = int(order_id)
+
+        if order_id != invite.ticket_order.pk:
+            return HttpResponseForbidden('403 Forbidden Ticket')
+
+    else:
+        return HttpResponseForbidden('403 Forbidden')
+
+    context = {
+        'invite': invite,
+        'order': invite.ticket_order,
+        'event': invite.event,
+    }
+
+    return render(request, 'ticket_office_confirmation.html', context)
 
 #==============================================================================
 # Event Pages
