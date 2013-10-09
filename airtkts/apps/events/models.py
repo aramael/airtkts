@@ -101,6 +101,7 @@ class TicketOrder(models.Model):
     purchase_time = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=100)
     email = models.EmailField()
+    balance = models.DecimalField(decimal_places=2, max_digits=8, default=0)
 
 
 class Ticket(models.Model):
