@@ -374,8 +374,10 @@ class TicketOfficeSaleForm(forms.Form):
         if self.invite.can_bring_guests() and 'guest_email' in data and data['guest_email'] != '':
             guest = Invitation.objects.create(event=self.event, first_name=data['guest_first_name'],
                                               last_name=data['guest_last_name'], email=data['guest_email'],
-                                              invited_by=self.invite, max_guest_count=1,
-                                              available_sales=self.invite.available_sales.all())
+                                              invited_by=self.invite, max_guest_count=0)
+
+            guest.available_sales = self.invite.available_sales.all()
+            guest.save()
 
             self.invite.guests.add(guest)
 
