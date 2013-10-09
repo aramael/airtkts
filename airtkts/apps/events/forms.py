@@ -1,4 +1,5 @@
 import stripe
+import logging
 
 from .models import Event, Invitation, Ticket, TicketOrder, TicketSale
 from .helpers import get_available_sales
@@ -11,6 +12,10 @@ from django import forms
 from guardian.shortcuts import assign_perm
 
 
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
+# Setup Stripe API
 stripe.api_key = settings.STRIPE_API_KEY
 
 
@@ -279,7 +284,7 @@ class TicketOfficeSaleForm(forms.Form):
     guest_note = forms.CharField(widget=forms.Textarea, required=False, label='Do you want to add a note to your friend?')
 
     payment_method = forms.CharField(max_length=50, widget=forms.HiddenInput)
-    stripe_token = forms.CharField(max_length=100, required=False)
+    stripe_token = forms.CharField(max_length=100, required=False, widget=forms.HiddenInput)
 
     def __init__(self, request, invite, event, *args, **kwargs):
         self.request = request
@@ -326,15 +331,17 @@ class TicketOfficeSaleForm(forms.Form):
         ticket_price = ticket_sale.price
 
         # Payment Methods
-        if data['stripe_token'] != '':
+        if data['stripe_token'] is not None:
 
             try:
                 # Credit Card Processing
                 customer = stripe.Customer.create(description=invitee_full_name, email=data['email'], card=data['stripe_token'])
+
                 order_kwargs['customer'] = customer.id
 
                 charge = stripe.Charge.create(amount=ticket_price*100, currency='usd',
-                                              customer=customer.id, description='AIRTKTS ORDER: #' + order.pk)
+                                              customer=customer.id, description='AIRTKTS ORDER: #' + str(order.pk))
+
             except stripe.CardError, e:
                 # Since it's a decline, stripe.CardError will be caught
                 body = e.json_body
@@ -346,20 +353,10 @@ class TicketOfficeSaleForm(forms.Form):
                 # param is '' in this case
                 print "Param is: %s" % err['param']
                 print "Message is: %s" % err['message']
-            except stripe.InvalidRequestError, e:
-                # Invalid parameters were supplied to Stripe's API
-                pass
             except stripe.AuthenticationError, e:
                 # Authentication with Stripe's API failed
                 # (maybe you changed API keys recently)
-                pass
-            except stripe.APIConnectionError, e:
-                # Network communication with Stripe failed
-                pass
-            except stripe.StripeError, e:
-                # Display a very generic error to the user, and maybe send
-                # yourself an email
-                pass
+                logger.critical('Stripe Authentication Failed. ' + str(e.json_body))
             else:
                 order.payment_method = TicketOrder.CREDIT_CARD
                 order.charge = charge.id
