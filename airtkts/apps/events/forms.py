@@ -1,5 +1,6 @@
 import stripe
 import logging
+import json
 
 from .models import Event, Invitation, Ticket, TicketOrder, TicketSale
 from .helpers import get_available_sales
@@ -272,10 +273,12 @@ class GuestInviteForm(InviteForm):
 
 class TicketOfficeSaleForm(forms.Form):
 
+    rsvp = forms.CharField(max_length=12)
+
     first_name = forms.CharField(max_length=50, required=True, label='First Name')
     last_name = forms.CharField(max_length=50, required=True, label='Last Name')
     email = forms.EmailField(required=True, label='Email Address')
-    ticket_type = forms.CharField(max_length=50, widget=forms.HiddenInput)
+    ticket_type = forms.CharField(max_length=50, widget=forms.HiddenInput, required=False)
 
     guest_invited = forms.BooleanField(required=False, label='I want to bring a +1 with me.')
     guest_first_name = forms.CharField(max_length=50, required=False, label='Guest\'s First Name')
@@ -283,7 +286,7 @@ class TicketOfficeSaleForm(forms.Form):
     guest_email = forms.EmailField(required=False, label='Guest\'s Email Address')
     guest_note = forms.CharField(widget=forms.Textarea, required=False, label='Do you want to add a note to your friend?')
 
-    payment_method = forms.CharField(max_length=50, widget=forms.HiddenInput)
+    payment_method = forms.CharField(max_length=50, widget=forms.HiddenInput, required=False)
     stripe_token = forms.CharField(max_length=100, required=False, widget=forms.HiddenInput)
 
     def __init__(self, request, invite, event, *args, **kwargs):
@@ -297,23 +300,32 @@ class TicketOfficeSaleForm(forms.Form):
 
         data = self.cleaned_data['ticket_type']
 
-        try:
-            ticket_sale = self.invite.available_sales.get(slug=data, event=self.event)
-        except TicketSale.DoesNotExist:
-            raise forms.ValidationError("Unfortunately we were unable "
-                                        "to locate the ticket type `%(ticket_type)` that you requested. ",
-                                        code=TicketSale.INVALID, params={'ticket_type': data})
-        else:
-            if not ticket_sale.has_tickets_remaining():
-                raise forms.ValidationError("It seems we are all sold out of that type of ticket `%(ticket_type)`. "
-                                            "Our sincerest apologies, please try selecting another ticket type",
-                                            code=TicketSale.SOLD_OUT, params={'ticket_type': data})
+        if self.cleaned_data['rsvp'] != Invitation.DECLINED:
 
-        return ticket_sale
+            try:
+                ticket_sale = self.invite.available_sales.get(slug=data, event=self.event)
+            except TicketSale.DoesNotExist:
+                raise forms.ValidationError("Unfortunately we were unable "
+                                            "to locate the ticket type `%(ticket_type)` that you requested. ",
+                                            code=TicketSale.INVALID, params={'ticket_type': data})
+            else:
+                if not ticket_sale.has_tickets_remaining():
+                    raise forms.ValidationError("It seems we are all sold out of that type of ticket `%(ticket_type)`. "
+                                                "Our sincerest apologies, please try selecting another ticket type",
+                                                code=TicketSale.SOLD_OUT, params={'ticket_type': data})
+
+            return ticket_sale
+
+        return data
 
     def save(self, *args, **kwargs):
 
         data = self.cleaned_data
+
+        if data['rsvp'] == Invitation.DECLINED:
+            self.invite.rsvp_status = Invitation.DECLINED
+            self.invite.save()
+            return json.dumps({'success': True, })
 
         invitee_full_name = data['first_name'] + ' ' + data['last_name']
 
@@ -385,6 +397,6 @@ class TicketOfficeSaleForm(forms.Form):
         self.invite.mark_used()
         self.invite.save()
 
-        return order
+        return {'to': 'order_confirmation', 'order_id': order.pk}
 
     save = transaction.commit_on_success(save)

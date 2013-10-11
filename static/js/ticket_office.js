@@ -9,7 +9,8 @@ $(document).ready(function (){
         guest: $('.step-guest-information'),
         payment: $('.step-payment-method'),
         pay: $('.step-payment'),
-        confirm: $('.step-confirm')
+        confirm: $('.step-confirm'),
+        decline: $('.step-decline')
     };
 
     function change_step(step_number){
@@ -44,8 +45,17 @@ $(document).ready(function (){
        $('.invitee.information').toggleClass('hide');
    });
 
-    steps[1].click(function (){
+    $('.rsvp.attend').click(function (){
         change_step('information');
+    });
+
+    $('.rsvp.decline').click(function (){
+
+        $.post(window.location, {rsvp:'DECLINED', first_name: $('#id_first_name').val(), last_name: $('#id_last_name').val(), email: $('#id_email').val()}, function (){
+
+        });
+
+        change_step('decline');
     });
 
     ticket_type.add(payment_type).hover(function(){

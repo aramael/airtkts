@@ -14,10 +14,37 @@
 <form method="POST" id="airtkts">
 {% csrf_token %}
 
-    <div class="countdown-ticket step-1">
-        <div class="content">
-            <a class="start-process">Admit One</a>
-        </div><!-- .content -->
+    <div class="form-step step-1">
+        <div class="ui segment">
+
+            <div class="ui small four steps">
+              <a class="ui active step">
+                Information
+              </a>
+              <div class="ui disabled step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    Will you be able to attend?
+                    <div class="sub header">You've been invited by {{ invite.invited_by.first_name }} {{ invite.invited_by.last_name }} to {{ event.name }} at {{ event.location }} on {{ event.start_time }}. The event will roughly end around {{ event.end_time }}</div>
+                </div>
+            </h2>
+
+            <div class="ui buttons">
+                <div class="ui rsvp decline negative button">Not Going</div>
+                <div class="or"></div>
+                <div class="ui rsvp attend positive button">Going</div>
+            </div>
+
+        </div>
     </div>
 
     <div class="form-step step-information hide">
@@ -333,6 +360,35 @@
     </div>
 
 
+    <div class="form-step step-decline hide">
+        <div class="ui segment">
+
+            <div class="ui small four steps">
+              <a class="ui step">
+                Information
+              </a>
+              <div class="ui step">
+                Payment
+              </div>
+              <div class="ui step">
+                Confirm
+              </div>
+              <div class="ui active step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    Thanks
+                </div>
+            </h2>
+
+            <p class="huge order confirm">We're sorry that you will be unable to make it. If you change you're mind just come back and everything will still be right here.</p>
+
+        </div>
+    </div>
+
+
 </form>
 
 {% endblock %}
@@ -345,6 +401,8 @@
     _door_surcharge = 2;
     </script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script src="{% static 'js/vendor/django/jquery.cookie.js' %}"></script>
+    <script src="{% static 'js/vendor/django/csrf.js' %}"></script>
     <script src="{% static 'js/vendor/cssua/cssua.min.js' %}"></script>
     <script src="{% static 'js/vendor/skeuocard/skeuocard.min.js' %}"></script>
     <script src="{% static 'js/ticket_office.js' %}"></script>

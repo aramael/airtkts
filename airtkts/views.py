@@ -87,7 +87,11 @@ def ticket_office(request, event_id=None, event_slug=None):
 
     if form.is_valid():
         instance = form.save(request=request, invite=invite, event=event)
-        return redirect('order_confirmation', order_id=instance.pk)
+        if isinstance(instance, basestring):
+            return HttpResponse(instance)
+        return redirect(**instance)
+    else:
+        print form.errors
 
     context = {
         'invite': invite,
