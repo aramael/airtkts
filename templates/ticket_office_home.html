@@ -14,7 +14,7 @@
 <form method="POST" id="airtkts">
 {% csrf_token %}
 
-    <div class="form-step step-1">
+    <div class="form-step step-1 hide">
         <div class="ui segment">
 
             <div class="ui small four steps">
@@ -43,6 +43,7 @@
                 <div class="or"></div>
                 <div class="ui rsvp attend positive button">Going</div>
             </div>
+            <input type="hidden" name="{{ form.rsvp.html_name }}" id="id_{{ form.rsvp.html_name }}" value="ATTENDING" />
 
         </div>
     </div>
@@ -297,6 +298,17 @@
                 </div>
             </h2>
 
+            {% if form.stripe_token.errors %}
+            <div class="ui warning message">
+                <div class="header">Could you check something!</div>
+                <ul class="list">
+                    {% for error in form.stripe_token.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
             <div class="credit-card-input no-js" id="skeuocard">
                 <p class="no-support-warning">
                 Either you have Javascript disabled, or you're using an unsupported browser, amigo! That's why you're seeing this old-school credit card input form instead of a fancy new Skeuocard. On the other hand, at least you know it gracefully degrades...
@@ -323,7 +335,11 @@
                 <input type="text" name="cc_cvc" id="cc_cvc" placeholder="123" maxlength="3" size="3">
             </div>
             {{ form.stripe_token }}
+            {% if form.stripe_token.errors %}
+            <button type="submit" class="ui blue submit button">Let's try it again!</button>
+            {% else %}
             <a class="ui blue submit button">Next</a>
+            {% endif %}
         </div>
     </div>
 
@@ -399,6 +415,9 @@
         {% for ticket in invite.available_sales.all %}'{{ ticket.slug }}': { price: {{ ticket.price }}, name: '{{ ticket.name }}' },{% endfor %}
     };
     _door_surcharge = 2;
+    {% if form.stripe_token.errors %}
+        location.hash = 'pay';
+    {% endif %}
     </script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script src="{% static 'js/vendor/django/jquery.cookie.js' %}"></script>

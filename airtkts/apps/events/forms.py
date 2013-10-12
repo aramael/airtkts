@@ -273,6 +273,27 @@ class GuestInviteForm(InviteForm):
 
 class TicketOfficeSaleForm(forms.Form):
 
+    CREDIT_CARD_ERRORS = {
+        'incorrect_number': '',
+        'invalid_number': 'It seems that you have mistyped your credit card number. Can you try typing it again?',
+        'invalid_expiry_month': 'We think you\'ve mistyped the expiration month. Try copying it again.',
+        'invalid_expiry_year': 'You may have mistyped the expiration year, maybe try copying it again.',
+        'invalid_cvc': 'The CVC code, the three-digit card security code printed on the back signature panel of '
+                       'the card or the four-digit code printed on the front side of the card above the number if '
+                       'you have American Express, seems to be invalid. Please try typing it again.',
+        'expired_card': 'The card that you entered is expired. Please try using a different card.',
+        'incorrect_cvc': 'The CVC code, the three-digit card security code printed on the back signature panel of '
+                         'the card or the four-digit code printed on the front side of the card above the number if '
+                         'you have American Express, seems to be incorrect. Please try typing it again.',
+        'incorrect_zip': 'You have provided the wrong ZIP code for the credit card. Remember this ZIP code is '
+                         'not the ZIP code of where you currently live or reside; however, it is the ZIP code that '
+                         'the credit card is registered under with your bank. Try typing it again.',
+        'card_declined': 'The you supplied was declined. Try submitting it again, if it doesn\'t work again then try '
+                         'calling your bank to see if there is an issue you need to resolve. You\'re bank\'s number '
+                         'is on the back of you\'re card.',
+        'processing_error': 'An error occurred while trying to process your card. Please try submitting again.',
+    }
+
     rsvp = forms.CharField(max_length=12)
 
     first_name = forms.CharField(max_length=50, required=True, label='First Name')
@@ -318,6 +339,63 @@ class TicketOfficeSaleForm(forms.Form):
 
         return data
 
+    def clean(self):
+        """
+        The clean method will authorise a charge but not charge it in case
+        another error is thrown. If it fails, it simply raises the error
+        given from Stripe's library as a standard ValidationError for proper
+         feedback however it is converted into a more friendly message by
+         the ``CREDIT_CARD_ERRORS`` dictionary.
+        """
+
+        data = super(TicketOfficeSaleForm, self).clean()
+
+        if not self.errors and data['rsvp'] == Invitation.ATTENDING:
+
+            ticket_sale = data['ticket_type']
+
+            if data['stripe_token'] is not None:
+
+                invitee_full_name = data['first_name'] + ' ' + data['last_name']
+
+                try:
+                    # Credit Card Processing
+                    customer = stripe.Customer.create(description=invitee_full_name,
+                                                      email=data['email'], card=data['stripe_token'])
+
+                    data['stripe_customer'] = customer.id
+
+                    # Authorize the Charge but DO NOT CHARGE in case there is an error
+                    charge = stripe.Charge.create(amount=ticket_sale.price*100, currency='usd',
+                                                  capture=False, customer=customer.id)
+
+                    data['stripe_charge'] = charge.id
+
+                except stripe.CardError, e:
+                    # Since it's a decline, stripe.CardError will be caught
+                    body = e.json_body
+                    err = body['error']
+
+                    if err['type'] == 'card_error':
+
+                        error = [self.CREDIT_CARD_ERRORS.get(err['code'], self.CREDIT_CARD_ERRORS['processing_error'])]
+                        self._errors["stripe_token"] = self.error_class(error)
+                except stripe.AuthenticationError, e:
+                    # Authentication with Stripe's API failed
+                    # (maybe you changed API keys recently)
+                    logger.critical('Stripe Authentication Failed. ' + str(e.json_body))
+                else:
+                    data['payment_method'] = TicketOrder.CREDIT_CARD
+                    data['balance'] = 0
+            else:
+                # Wait for Event Date @ Door
+                data['payment_method'] = TicketOrder.CASH
+                data['balance'] = -ticket_sale.price
+
+            del data['stripe_token']
+
+        return data
+
     def save(self, *args, **kwargs):
 
         data = self.cleaned_data
@@ -334,49 +412,24 @@ class TicketOfficeSaleForm(forms.Form):
         order_kwargs = {
             'name': invitee_full_name,
             'email': data['email'],
+            'payment_method': data['payment_method'],
+            'balance': data['balance'],
         }
 
         order = TicketOrder.objects.create(**order_kwargs)
 
         ticket_sale = data['ticket_type']
 
-        ticket_price = ticket_sale.price
-
         # Payment Methods
-        if data['stripe_token'] is not None:
 
-            try:
-                # Credit Card Processing
-                customer = stripe.Customer.create(description=invitee_full_name, email=data['email'], card=data['stripe_token'])
+        if 'stripe_customer' in data:
+            order.customer = data['stripe_customer']
+        if 'stripe_charge' in data:
+            order.charge = data['stripe_charge']
 
-                order_kwargs['customer'] = customer.id
-
-                charge = stripe.Charge.create(amount=ticket_price*100, currency='usd',
-                                              customer=customer.id, description='AIRTKTS ORDER: #' + str(order.pk))
-
-            except stripe.CardError, e:
-                # Since it's a decline, stripe.CardError will be caught
-                body = e.json_body
-                err = body['error']
-
-                print "Status is: %s" % e.http_status
-                print "Type is: %s" % err['type']
-                print "Code is: %s" % err['code']
-                # param is '' in this case
-                print "Param is: %s" % err['param']
-                print "Message is: %s" % err['message']
-            except stripe.AuthenticationError, e:
-                # Authentication with Stripe's API failed
-                # (maybe you changed API keys recently)
-                logger.critical('Stripe Authentication Failed. ' + str(e.json_body))
-            else:
-                order.payment_method = TicketOrder.CREDIT_CARD
-                order.charge = charge.id
-                order.balance = 0
-        else:
-            # Wait for Event Date @ Door
-            order.balance = -ticket_price
-            order.payment_method = TicketOrder.CASH
+            # Capture the Pre-Authorised Card
+            ch = stripe.Charge.retrieve(data['stripe_charge'])
+            ch.capture()
 
         ticket = Ticket.objects.create(name=invitee_full_name, purchase=order, sale=ticket_sale)
 
