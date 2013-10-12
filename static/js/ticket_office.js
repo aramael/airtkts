@@ -1,22 +1,61 @@
+var steps = {
+    1: {
+        title: 'Can You Attend?',
+        handler: $('.step-1')
+    },
+    information: {
+        title: '',
+        handler: $('.step-information')
+    },
+    guest: {
+        title: '',
+        handler: $('.step-guest-information')
+    },
+    payment: {
+        title: '',
+        handler: $('.step-payment-method')
+    },
+    pay: {
+        title: '',
+        handler: $('.step-payment')
+    },
+    confirm: {
+        title: '',
+        handler: $('.step-confirm')
+    },
+    decline: {
+        title: '',
+        handler: $('.step-decline')
+    }
+};
+
+function change_step(step_number){
+    console.log('Changing to ');
+    console.log(step_number);
+    window.location.hash = step_number
+}
+
 $(document).ready(function (){
+
+    // Bind an event to window.onhashchange that, when the hash changes, gets the
+    // hash and adds the class "selected" to any matching nav link.
+    $( window ).hashchange(function() {
+        var hash = location.hash;
+
+        hash = hash.replace( /^#/, "" ) || 1;
+
+        // Set the page title based on the hash.
+        document.title = steps[hash]['title'];
+
+        $('[class*=step-]:visible').transition('fade out');
+        steps[hash]['handler'].transition('fade in');
+    });
+    // Since the event is only triggered when the hash changes, we need to trigger
+    // the event now, to handle the hash the page may have loaded with.
+    $( window ).hashchange();
 
     // Stripe Call
     Stripe.setPublishableKey('pk_test_TSQ7mAraIKeoGRhSUnFc8SI1');
-
-    var steps = {
-        1: $('.step-1'),
-        information: $('.step-information'),
-        guest: $('.step-guest-information'),
-        payment: $('.step-payment-method'),
-        pay: $('.step-payment'),
-        confirm: $('.step-confirm'),
-        decline: $('.step-decline')
-    };
-
-    function change_step(step_number){
-        $('[class*=step-]:visible').transition('fade out');
-        steps[step_number].transition('fade in');
-    }
 
     var card = new Skeuocard($("#skeuocard"));
     var ticket_type = $('.ticket-type');
@@ -91,7 +130,7 @@ $(document).ready(function (){
         payment_type_input.val($(this).attr('id')).trigger('blur');
     });
 
-    steps['information'].find('.form').form({
+    steps['information']['handler'].find('.form').form({
 		firstName: {
 			identifier  : 'first-name',
 			rules: [{
@@ -118,7 +157,7 @@ $(document).ready(function (){
         on: 'Blur',
         onSuccess: function(){
 
-            form = steps['information'].find('.form');
+            form = steps['information']['handler'].find('.form');
 
             // Fill Out Confirm Dialogue
             fname = form.form('get field', 'first_name').val();
@@ -147,7 +186,7 @@ $(document).ready(function (){
         }
     });
 
-    steps['guest'].find('.form').form({
+    steps['guest']['handler'].find('.form').form({
 		firstName: {
 			identifier  : 'guest_first_name',
 			rules: [{
@@ -174,11 +213,9 @@ $(document).ready(function (){
         on: 'Blur',
         onSuccess: function(){
 
-            console.log(steps['guest'].find('.form'));
+            window.guest_form = steps['guest']['handler'].find('.form');
 
-            window.guest_form = steps['guest'].find('.form');
-
-            form = steps['guest'].find('.form');
+            form = steps['guest']['handler'].find('.form');
 
             // Fill Out Confirm Dialogue
             fname = form.form('get field', 'guest_first_name').val();
@@ -199,7 +236,7 @@ $(document).ready(function (){
         }
     });
 
-    steps['payment'].find('.form').form({
+    steps['payment']['handler'].find('.form').form({
         ticket: {
             identifier : 'payment_type',
             rules:[{
@@ -212,7 +249,7 @@ $(document).ready(function (){
         on: 'Blur',
         onSuccess: function(){
 
-            var payment_method = steps['payment'].find('.form').form('get field', 'payment_method');
+            var payment_method = steps['payment']['handler'].find('.form').form('get field', 'payment_method');
             if (payment_method.val() == 'credit'){
                 confrim_pay_now.removeClass('hide');
                 confrim_ticket_price.text(pay_now_price_display.text());
@@ -228,7 +265,7 @@ $(document).ready(function (){
         }
     });
 
-    steps['pay'].find('.submit').click(function (){
+    steps['pay']['handler'].find('.submit').click(function (){
         if (card.isValid()){
 
             $(this).find('button').prop('disabled', true);
