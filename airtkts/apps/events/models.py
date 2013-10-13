@@ -178,7 +178,7 @@ class Invitation(models.Model):
         """
         Determine whether this ``Invitation`` can bring a guest
         """
-        return self.max_guest_count > 0
+        return self.max_guest_count > 0 and self.max_guest_count > self.guests.all().count()
 
     def mark_used(self):
         """

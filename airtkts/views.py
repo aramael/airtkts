@@ -295,8 +295,11 @@ def invites_home(request, event_id=None):
 
     invites = Invitation.objects.filter(event=event)
 
+    user_invite = Invitation.objects.get(user=request.user, event=event)
+
     context = {
         'section': 'invites',
+        'user_invite': user_invite,
         'actions': Invitation.objects.bulk_actions,
         'invites': invites,
         'event': event,
@@ -355,7 +358,7 @@ def invites_form(request, event_id=None, invite_id=None):
                       data=request.POST or None, files=request.FILES or None)
 
     if form.is_valid():
-        location_redirect = form.save(request)
+        location_redirect = form.save(request, user_invite)
         return redirect(**location_redirect)
 
     context = {

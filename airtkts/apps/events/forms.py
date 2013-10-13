@@ -228,7 +228,7 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
             self.fields['available_sales'].queryset = get_available_sales(self.initial.get('invited_by', None))
             self.fields['available_sales'].initial = get_available_sales(self.initial.get('invited_by', None))
 
-    def save(self, request, *args, **kwargs):
+    def save(self, request, invite, *args, **kwargs):
 
         redirect = super(InviteForm, self).save(*args, **kwargs)
 
@@ -238,6 +238,9 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
             assign_perm('events.view_invitation', instance.invited_by.user, instance)
 
         instance.send_invitation_email(request)
+
+        invite.guests.add(instance)
+        invite.save()
 
         del redirect['instance']
 

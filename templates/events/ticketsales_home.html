@@ -44,7 +44,7 @@
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="3" style="text-align: center">No ticket sales were found.<a href="{% url "ticketsales_new" event.pk %}">Add Ticket Type</a></td>
+                                <td colspan="4" style="text-align: center">No ticket sales were found.<a href="{% url "ticketsales_new" event.pk %}">Add Ticket Type</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>

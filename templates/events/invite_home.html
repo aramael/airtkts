@@ -22,10 +22,12 @@
                             <span class="action-counter" style="display: inline;"><span class="selected-count">0</span> of {{ invites|length }} selected</span>
                         </div>
                     </div>
+                    {% if user_invite.can_bring_guests %}
                     <div class="pull-right">
                         <a class="btn btn-primary" href="{% url "invites_new" event.pk %}?quick=true">Quick Add Invitation</a>
                         <a class="btn btn-default" href="{% url "invites_new" event.pk %}">Add Invitation</a>
                     </div>
+                    {% endif %}
                 </div>
                 <table class="table table-striped">
                     <thead>
@@ -50,7 +52,7 @@
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="2" style="text-align: center">You haven't invited anyone yet! Feel free to <a href="{% url "invites_new" event.pk %}">invite someone</a>.</td>
+                                <td colspan="6" style="text-align: center">You haven't invited anyone yet! Feel free to <a href="{% url "invites_new" event.pk %}">invite someone</a>.</td>
                             </tr>
                         {% endfor %}
                     </tbody>
