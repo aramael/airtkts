@@ -48,7 +48,7 @@ STRIPE_API_KEY = os.environ['STRIPE_API_KEY']
 # <code>
 # heroku config:add MANDRILL_API_KEY=''
 # </code>
-MANDRILL_API_KEY = os.environ['MANDRILL_API_KEY']
+MANDRILL_API_KEY = os.environ['MANDRILL_APIKEY']
 
 EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
 

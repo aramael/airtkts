@@ -17,8 +17,8 @@ def staging():
 def production():
     env.env = 'production'
     env.settings = 'settings.production'
-    env.remote = 'production'
-    env.heroku_app = 'production'
+    env.remote = 'heroku'
+    env.heroku_app = 'airtkts'
 
 
 # Default Environment
