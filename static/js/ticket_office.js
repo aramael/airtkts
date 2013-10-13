@@ -60,9 +60,6 @@ $(document).ready(function (){
     // the event now, to handle the hash the page may have loaded with.
     $( window ).hashchange();
 
-    // Stripe Call
-    Stripe.setPublishableKey('pk_test_TSQ7mAraIKeoGRhSUnFc8SI1');
-
     var card = new Skeuocard($("#skeuocard"));
     var ticket_type = $('.ticket-type');
     var payment_type = $('.payment-type');
