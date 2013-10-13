@@ -24,16 +24,29 @@ ALLOWED_HOSTS = ['.herokuapp.com']
 # </code>
 SECRET_KEY = os.environ['SECRET_KEY']
 
-# Make this unique, and don't share it with anybody.
+#==============================================================================
+# Payment Processing
+#==============================================================================
+
 # Set it by issuing following command
 # <code>
 # heroku config:add STRIPE_PUBLISHABLE_KEY=''
 # </code>
 STRIPE_PUBLISHABLE_KEY = os.environ['STRIPE_PUBLISHABLE_KEY']
 
-# Make this unique, and don't share it with anybody.
 # Set it by issuing following command
 # <code>
 # heroku config:add STRIPE_API_KEY=''
 # </code>
 STRIPE_API_KEY = os.environ['STRIPE_API_KEY']
+
+#==============================================================================
+# Email Support w/ Heroku & Mandrill
+#==============================================================================
+
+# Set it by issuing following command
+# <code>
+# heroku config:add MANDRILL_API_KEY=''
+# </code>
+MANDRILL_API_KEY = os.environ['MANDRILL_API_KEY']
+EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
