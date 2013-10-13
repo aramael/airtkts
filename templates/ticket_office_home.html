@@ -129,6 +129,7 @@
                         </div>
                     {% endfor %}
                 </div>
+            {{ form.ticket_type }}
             </div>
             {% else %}
                 <div class="ticket-types">
@@ -143,9 +144,9 @@
                     </h2>
                     </div>
                 {% endfor %}
+                {{ form.ticket_type }}
                 </div>
             {% endif %}
-            {{ form.ticket_type }}
 
             {% if invite.can_bring_guests %}
             <div class="ui tiny header">Do you want to bring a friend?</div>
@@ -157,6 +158,7 @@
                 <label for="id_{{ form.guest_invited.html_name }}">{{ form.guest_invited.label }}</label>
             </div>
             {% endif %}
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
@@ -221,6 +223,7 @@
                 <label for="id_{{ form.guest_note.html_name }}">{{ form.guest_note.label }}</label>
                 {{ form.guest_note }}
             </div>
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
@@ -270,6 +273,7 @@
                 </div>
                 {{ form.payment_method }}
             </div>
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
@@ -338,6 +342,7 @@
             {% if form.stripe_token.errors %}
             <button type="submit" class="ui blue submit button">Let's try it again!</button>
             {% else %}
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <a class="ui blue submit button">Next</a>
             {% endif %}
         </div>
@@ -371,6 +376,7 @@
             <div class="ui blue segment bring guest hide" id="guest-note"></div>
             <p class="huge order confirm"><a class="user info" id="first-name" href="javascript:change_step('information');"></a>, you decided that you were going to get the <a class="user info" id="ticket-type" href="javascript:change_step('information');"></a> <span id="pay-now" class="hide">and you are paying using you're card that ends in <a class="user info" id="cc-last-four" href="javascript:change_step('pay');"></a></span><span id="pay-at-door" class="hide">and you are paying at the door </span> for a total of <a class="user info" id="ticket-price" href="javascript:change_step('information');"></a>. We're excited to see you there on {{ event.start_time }}</p>
 
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <button type="submit" class="ui blue submit button">Sounds Right</button>
         </div>
     </div>
@@ -417,6 +423,8 @@
     _door_surcharge = 2;
     {% if form.stripe_token.errors %}
         location.hash = 'pay';
+    {% else %}
+        location.hash = '';
     {% endif %}
     </script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>

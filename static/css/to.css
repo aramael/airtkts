@@ -144,7 +144,8 @@ html {
     }
 }
 
-.submit.button {
+.submit.button,
+.back.button {
     margin-top: 20px;
     display: inline-block;
 }

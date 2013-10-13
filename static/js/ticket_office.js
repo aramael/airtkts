@@ -29,10 +29,16 @@ var steps = {
     }
 };
 
+var step_history = [''];
+
 function change_step(step_number){
-    console.log('Changing to ');
     console.log(step_number);
     window.location.hash = step_number
+}
+
+function go_back_step(){
+    var back_step = step_history.pop();
+    change_step(back_step);
 }
 
 $(document).ready(function (){
@@ -132,14 +138,14 @@ $(document).ready(function (){
 
     steps['information']['handler'].find('.form').form({
 		firstName: {
-			identifier  : 'first-name',
+			identifier  : 'first_name',
 			rules: [{
 				type   : 'empty',
 				prompt : 'enter your first name'
 			}]
 		},
 		lastName: {
-			identifier  : 'last-name',
+			identifier  : 'last_name',
 			rules: [{
 				type   : 'empty',
 				prompt : 'enter your last name'
