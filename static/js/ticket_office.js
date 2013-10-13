@@ -1,31 +1,79 @@
+var steps = {
+    1: {
+        title: 'Can You Attend?',
+        handler: $('.step-1')
+    },
+    information: {
+        title: '',
+        handler: $('.step-information')
+    },
+    guest: {
+        title: '',
+        handler: $('.step-guest-information')
+    },
+    payment: {
+        title: '',
+        handler: $('.step-payment-method')
+    },
+    pay: {
+        title: '',
+        handler: $('.step-payment')
+    },
+    confirm: {
+        title: '',
+        handler: $('.step-confirm')
+    },
+    decline: {
+        title: '',
+        handler: $('.step-decline')
+    }
+};
+
+var step_history = [''];
+
+function change_step(step_number){
+    console.log(step_number);
+    window.location.hash = step_number
+}
+
+function go_back_step(){
+    var back_step = step_history.pop();
+    change_step(back_step);
+}
+
 $(document).ready(function (){
+
+    // Bind an event to window.onhashchange that, when the hash changes, gets the
+    // hash and adds the class "selected" to any matching nav link.
+    $( window ).hashchange(function() {
+        var hash = location.hash;
+
+        hash = hash.replace( /^#/, "" ) || 1;
+
+        // Set the page title based on the hash.
+        document.title = steps[hash]['title'];
+
+        $('[class*=step-]:visible').transition('fade out');
+        steps[hash]['handler'].transition('fade in');
+    });
+    // Since the event is only triggered when the hash changes, we need to trigger
+    // the event now, to handle the hash the page may have loaded with.
+    $( window ).hashchange();
 
     // Stripe Call
     Stripe.setPublishableKey('pk_test_TSQ7mAraIKeoGRhSUnFc8SI1');
 
-    var steps = {
-        1: $('.step-1'),
-        information: $('.step-information'),
-        guest: $('.step-guest-information'),
-        payment: $('.step-payment-method'),
-        pay: $('.step-payment'),
-        confirm: $('.step-confirm')
-    };
-
-    function change_step(step_number){
-        $('[class*=step-]:visible').transition('fade out');
-        steps[step_number].transition('fade in');
-    }
-
     var card = new Skeuocard($("#skeuocard"));
     var ticket_type = $('.ticket-type');
     var payment_type = $('.payment-type');
+    var pay_later_price_display = $('#pay-at-door-price');
+    var pay_now_price_display = $('#pay-now-price');
     var ticket_type_input = $('#id_ticket_type');
     var ticket_type_display = $('#ticket-choice');
-    var payment_type_input = $('#id_payment_type');
+    var payment_type_input = $('#id_payment_method');
 
     // Confrim Information
-    var confrim_full_name = $('#full-name');
+    var confrim_full_name = $('.invitee.full.name');
     var confrim_first_name = $('#first-name');
     var confrim_guest_full_name = $('#guest-full-name');
     var confrim_guest_first_name = $('#guest-first-name');
@@ -38,8 +86,21 @@ $(document).ready(function (){
     var confrim_pay_later = $('#pay-at-door');
     var confrim_bring_guest = $('.bring.guest');
 
-    steps[1].click(function (){
+    $('#id_change_spelling_of_name').on( "click", function (){
+       $('.invitee.information').toggleClass('hide');
+   });
+
+    $('.rsvp.attend').click(function (){
         change_step('information');
+    });
+
+    $('.rsvp.decline').click(function (){
+
+        $.post(window.location, {rsvp:'DECLINED', first_name: $('#id_first_name').val(), last_name: $('#id_last_name').val(), email: $('#id_email').val()}, function (){
+
+        });
+
+        change_step('decline');
     });
 
     ticket_type.add(payment_type).hover(function(){
@@ -75,16 +136,16 @@ $(document).ready(function (){
         payment_type_input.val($(this).attr('id')).trigger('blur');
     });
 
-    steps['information'].find('.form').form({
+    steps['information']['handler'].find('.form').form({
 		firstName: {
-			identifier  : 'first-name',
+			identifier  : 'first_name',
 			rules: [{
 				type   : 'empty',
 				prompt : 'enter your first name'
 			}]
 		},
 		lastName: {
-			identifier  : 'last-name',
+			identifier  : 'last_name',
 			rules: [{
 				type   : 'empty',
 				prompt : 'enter your last name'
@@ -102,14 +163,22 @@ $(document).ready(function (){
         on: 'Blur',
         onSuccess: function(){
 
-            form = steps['information'].find('.form');
+            form = steps['information']['handler'].find('.form');
 
             // Fill Out Confirm Dialogue
-            fname = form.form('get field', 'first-name').val();
-            lname = form.form('get field', 'last-name').val();
+            fname = form.form('get field', 'first_name').val();
+            lname = form.form('get field', 'last_name').val();
+            ticket_sale = form.form('get field', 'ticket_type').val();
+
             confrim_first_name.text(fname);
             confrim_full_name.text(fname + ' ' + lname);
-            confrim_ticket_type.text(form.form('get field', 'ticket_type').val());
+            confrim_ticket_type.text(_available_tickets[ticket_sale]['name']);
+
+            base_price = _available_tickets[ticket_sale]['price'];
+            door_price = base_price + _door_surcharge;
+
+            pay_now_price_display.text('$' + base_price.toString() +' USD');
+            pay_later_price_display.text('$' + door_price.toString() +' USD');
 
             if (form.form('has field', 'guest_invited')){
                 var guest_invited = form.form('get field', 'guest_invited');
@@ -123,7 +192,7 @@ $(document).ready(function (){
         }
     });
 
-    steps['guest'].find('.form').form({
+    steps['guest']['handler'].find('.form').form({
 		firstName: {
 			identifier  : 'guest_first_name',
 			rules: [{
@@ -150,11 +219,9 @@ $(document).ready(function (){
         on: 'Blur',
         onSuccess: function(){
 
-            console.log(steps['guest'].find('.form'));
+            window.guest_form = steps['guest']['handler'].find('.form');
 
-            window.guest_form = steps['guest'].find('.form');
-
-            form = steps['guest'].find('.form');
+            form = steps['guest']['handler'].find('.form');
 
             // Fill Out Confirm Dialogue
             fname = form.form('get field', 'guest_first_name').val();
@@ -175,7 +242,7 @@ $(document).ready(function (){
         }
     });
 
-    steps['payment'].find('.form').form({
+    steps['payment']['handler'].find('.form').form({
         ticket: {
             identifier : 'payment_type',
             rules:[{
@@ -188,21 +255,23 @@ $(document).ready(function (){
         on: 'Blur',
         onSuccess: function(){
 
-            var payment_method = steps['payment'].find('.form').form('get field', 'payment_type');
+            var payment_method = steps['payment']['handler'].find('.form').form('get field', 'payment_method');
             if (payment_method.val() == 'credit'){
                 confrim_pay_now.removeClass('hide');
+                confrim_ticket_price.text(pay_now_price_display.text());
                 change_step('pay');
                 return;
             }
 
             // Fill Out Confirm Dialogue
             confrim_pay_later.removeClass('hide');
+            confrim_ticket_price.text(pay_later_price_display.text());
 
             change_step('confirm');
         }
     });
 
-    steps['pay'].find('.submit').click(function (){
+    steps['pay']['handler'].find('.submit').click(function (){
         if (card.isValid()){
 
             $(this).find('button').prop('disabled', true);
@@ -222,7 +291,7 @@ $(document).ready(function (){
                     // token contains id, last4, and card type
                     var token = response['id'];
 
-                    $('#stripeToken').val(token);
+                    $('#id_stripe_token').val(token);
 
                     num = $('#cc_number').val();
                     confrim_cc.text(num.substr(num.length - 4));
@@ -233,7 +302,5 @@ $(document).ready(function (){
             });
         }
     });
-
-    $('form#airtkts').submit(function (e){});
 
 });

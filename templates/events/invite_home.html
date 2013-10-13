@@ -35,6 +35,7 @@
                             <th>Email</th>
                             <th>Invited By</th>
                             <th>Maximum Guest Count</th>
+                            <th>RSVP</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,6 +46,7 @@
                                 <td>{{ invite.email }}</td>
                                 <td>{{ invite.invited_by.first_name }} {{ invite.invited_by.last_name }}</td>
                                 <td>{{ invite.max_guest_count }}</td>
+                                <td>{{ invite.rsvp_status }}</td>
                             </tr>
                         {% empty %}
                             <tr>

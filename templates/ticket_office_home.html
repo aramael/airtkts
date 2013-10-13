@@ -14,10 +14,38 @@
 <form method="POST" id="airtkts">
 {% csrf_token %}
 
-    <div class="countdown-ticket step-1">
-        <div class="content">
-            <a class="start-process">Admit One</a>
-        </div><!-- .content -->
+    <div class="form-step step-1 hide">
+        <div class="ui segment">
+
+            <div class="ui small four steps">
+              <a class="ui active step">
+                Information
+              </a>
+              <div class="ui disabled step">
+                Payment
+              </div>
+              <div class="ui disabled step">
+                Confirm
+              </div>
+              <div class="ui disabled step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    Will you be able to attend?
+                    <div class="sub header">You've been invited by {{ invite.invited_by.first_name }} {{ invite.invited_by.last_name }} to {{ event.name }} at {{ event.location }} on {{ event.start_time }}. The event will roughly end around {{ event.end_time }}</div>
+                </div>
+            </h2>
+
+            <div class="ui buttons">
+                <div class="ui rsvp decline negative button">Not Going</div>
+                <div class="or"></div>
+                <div class="ui rsvp attend positive button">Going</div>
+            </div>
+            <input type="hidden" name="{{ form.rsvp.html_name }}" id="id_{{ form.rsvp.html_name }}" value="ATTENDING" />
+
+        </div>
     </div>
 
     <div class="form-step step-information hide">
@@ -43,60 +71,84 @@
                     <div class="sub header">{{ event.organisers }} need a little bit of information from you before they can finish planning their party. Do them a solid and fill out the information below: </div>
                 </div>
             </h2>
-            <div class="ui tiny header">What should we call you?</div>
-            <div class="two fields">
-                <div class="field">
-                    <label for="id_{{ form.first_name.html_name }}">{{ form.first_name.label }}</label>
-                    <div class="ui labeled input">
-                        {{ form.first_name }}
-                        <div class="ui corner label">
-                            <i class="asterisk icon"></i>
+            <div class="{% if invite %}hide{% endif %} invitee information">
+                <div class="ui tiny header">What should we call you?</div>
+                <div class="two fields">
+                    <div class="field">
+                        <label for="id_{{ form.first_name.html_name }}">{{ form.first_name.label }}</label>
+                        <div class="ui labeled input">
+                            {{ form.first_name }}
+                            <div class="ui corner label">
+                                <i class="asterisk icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="id_{{ form.last_name.html_name }}">{{ form.last_name.label }}</label>
+                        <div class="ui labeled input">
+                            {{ form.last_name }}
+                            <div class="ui corner label">
+                                <i class="asterisk icon"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="field">
-                    <label for="id_{{ form.last_name.html_name }}">{{ form.last_name.label }}</label>
-                    <div class="ui labeled input">
-                        {{ form.last_name }}
+                    <label for="id_{{ form.email.html_name }}">{{ form.email.label }}</label>
+                    <div class="ui left labeled icon input">
+                        {{ form.email }}
+                        <i class="mail icon"></i>
                         <div class="ui corner label">
-                            <i class="asterisk icon"></i>
+                            <i class="icon asterisk"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="field">
-                <label for="id_{{ form.email.html_name }}">{{ form.email.label }}</label>
-                <div class="ui left labeled icon input">
-                    {{ form.email }}
-                    <i class="mail icon"></i>
-                    <div class="ui corner label">
-                        <i class="icon asterisk"></i>
-                    </div>
+            <div class="ui tiny header">{% if invite %}<span class="invitee full name">{{ invite.first_name }} {{ invite.last_name }},</span> {% endif %}What type of ticket would you like?</div>
+            {% if invite %}
+            <div class="inline field">
+                <div class="ui checkbox">
+                    <input type="checkbox" name="change_spelling_of_name" id="id_change_spelling_of_name"/>
+                    <label for="id_change_spelling_of_name" class="box"></label>
                 </div>
+                <label for="id_change_spelling_of_name">Correct the spelling of your name</label>
             </div>
-            <div class="ui tiny header">What type of ticket would you like?</div>
+            {% endif %}
+
+            {% if invite.available_sales.all|length|divisibleby:2 %}
             <div class="ui two field column grid ticket-types">
                 <div class="equal height row">
-                    <div class="column">
-                        <div class="ui blue inverted segment ticket-type tertiary" id="general-admission">
-                            <div class="ui icon header">
-                                <i class="icon ticket circle"></i><span class="description">General Admission</span>
-                                <div class="sub header">Free Non-Alcoholic Drinks as long as you want.</div>
+                    {% for ticket in invite.available_sales.all %}
+                        <div class="column">
+                            <div class="ui blue inverted segment ticket-type tertiary" id="{{ ticket.slug }}">
+                                <div class="ui icon header">
+                                    <i class="icon {{ ticket.icon_name }} circle"></i><span class="description">{{ ticket.name }}</span>
+                                    <div class="sub header">{{ ticket.description }}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="column">
-                        <div class="ui blue inverted segment ticket-type tertiary" id="open-bar">
-                            <div class="ui icon header">
-                                <i class="icon glass circle"></i><span class="description">General Admission + Open Bar</span>
-                                <div class="sub header">All the alcohol you can drink, all night long.</div>
-                            </div>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
-                <input type="hidden" name="ticket_type" id="id_ticket_type"/>
+            {{ form.ticket_type }}
             </div>
+            {% else %}
+                <div class="ticket-types">
+                {% for ticket in invite.available_sales.all %}
+                    <div class="ui blue inverted segment ticket-type tertiary" id="{{ ticket.slug }}">
+                    <h2 class="ui header">
+                        <i class="{{ ticket.icon_name }} icon"></i>
+                        <div class="content">
+                            {{ ticket.name }}
+                            <div class="sub header">{{ ticket.description }}</div>
+                        </div>
+                    </h2>
+                    </div>
+                {% endfor %}
+                {{ form.ticket_type }}
+                </div>
+            {% endif %}
 
+            {% if invite.can_bring_guests %}
             <div class="ui tiny header">Do you want to bring a friend?</div>
             <div class="inline field">
                 <div class="ui checkbox">
@@ -105,10 +157,13 @@
                 </div>
                 <label for="id_{{ form.guest_invited.html_name }}">{{ form.guest_invited.label }}</label>
             </div>
+            {% endif %}
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
 
+    {% if invite.can_bring_guests %}
     <div class="form-step step-guest-information hide">
         <div class="ui form segment">
 
@@ -168,15 +223,17 @@
                 <label for="id_{{ form.guest_note.html_name }}">{{ form.guest_note.label }}</label>
                 {{ form.guest_note }}
             </div>
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
+    {% endif %}
 
     <div class="form-step step-payment-method hide">
         <div class="ui form segment">
 
             <div class="ui small four steps">
-              <a class="ui step">
+              <a class="ui step" href="javascript:change_step('information');">
                 Information
               </a>
               <div class="ui active step">
@@ -201,7 +258,7 @@
                         <div class="ui blue inverted segment payment-type tertiary" id="cash">
                             <div class="ui icon header">
                                 <i class="icon money circle"></i>Pay Cash @ Door
-                                <div class="sub header">Pay when you show an and are ready to party. <strong>$12.00 USD</strong></div>
+                                <div class="sub header">Pay when you show an and are ready to party. <strong id="pay-at-door-price"></strong></div>
                             </div>
                         </div>
                     </div>
@@ -209,13 +266,14 @@
                         <div class="ui blue inverted segment payment-type tertiary" id="credit">
                             <div class="ui icon header">
                                 <i class="icon credit card circle"></i>Pay Now
-                                <div class="sub header">Pay now and and waltz right in later. No Hassle and Save. <strong>$10.00 USD</strong></div>
+                                <div class="sub header">Pay now and and waltz right in later. No Hassle and Save. <strong id="pay-now-price"></strong></div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <input type="hidden" name="payment_type" id="id_payment_type"/>
+                {{ form.payment_method }}
             </div>
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <a class="ui blue submit button">Next</a>
         </div>
     </div>
@@ -224,7 +282,7 @@
         <div class="ui segment">
 
             <div class="ui small four steps">
-              <a class="ui step">
+              <a class="ui step" href="javascript:change_step('information');">
                 Information
               </a>
               <div class="ui active step">
@@ -243,6 +301,17 @@
                     <div class="sub header">Just fill out your credit card information below and you'll be on your way. </div>
                 </div>
             </h2>
+
+            {% if form.stripe_token.errors %}
+            <div class="ui warning message">
+                <div class="header">Could you check something!</div>
+                <ul class="list">
+                    {% for error in form.stripe_token.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
 
             <div class="credit-card-input no-js" id="skeuocard">
                 <p class="no-support-warning">
@@ -269,11 +338,13 @@
                 <label for="cc_cvc">Card Validation Code</label>
                 <input type="text" name="cc_cvc" id="cc_cvc" placeholder="123" maxlength="3" size="3">
             </div>
-
-            <input type='hidden' name="stripeToken" id="stripeToken"/>
-
-            <button type="submit" class="ui blue submit button">Next</button>
+            {{ form.stripe_token }}
+            {% if form.stripe_token.errors %}
+            <button type="submit" class="ui blue submit button">Let's try it again!</button>
+            {% else %}
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <a class="ui blue submit button">Next</a>
+            {% endif %}
         </div>
     </div>
 
@@ -281,10 +352,10 @@
         <div class="ui segment">
 
             <div class="ui small four steps">
-              <a class="ui step">
+              <a class="ui step" href="javascript:change_step('information');">
                 Information
               </a>
-              <div class="ui step">
+              <div class="ui step" href="javascript:change_step('payment');">
                 Payment
               </div>
               <div class="ui active step">
@@ -301,11 +372,41 @@
                 </div>
             </h2>
 
-            <p class="huge order confirm">We're excited that you, <a class="user info" id="full-name"></a>, are attending {{ event.name }}. <span class="bring guest hide"> and are bringing you're friend <a class="user info" id="guest-full-name"></a>. We can contact <a class="user info" id="guest-first-name"></a> at <a class="user info" id="guest-email"></a>. We're also going to send the following note from you:</span></p>
+            <p class="huge order confirm">We're excited that you, <a class="user info invitee full name" href="javascript:change_step('information');"></a>, are attending {{ event.name }}. <span class="bring guest hide"> and are bringing you're friend <a class="user info" id="guest-full-name" href="javascript:change_step('guest');"></a>. We can contact <a class="user info" id="guest-first-name" href="javascript:change_step('guest');"></a> at <a class="user info" id="guest-email" href="javascript:change_step('guest');"></a>. We're also going to send the following note from you:</span></p>
             <div class="ui blue segment bring guest hide" id="guest-note"></div>
-            <p class="huge order confirm"><a class="user info" id="first-name"></a>, you decided that you were going to get the <a class="user info" id="ticket-type"></a> <span id="pay-now" class="hide">and you are paying using you're card that ends in <a class="user info" id="cc-last-four"></a></span><span id="pay-at-door" class="hide">and you are paying at the door </span> for a total of $<a class="user info" id="ticket-price"></a>USD. We're excited to see you there on {{ event.start_time }}</p>
+            <p class="huge order confirm"><a class="user info" id="first-name" href="javascript:change_step('information');"></a>, you decided that you were going to get the <a class="user info" id="ticket-type" href="javascript:change_step('information');"></a> <span id="pay-now" class="hide">and you are paying using you're card that ends in <a class="user info" id="cc-last-four" href="javascript:change_step('pay');"></a></span><span id="pay-at-door" class="hide">and you are paying at the door </span> for a total of <a class="user info" id="ticket-price" href="javascript:change_step('information');"></a>. We're excited to see you there on {{ event.start_time }}</p>
 
+            <a class="ui back button" href="javascript:go_back_step();">Back</a>
             <button type="submit" class="ui blue submit button">Sounds Right</button>
+        </div>
+    </div>
+
+
+    <div class="form-step step-decline hide">
+        <div class="ui segment">
+
+            <div class="ui small four steps">
+              <a class="ui step" href="javascript:change_step('1');">
+                Information
+              </a>
+              <div class="ui step">
+                Payment
+              </div>
+              <div class="ui step">
+                Confirm
+              </div>
+              <div class="ui active step">
+                Complete
+              </div>
+            </div>
+            <h2 class="ui header">
+                <div class="content">
+                    Thanks
+                </div>
+            </h2>
+
+            <p class="huge order confirm">We're sorry that you will be unable to make it. If you change you're mind just come back and everything will still be right here.</p>
+
         </div>
     </div>
 
@@ -315,7 +416,20 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script>
+    _available_tickets = {
+        {% for ticket in invite.available_sales.all %}'{{ ticket.slug }}': { price: {{ ticket.price }}, name: '{{ ticket.name }}' },{% endfor %}
+    };
+    _door_surcharge = 2;
+    {% if form.stripe_token.errors %}
+        location.hash = 'pay';
+    {% else %}
+        location.hash = '';
+    {% endif %}
+    </script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script src="{% static 'js/vendor/django/jquery.cookie.js' %}"></script>
+    <script src="{% static 'js/vendor/django/csrf.js' %}"></script>
     <script src="{% static 'js/vendor/cssua/cssua.min.js' %}"></script>
     <script src="{% static 'js/vendor/skeuocard/skeuocard.min.js' %}"></script>
     <script src="{% static 'js/ticket_office.js' %}"></script>

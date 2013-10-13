@@ -28,6 +28,37 @@ def home(request):
     return render(request, '', context)
 
 
+def invite_serve(request, invite_key=None):
+
+    location_redirect = Invitation.objects.serve_invite(invite_key=invite_key)
+
+    if location_redirect.get('invite', False):
+        request.session['invite_id'] = location_redirect.get('invite').pk
+
+        del location_redirect['invite']
+
+    return redirect(**location_redirect)
+
+
+def invite_invalid(request):
+    return render(request, 'ticket_office/invite_invalid.html')
+
+
+def invite_expired(request, event_id=None):
+
+    try:
+        event = Event.objects.get(pk=event_id)
+    except Event.DoesNotExist:
+        return redirect('invite_invalid')
+
+    if request.session.get('invite_id', False):
+        invite = get_object_or_404(Invitation, pk=request.session.get('invite_id'))
+    else:
+        invite = None
+
+    return render(request, 'ticket_office/invite_expired.html', {'event': event, 'invite': invite})
+
+
 def ticket_office(request, event_id=None, event_slug=None):
     if event_id is not None:
         event = get_object_or_404(Event, pk=event_id)
@@ -36,15 +67,61 @@ def ticket_office(request, event_id=None, event_slug=None):
     else:
         event = None
 
-    form = TicketOfficeSaleForm(data=request.POST or None, files=request.FILES or None)
+    initial = {}
+
+    if request.session.get('invite_id', False):
+
+        invite = get_object_or_404(Invitation, pk=request.session.get('invite_id'))
+
+        if invite.invitation_key_expired():
+            return redirect('invite_expired', event_id=event.pk)
+
+        initial['first_name'] = invite.first_name
+        initial['last_name'] = invite.last_name
+        initial['email'] = invite.email
+    else:
+        return HttpResponseForbidden('403 Forbidden')
+
+    form = TicketOfficeSaleForm(initial=initial, request=request, invite=invite, event=event,
+                                data=request.POST or None, files=request.FILES or None)
+
+    if form.is_valid():
+        instance = form.save(request=request, invite=invite, event=event)
+        if isinstance(instance, basestring):
+            return HttpResponse(instance)
+        return redirect(**instance)
+    else:
+        print form.errors
 
     context = {
+        'invite': invite,
         'event': event,
         'form': form,
     }
 
     return render(request, 'ticket_office_home.html', context)
 
+
+def order_confirmation(request, order_id=None):
+
+    if request.session.get('invite_id', False):
+        invite = get_object_or_404(Invitation, pk=request.session.get('invite_id'))
+
+        order_id = int(order_id)
+
+        if order_id != invite.ticket_order.pk:
+            return HttpResponseForbidden('403 Forbidden Ticket')
+
+    else:
+        return HttpResponseForbidden('403 Forbidden')
+
+    context = {
+        'invite': invite,
+        'order': invite.ticket_order,
+        'event': invite.event,
+    }
+
+    return render(request, 'ticket_office_confirmation.html', context)
 
 #==============================================================================
 # Event Pages
@@ -114,7 +191,7 @@ def event_form(request, event_id=None, event_slug=None):
 
     context = {
         'section': 'event',
-        'extends': 'events/event_new.html' if event is None else 'events/base.html',
+        'extends': 'events/event_new.html' if event is None else 'events/system_base.html',
         'form': form,
         'event': event,
         'events': get_events(request.user),
@@ -248,26 +325,37 @@ def invites_form(request, event_id=None, invite_id=None):
     if invite is not None and not request.user.has_perm('events.view_invitation', invite):
         return HttpResponseForbidden('403 Forbidden')
 
-    if 'quick' in request.GET:
+    form_class = InviteForm
+    template = 'events/invite_form.html'
+
+    if invite is None and 'quick' in request.GET:
+        # Pass Along the QuickInvite Form for new guests
         form_class = QuickInviteForm
         template = 'events/invite_quick_form.html'
-    else:
+    elif invite is not None:
+
+        if invite.invited_by is not None and invite.invited_by.pk == user_invite.pk:
+            # The guest is only allowed to edit some things on their own guests
+            # Show the invite form for own guests
+            form_class = GuestInviteForm
+            template = 'events/invite_guest_form.html'
+
+        if not request.user.has_perm('events.change_hosts', event):
+            # If the user is trying to see their own invite
+            # they can once again only see certain events.
+            form_class = LimitedInviteForm
+            template = 'events/invite_limited_form.html'
+
+    if request.user.has_perm('events.change_hosts', event):
+        # If the user can change the hosts then give all public data
         form_class = InviteForm
         template = 'events/invite_form.html'
 
-    if invite is not None and not request.user.has_perm('events.change_hosts', event):
-        form_class = LimitedInviteForm
-        template = 'events/invite_limited_form.html'
-
-    if invite is not None and invite.invited_by.pk == user_invite.pk:
-        form_class = GuestInviteForm
-        template = 'events/invite_guest_form.html'
-
-    form = form_class(instance=invite, initial={'event': event, 'invited_by': user_invite, },
+    form = form_class(event=event, user=request.user, instance=invite, initial={'event': event, 'invited_by': user_invite, },
                       data=request.POST or None, files=request.FILES or None)
 
     if form.is_valid():
-        location_redirect = form.save()
+        location_redirect = form.save(request)
         return redirect(**location_redirect)
 
     context = {
@@ -351,8 +439,6 @@ def hosts_home(request, event_id=None):
         return HttpResponseForbidden('403 Forbidden')
 
     if request.is_ajax() and 'action' in request.POST:
-
-        print request.POST
 
         errors = []
         computer_errors = []

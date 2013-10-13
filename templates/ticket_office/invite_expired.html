@@ -1,0 +1,21 @@
+{% extends 'ticket_office_base.html' %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="form-step">
+    <div class="ui segment">
+        {% if invite.invitation_key_expired %}
+        <h1 class="ui header">
+            <div class="ui header">Silly Goose, you've already bought your tickets! </div>
+            <div class="sub header">If you want to change anything on your ticket you can do so at the door. We'll see you on {{ event.start_time }} at {{ event.location }}</div>
+        </h1>
+        {% else %}
+        <h1 class="ui header">
+            <div class="ui header">Oops...</div>
+            <div class="sub header">It seems that {{ event.name }} has already passed. We're so sorry about that.</div>
+        </h1>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
