@@ -1,0 +1,9 @@
+{% load widget_tweaks %}
+
+<div class="form-group {% if field.errors %}has-error{% endif %}">
+    <label for="id_{{ field.html_name }}" class="control-label">{{ field.label }}</label>
+    {% render_field field class+="form-control" %}
+    {% if field.errors %}
+    <span class="help-block">{{ field.errors }}</span>
+    {% endif %}
+</div>

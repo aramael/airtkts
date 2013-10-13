@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% load permissions %}
+
+{% block container %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="page-header">
+                <h1>{{ event.name }} <small>Edit your event</small></h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <ul class="nav nav-pills nav-stacked sidebar">
+                <li><a href="{% url "event_dashboard" event.pk %}">
+                    Dashboard
+                </a></li>
+                {% permission user has 'events.change_event' of event %}
+                <li {% if section == 'event' %}class="active"{% endif %}><a href="{% url "event_edit" event.pk  %}">
+                    Edit Event
+                </a></li>
+                {% endpermission %}
+                {% permission user has 'events.add_hosts' of event %}
+                <li {% if section == 'hosts' %}class="active"{% endif %}><a href="{% url "hosts_home" event.pk  %}">
+                    Hosts
+                </a></li>
+                {% endpermission %}
+                {% permission user has 'events.add_event_ticketsale' of event %}
+                <li {% if section == 'ticketsales' %}class="active"{% endif %}><a href="{% url "ticketsales_home" event.pk  %}">
+                    Tickets
+                </a></li>
+                {% endpermission %}
+                <li {% if section == 'invites' %}class="active"{% endif %}><a href="{% url "invites_home" event.pk  %}">
+                    Invitations
+                </a></li>
+            </ul>
+        </div>
+        <div class="col-lg-9">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+{% endblock %}

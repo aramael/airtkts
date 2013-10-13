@@ -1,0 +1,107 @@
+{% extends extends %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static "css/vendor/admin/dual_listbox.css" %}">
+    <link rel="stylesheet" href="{% static "css/vendor/datetimepicker/datetimepicker.css" %}">
+{% endblock %}
+{% block content %}
+
+    <h1>{% if event.name %}Edit '{{ event.name }}' {% else %}Create an Event{% endif %}</h1>
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    {{ form.errors }}
+
+    <form method="post" class="form-horizontal"{% if has_file_field %} enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+
+        <h2>Add your Event Details</h2>
+
+        <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.name.html_name }}">Your Event {{ form.name.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.name class+="form-control" %}
+                    <p class="help-block">{{ form.name.help_text|safe }}{% if form.name.errors %}<strong>{{ form.name.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.location.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.location.html_name }}">{{ form.location.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.location class+="form-control" %}
+                    <p class="help-block">{{ form.location.help_text|safe }}{% if form.location.errors %}<strong>{{ form.location.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.location.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.location.html_name }}">Date & Time</label>
+                <div class="col-lg-10">
+                <div class="input-group">
+                    {% render_field form.start_time class+="form-control" %}
+                    <span class="input-group-addon">until</span>
+                    {% render_field form.end_time class+="form-control" %}
+                </div>
+
+                    <p class="help-block">{{ form.start_time.help_text|safe }} {{ form.end_time.help_text|safe }}{% if form.start_time.errors %}<strong>{{ form.start_time.errors }}</strong>{% endif %} {% if form.end_time.errors %}<strong>{{ form.end_time.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.description.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.description.html_name }}">{{ form.description.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.description class+="form-control" %}
+                    <p class="help-block">{{ form.description.help_text|safe }}{% if form.description.errors %}<strong>{{ form.description.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+        <div class="form-group {% if form.owner.errors %}has-error{% endif %}">
+                <label class="col-lg-2 control-label" for="id_{{ form.owner.html_name }}">{{ form.owner.label }}</label>
+                <div class="col-lg-10">
+                    {% render_field form.owner class+="form-control" %}
+                    <p class="help-block">{{ form.owner.help_text|safe }}{% if form.owner.errors %}<strong>{{ form.owner.errors }}</strong>{% endif %}</p>
+                </div>
+        </div>
+
+
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-10 col-md-offset-2 hidden-xs">
+                <input type="submit" class="btn btn-primary" value="Continue & Add Tickets" class="default" name="_continue">
+                <input type="submit" class="btn" value="Save Event & Add Tickets Later" name="_save">
+            </div>
+        </div>
+
+        <div class="form-actions hidden-md hidden-lg hidden-sm ">
+            <input type="submit" class="btn btn-primary btn-block btn-lg" value="Continue & Add Tickets" class="default" name="_continue">
+            <input type="submit" class="btn btn-block btn-lg" value="Save Event & Add Tickets Later" name="_save">
+        </div>
+    </form>
+
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static "js/vendor/admin/dual_listbox.js" %}"></script>
+    <script src="{% static "js/vendor/datetimepicker/bootstrap-datetimepicker.js" %}"></script>
+    <script>
+    $('#id_owner').bootstrapDualListbox();
+    $('#id_start_time, #id_end_time').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 0
+    });
+    </script>
+{% endblock %}

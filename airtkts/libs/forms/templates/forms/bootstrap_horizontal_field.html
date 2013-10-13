@@ -1,0 +1,21 @@
+{% load widget_tweaks %}
+
+<div class="form-group {% if field.errors %}has-error{% endif %}">
+    {% if field.is_checkbox %}
+        <div class="col-lg-offset-2 col-lg-10">
+            <div class="checkbox">
+                <label for="id_{{ field.html_name }}">
+                    {{ field }} {{ field.label }}
+                </label>
+            </div>
+            <p class="help-block">Example block-level help text here.</p>
+        </div>
+    {% else %}
+        <label class="col-lg-2 control-label" for="id_{{ field.html_name }}">{{ field.label }}</label>
+        <div class="col-lg-10">
+            {% render_field field class+="form-control" %}
+
+            <p class="help-block">{{ field.help_text|safe }}{% if field.errors %}<strong>{{ field.errors }}</strong>{% endif %}</p>
+        </div>
+    {% endif %}
+</div>

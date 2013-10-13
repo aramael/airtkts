@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block container %}
+
+    <div class="jumbotron">
+
+        <h1>Welcome Back, {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}</h1>
+
+        {% if events %}
+        <p>You've got some events coming up, click to get the newest numbers.</p>
+
+        {% for event in events %}
+
+            <div class="row bulletrow">
+                <div class="col-lg-1">
+                  <div class="square-bullet">
+                    <i class="glyphicon glyphicon-bullhorn squarebulleticon"></i>
+                  </div>
+                </div>
+                <div class="col-lg-11">
+                  <p class="lead"><a href="{% url "event_dashboard" event.pk %}">{{ event.name }}</a><br/>Starting at {{ event.start_time }}</p>
+                </div>
+              </div>
+
+        {% endfor %}
+
+        {% else %}
+        <p>You don't have any events on the way. Do you want to <a href="{% url "event_new" %}" class="btn btn-primary">create one</a>?</p>
+        {% endif %}
+
+    </div>
+{% endblock %}

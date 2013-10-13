@@ -1,0 +1,68 @@
+{% extends "events/base.html" %}
+{% load static %}
+{% load permissions %}
+
+{% block content %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Select Events to Change</h1>
+                <div class="bulk-actions">
+                    <div class="pull-left">
+                        <div>Action:
+                            <select name="action">
+                                <option value="" selected="selected">---------</option>
+                                {% for action in actions %}
+                                    <option value="{{ action.action }}">{{ action.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="submit" class="btn btn-default" value="Go" name="_bulkactions">
+                            <span class="action-counter" style="display: inline;"><span class="selected-count">0</span> of {{ invites|length }} selected</span>
+                        </div>
+                    </div>
+                    {% if user_invite.can_bring_guests %}
+                    <div class="pull-right">
+                        <a class="btn btn-primary" href="{% url "invites_new" event.pk %}?quick=true">Quick Add Invitation</a>
+                        <a class="btn btn-default" href="{% url "invites_new" event.pk %}">Add Invitation</a>
+                    </div>
+                    {% endif %}
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="action-toggle" style="display: inline-block;"></th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Invited By</th>
+                            <th>Maximum Guest Count</th>
+                            <th>RSVP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invite in invites %}
+                            <tr>
+                                <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ invite.pk }}"></td>
+                                <td>{% if user has 'events.view_invitation' of invite %}<a href="{% url "invites_edit" event.pk invite.pk %}">{{ invite.first_name }} {{ invite.last_name }}</a>{% else %}{{ invite.first_name }} {{ invite.last_name }}{% endif %}</td>
+                                <td>{{ invite.email }}</td>
+                                <td>{{ invite.invited_by.first_name }} {{ invite.invited_by.last_name }}</td>
+                                <td>{{ invite.max_guest_count }}</td>
+                                <td>{{ invite.rsvp_status }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center">You haven't invited anyone yet! Feel free to <a href="{% url "invites_new" event.pk %}">invite someone</a>.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static "js/vendor/admin/bulk-actions.js" %}"></script>
+    <script>var _max_bulk_item_count={{ invites|length }}; var _current_bulk_item_count=0</script>
+{% endblock %}
