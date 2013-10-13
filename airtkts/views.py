@@ -11,6 +11,7 @@ from airtkts.apps.events.helpers import get_events
 from airtkts.apps.events.models import Event, Invitation, TicketSale
 from airtkts.libs.users.forms import UserCreationForm, UserEditForm
 from airtkts.libs.users.managers import UserManager, send_new_event_email
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
@@ -97,6 +98,7 @@ def ticket_office(request, event_id=None, event_slug=None):
         'invite': invite,
         'event': event,
         'form': form,
+        'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY,
     }
 
     return render(request, 'ticket_office_home.html', context)
