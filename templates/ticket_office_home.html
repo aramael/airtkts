@@ -428,7 +428,10 @@
     {% endif %}
     </script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-    <script src="{% static 'js/vendor/django/jquery.cookie.js' %}"></script>
+    <script>
+        // Stripe Call
+        Stripe.setPublishableKey({{ STRIPE_PUBLISHABLE_KEY }});
+    </script>    <script src="{% static 'js/vendor/django/jquery.cookie.js' %}"></script>
     <script src="{% static 'js/vendor/django/csrf.js' %}"></script>
     <script src="{% static 'js/vendor/cssua/cssua.min.js' %}"></script>
     <script src="{% static 'js/vendor/skeuocard/skeuocard.min.js' %}"></script>
