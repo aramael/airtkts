@@ -230,7 +230,7 @@ class Invitation(models.Model):
             'user': self,
             'note': note,
             'mailing_address': 'airTKTS <br/> 5980 Lerner Hall <br/>2920 Broadway <br/>New York, NY 10027',
-            'protocol': request.is_secure(),
+            'protocol': 'https' if request.is_secure() else 'http',
         }
 
         if extra_context is not None:

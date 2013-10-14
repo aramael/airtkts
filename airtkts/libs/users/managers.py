@@ -29,7 +29,7 @@ def send_activation_email(request, user,
         'uid': int_to_base36(user.pk),
         'user': user,
         'token': default_token_generator.make_token(user),
-        'protocol': request.is_secure(),
+        'protocol': 'https' if request.is_secure() else 'http',
     }
 
     if extra_context is not None:
@@ -55,7 +55,7 @@ def send_new_event_email(request, user, event, invited_by, subject_template='ema
         'invited_by': invited_by,
         'site_name': site_name,
         'user': user,
-        'protocol': request.is_secure(),
+        'protocol': 'https' if request.is_secure() else 'http',
     }
 
     if extra_context is not None:
