@@ -48,7 +48,7 @@ def deploy():
 
 def collectstatic():
     if raw_input('\nDo you really want to COLLECT STATIC of {heroku_app}? YES or [NO]: '.format(**env)) == 'YES':
-        local('heroku run python manage.py collectstatic --settings={settings}  --app {heroku_app}'.format(**env))
+        local('heroku run python manage.py collectstatic --settings={settings} --noinput --app {heroku_app}'.format(**env))
     else:
         print '\nCOLLECT STATIC aborted'
 
