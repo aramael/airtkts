@@ -57,6 +57,7 @@ INSTALLED_APPS = (
     'south',
     'gunicorn',
     'guardian',
+    'storages',
     'widget_tweaks',
     'airtkts.apps.events',
     'airtkts.libs.forms',
