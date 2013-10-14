@@ -16,10 +16,13 @@ import os
 
 SITE_ID = 1
 
+DEFAULT_FROM_EMAIL = 'noreply@aramael.com'
+
 # A tuple that lists people who get code error notifications. When DEBUG=False and a view raises an exception, Django
 # will email these people with the full exception information. Each member of the tuple should be a tuple of
 # (Full name, email address). Note that Django will email all of these people whenever an error happens.
 ADMINS = (
+    ('Aramael Pena-Alcantara','aramael@pena-alcantara.com'),
 )
 
 # A tuple in the same format as ADMINS that specifies who should get broken link notifications when
