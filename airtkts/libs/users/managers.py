@@ -3,7 +3,14 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import int_to_base36
 from django.template import loader
 from django.contrib.sites.models import get_current_site
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
+
+
+def send_html_mail(subject, message, from_email, recipient_list, connection=None):
+        msg = EmailMessage(subject=subject, body=message, from_email=from_email,
+                           to=recipient_list, connection=connection)
+        msg.content_subtype = "html"  # Main content is now text/html
+        msg.send()
 
 
 def send_activation_email(request, user,
@@ -31,7 +38,7 @@ def send_activation_email(request, user,
     # Email subject *must not* contain newlines
     subject = ''.join(subject.splitlines())
     email = loader.render_to_string(email_template, context)
-    send_mail(subject, email, None, [user.email])
+    send_html_mail(subject, email, None, [user.email])
 
 
 def send_new_event_email(request, user, event, invited_by, subject_template='email/new_event_email_subject.txt',
@@ -57,7 +64,7 @@ def send_new_event_email(request, user, event, invited_by, subject_template='ema
     # Email subject *must not* contain newlines
     subject = ''.join(subject.splitlines())
     email = loader.render_to_string(email_template, context)
-    send_mail(subject, email, None, [user.email])
+    send_html_mail(subject, email, None, [user.email])
 
 
 class UserManager(UserManager):
