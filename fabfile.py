@@ -36,6 +36,8 @@ def close_hotfix(name):
     local('git checkout develop')
     local('git merge --no-ff --no-edit hotfix-{name}'.format(name=name))
     local('git branch -d hotfix-{name}'.format(name=name))
+    local('git checkout master')
+    local('git tag -a v{name} -m "v{name}"'.format(name=name))
 
 # === Deployment ===
 # === Deployment ===
