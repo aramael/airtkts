@@ -6,7 +6,7 @@ import re
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.sites.models import get_current_site
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 from django.utils.text import slugify
 from .managers import EventManager, TicketSaleManager, InvitationManager
@@ -210,8 +210,11 @@ class Invitation(models.Model):
     invitation_key_expired.boolean = True
 
     def mail_guest(self, subject, body):
-        msg = EmailMessage(subject, body, None, [self.email, ])
-        msg.content_subtype = "html"  # Main content is now text/html
+        msg = EmailMultiAlternatives(subject, '', None, [self.email, ])
+        msg.attach_alternative(body, "text/html")
+        msg.track_opens = True
+        msg.track_clicks = True
+        msg.auto_text = True
         msg.send()
 
     def invitation_email_message(self, request, note=None, subject_template='email/invite_email_subject.txt',
