@@ -3,13 +3,16 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import int_to_base36
 from django.template import loader
 from django.contrib.sites.models import get_current_site
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 
 
 def send_html_mail(subject, message, from_email, recipient_list, connection=None):
-        msg = EmailMessage(subject=subject, body=message, from_email=from_email,
-                           to=recipient_list, connection=connection)
-        msg.content_subtype = "html"  # Main content is now text/html
+        msg = EmailMultiAlternatives(subject=subject, body=message, from_email=from_email,
+                                     to=recipient_list, connection=connection)
+        msg.attach_alternative(message, "text/html")
+        msg.track_opens = True
+        msg.track_clicks = True
+        msg.auto_text = True
         msg.send()
 
 
@@ -29,7 +32,7 @@ def send_activation_email(request, user,
         'uid': int_to_base36(user.pk),
         'user': user,
         'token': default_token_generator.make_token(user),
-        'protocol': request.is_secure(),
+        'protocol': 'https' if request.is_secure() else 'http',
     }
 
     if extra_context is not None:
@@ -55,7 +58,7 @@ def send_new_event_email(request, user, event, invited_by, subject_template='ema
         'invited_by': invited_by,
         'site_name': site_name,
         'user': user,
-        'protocol': request.is_secure(),
+        'protocol': 'https' if request.is_secure() else 'http',
     }
 
     if extra_context is not None:
