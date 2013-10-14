@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseForbidden, Http404
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 from guardian.shortcuts import assign_perm, get_perms, remove_perm
 
@@ -24,7 +24,7 @@ from guardian.shortcuts import assign_perm, get_perms, remove_perm
 def home(request):
     """    Display the Landing Page    """
 
-    return Http404()
+    return HttpResponseNotFound()
 
 
 def invite_serve(request, invite_key=None):
