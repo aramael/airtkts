@@ -178,6 +178,12 @@ class Invitation(models.Model):
         """
         Determine whether this ``Invitation`` can bring a guest
         """
+
+        # Super admins & Hosts can always add more
+        if self.user is not None and self.user.has_perm('events.change_hosts', self.event):
+            return True
+
+        #
         return self.max_guest_count > 0 and self.max_guest_count > self.guests.all().count()
 
     def mark_used(self):
