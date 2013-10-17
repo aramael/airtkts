@@ -266,7 +266,7 @@ class LimitedInviteForm(InviteForm):
 
     class Meta(InviteForm.Meta):
         exclude = InviteForm.Meta.exclude + ['guests', 'max_guest_count', 'invited_by', 'event',
-                                             'available_sales', 'user', 'rsvp_status']
+                                             'available_sales', 'user', 'rsvp_status', 'invite_note']
 
 
 class GuestInviteForm(InviteForm):
