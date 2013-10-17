@@ -233,6 +233,9 @@ class Invitation(models.Model):
         site_name = current_site.name
         domain = current_site.domain
 
+        if note is None and self.invite_note:
+            note = self.invite_note
+
         context = {
             'email': self.email,
             'domain': domain,
