@@ -108,6 +108,15 @@
             </div>
         </div>
 
+
+        <div class="form-group {% if form.invite_note.errors %}has-error{% endif %}">
+            <label class="col-lg-2 control-label" for="id_{{ form.invite_note.html_name }}">{{ form.invite_note.label }}</label>
+            <div class="col-lg-10">
+                {% render_field form.invite_note class+="form-control" %}
+                <p class="help-block">{{ form.invite_note.help_text|safe }}{% if form.invite_note.errors %}<strong>{{ form.invite_note.errors }}</strong>{% endif %}</p>
+            </div>
+        </div>
+
         {% for field in form.hidden_fields %}
             {{ field }}
         {% endfor %}
