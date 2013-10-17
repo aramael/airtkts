@@ -420,7 +420,7 @@
     _available_tickets = {
         {% for ticket in invite.available_sales.all %}'{{ ticket.slug }}': { price: {{ ticket.price }}, name: '{{ ticket.name }}' },{% endfor %}
     };
-    _stripe_pk = {{ STRIPE_PUBLISHABLE_KEY }};
+    _stripe_pk = '{{ STRIPE_PUBLISHABLE_KEY }}';
 
     _door_surcharge = 2;
     {% if form.stripe_token.errors %}
