@@ -149,6 +149,9 @@ class Invitation(models.Model):
     rsvp_status = models.CharField(choices=RSVP_CHOICES, default=NO_ANSWER, max_length=12)
     ticket_order = models.ForeignKey(TicketOrder, default=None, blank=True, null=True)
 
+    invite_note = models.TextField(default=None, null=True, blank=True)
+    sent_invite = models.TextField(default=False)
+
     objects = InvitationManager()
 
     class Meta:
@@ -264,3 +267,6 @@ class Invitation(models.Model):
         if not self.invitation_key_expired():
             subject, email = self.invitation_email_message(*args, **kwargs)
             self.mail_guest(subject, email)
+            if not self.sent_invite:
+                self.sent_invite = True
+                self.save()
