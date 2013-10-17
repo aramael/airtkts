@@ -237,8 +237,6 @@ class InviteForm(ActionMethodForm, FieldsetsForm, forms.ModelForm):
         if type(instance.invited_by.user) is User:
             assign_perm('events.view_invitation', instance.invited_by.user, instance)
 
-        instance.send_invitation_email(request)
-
         invite.guests.add(instance)
         invite.save()
 
