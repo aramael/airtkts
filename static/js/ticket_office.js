@@ -273,6 +273,8 @@ $(document).ready(function (){
 
             $(this).find('button').prop('disabled', true);
 
+            Stripe.setPublishableKey(STRIPE_PUBLISHABLE_KEY);
+
             Stripe.card.createToken({
                 number: $('#cc_number').val(),
                 cvc: $('#cc_cvc').val(),
