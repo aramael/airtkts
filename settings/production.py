@@ -79,6 +79,8 @@ AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
 # </code>
 AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 
+AWS_QUERYSTRING_AUTH = False
+
 from boto.s3.connection import SubdomainCallingFormat
 AWS_CALLING_FORMAT = SubdomainCallingFormat
 
