@@ -61,6 +61,7 @@ INSTALLED_APPS = (
     'gunicorn',
     'guardian',
     'storages',
+    'raven.contrib.django.raven_compat',
     'widget_tweaks',
     'airtkts.apps.events',
     'airtkts.libs.forms',
@@ -188,6 +189,10 @@ CACHES = memcacheify()
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'airtkts.wsgi.application'
 
+
+RAVEN_CONFIG = {
+    'dsn': 'https://bfb900dac1e44f7599684b76cd4f6d53:b6158e89ce3640428c91be38b650ff00@app.getsentry.com/14584',
+}
 
 #==============================================================================
 # Logging
