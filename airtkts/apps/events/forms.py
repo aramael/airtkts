@@ -358,7 +358,7 @@ class TicketOfficeSaleForm(forms.Form):
 
             ticket_sale = data['ticket_type']
 
-            if data['stripe_token'] is not None:
+            if data['stripe_token'] != '':
 
                 invitee_full_name = data['first_name'] + ' ' + data['last_name']
 
