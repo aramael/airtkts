@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="apple-mobile-web-app-title" content="My App">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+		<title>Check in for {{ event.name }}</title>
+		<link rel="stylesheet" href="{% static "css/checkin.css" %}" type="text/css" media="screen" />
+	</head>
+	<body class="ios7"> <!-- native | ios7 -->
+
+        <div class="ui page dimmer"></div>
+
+        <section id="view-home">
+            <header>
+                <button class="left arrow">
+                    <div class="label" onclick="window.history.back();"> Back</div>
+                </button>
+                <h1>All Invites</h1>
+            </header>
+            <div class="scrollMask"></div>
+            <div class="scrollWrap">
+                <div class="scroll">
+                <div class="content tickets">
+                    <ul class="arrowed">
+                        {% for ticket in tickets %}
+                        <li>
+                            <div class="swipeable ticket" data-pk="{{ ticket.pk }}">
+                                <div class="big">{{ ticket.name }}</div>
+                                <div class="light">{{ ticket.sale.name }}</div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <script src="//code.jquery.com/jquery.js"></script>
+        <script src="{% static 'js/vendor/django/jquery.cookie.js' %}"></script>
+        <script src="{% static 'js/vendor/django/csrf.js' %}"></script>
+        <script src="{% static 'js/vendor/hammer/hammer.min.js' %}"></script>
+        <script src="{% static 'js/vendor/hammer/jquery.hammer.min.js' %}"></script>
+
+        <script>
+
+            hammer = $('.tickets').hammer();
+
+            var current_target = null;
+
+            hammer.on("dragstart dragend dragright", ".swipeable.ticket", function(event) {
+
+                var parent = $(this).closest('li');
+                var max_width = parent.innerWidth();
+                var percent_swipe = event.gesture.deltaX/max_width;
+                var action = 'unknown';
+
+                // Current Action
+                if (percent_swipe < 0.10){
+                    action = 'prepare'
+                }else if (percent_swipe >= 0.10){
+                    action = 'execute'
+                }
+
+                if (event.type == 'dragstart'){
+                    current_target = event.currentTarget;
+                }
+
+                if (event.type == 'dragend'){
+
+                    if (current_target == event.currentTarget){
+                        if (action == 'prepare'){
+
+                            $(this).animate({ "margin-left": 0 }, "slow" , function (){
+                                parent.removeClass('prepare action');
+                            });
+
+                        }else if (action == 'execute'){
+
+                            var element = $(this);
+
+                            $.post( "{% url "check_in" event.pk %}", {'action': 'checkin', 'ticket': $(this).data('pk')}, function( data ) {
+                                data = $.parseJSON(data);
+                                if (data['success']){
+
+                                    var distance_left = max_width + 65 - parseFloat(element.css('margin-left'));
+
+                                    element.animate({ "margin-left": "+=" + distance_left + "px" }, "slow" , function (){
+                                        parent.animate({ "height": 0}, "slow", function (){
+                                            parent.remove();
+                                        });
+                                    });
+                                }else{
+                                    element.animate({ "margin-left": 0 }, "slow" , function (){
+                                        parent.removeClass('prepare action');
+                                        parent.removeClass('success');
+                                    });
+                                }
+                            });
+                        }
+                    }
+
+                    current_target = null;
+
+                }
+
+                if (event.currentTarget == current_target){
+
+                    switch (action){
+                        case 'prepare':
+                            parent.addClass('prepare action');
+                            parent.removeClass('success');
+                            break;
+                        case 'execute':
+                            parent.removeClass('prepare action');
+                            parent.addClass('success');
+                            break;
+                        default:
+                            break;
+
+                    }
+
+                    $(this).css('margin-left', event.gesture.deltaX);
+                }
+
+            });
+        </script>
+	</body>
+</html>

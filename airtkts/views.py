@@ -8,7 +8,7 @@ import json
 from airtkts.apps.events.forms import EventForm, HostForm, InviteForm, QuickInviteForm, \
     TicketOfficeSaleForm, TicketSaleForm, LimitedInviteForm, GuestInviteForm
 from airtkts.apps.events.helpers import get_events
-from airtkts.apps.events.models import Event, Invitation, TicketSale
+from airtkts.apps.events.models import Event, Invitation, TicketSale, Ticket
 from airtkts.libs.users.forms import UserCreationForm, UserEditForm
 from airtkts.libs.users.managers import UserManager, send_new_event_email
 from django.conf import settings
@@ -370,6 +370,47 @@ def invites_form(request, event_id=None, invite_id=None):
     }
 
     return render(request, template, context)
+
+# =======================================
+# Invite Pages
+# =======================================
+
+
+def check_in_home(request, event_id=None):
+
+    event = get_object_or_404(Event, pk=event_id)
+
+    if not request.user.has_perm('events.view_event', event):
+        return HttpResponseForbidden('403 Forbidden')
+
+    if request.is_ajax() and 'action' in request.POST:
+
+        print request.POST
+
+        errors = []
+        computer_errors = []
+        if request.POST['action'] == 'checkin' and 'ticket' in request.POST:
+
+            try:
+                ticket = Ticket.objects.get(pk=request.POST['ticket'])
+            except User.DoesNotExist:
+                computer_errors.append('Ticket does not exist')
+            else:
+                ticket.validated = True
+                ticket.save()
+                return HttpResponse(json.dumps({'success': True, }))
+        else:
+            computer_errors.append('Invalid Action or not all required params are given.')
+
+        return HttpResponse(json.dumps({'success': False, 'errors': errors, '_e': computer_errors}))
+    tickets = Ticket.objects.all()
+
+    context = {
+        'event': event,
+        'tickets': tickets,
+    }
+
+    return render(request, 'events/check_in.html', context)
 
 # =======================================
 # Host Pages
