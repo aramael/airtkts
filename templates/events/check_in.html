@@ -14,11 +14,19 @@
         <div class="ui page dimmer"></div>
 
         <section id="view-home">
-            <header>
+            <header class="titlebar">
                 <button class="left arrow">
                     <div class="label" onclick="window.history.back();"> Back</div>
                 </button>
                 <h1>All Invites</h1>
+            </header>
+            <header class="search">
+                <div class="search overlay">
+                    <div class="content"><i class="search icon"></i> Search</div>
+                </div>
+                <i class="search icon input-group-addon"></i>
+                <input type="search">
+                <span class="search cancel">Cancel</span>
             </header>
             <div class="scrollMask"></div>
             <div class="scrollWrap">
@@ -44,12 +52,76 @@
         <script src="{% static 'js/vendor/django/csrf.js' %}"></script>
         <script src="{% static 'js/vendor/hammer/hammer.min.js' %}"></script>
         <script src="{% static 'js/vendor/hammer/jquery.hammer.min.js' %}"></script>
+        <script src="{% static 'js/vendor/jquery/jquery.clearsearch.js' %}"></script>
+        <script src="{% static 'js/vendor/jquery/jquery.textchange.js' %}"></script>
 
         <script>
 
             hammer = $('.tickets').hammer();
 
+            function filter_results(query){
+                $(".ticket").filter(function (){
+
+                    var parent = $(this).closest('li');
+
+                    if (query === ""){
+                        if (parent.hasClass('hide')){
+                            parent.removeClass('hide');
+                        }
+                    }else{
+                        query = query.toLowerCase();
+
+                        if ($(".big",this).text().toLowerCase().indexOf(query) === -1) {
+                            parent.addClass('hide');
+                        }
+                    }
+                })
+            }
+
+            var search_input = $('.search input[type=search]');
+
+            search_input.clearSearch({linkText: ''});
+
             var current_target = null;
+
+            $(".search.overlay").click( function (event){
+                $(this).hide(); // Hide the Overlay
+
+                $(this).parents('header.search').addClass('active');
+
+                // Focus on the Search Bar & Pull up Keyboard
+                // Style the Search Bar while Searching
+                search_input.focus().prop('placeholder','Search');
+
+                // Remove Titlebar and Move Search to Top
+                $('.titlebar').animate({height: 0}, {duration: 'fast', queue: false});
+                $('.content.tickets').animate({'margin-top': 45}, {duration: 'fast', queue: false});
+                $('header.search').animate({top: 0}, {duration: 'fast', queue: false});
+            });
+
+            $('.search.cancel').click(function (){
+                // Hide Active Elements
+                $(this).parents('header.search').removeClass('active');
+
+                // Remove Search Bar Active Styling
+                search_input.prop('placeholder','').val('').trigger('keyup');
+
+                // Add Titlebar and Move Search to bottom
+                $('.titlebar').animate({height: 44}, {duration: 'fast', queue: false});
+                $('.content.tickets').animate({'margin-top': 90}, {duration: 'fast', queue: false});
+                $('header.search').animate({top: 45}, {duration: 'fast', queue: false});
+                $('.search.overlay').show();
+
+            });
+
+            var timeout;
+            search_input.bind('textchange', function () {
+                clearTimeout(timeout);
+                var self = $(this);
+                timeout = setTimeout(function () {
+                    filter_results(self.val());
+                }, 500);
+            });
 
             hammer.on("dragstart dragend dragright", ".swipeable.ticket", function(event) {
 

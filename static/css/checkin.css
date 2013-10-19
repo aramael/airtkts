@@ -86,6 +86,108 @@ header {
 	        user-select: none;
 	-webkit-touch-callout: none;
 }
+
+header.search {
+    top: 45px;
+	background-color: rgba(201, 201, 206, 0.9);
+	background-image: linear-gradient(0deg, rgb(200, 199, 204), rgb(200, 199, 204) 50%, transparent 50%);
+}
+
+.search input:before {
+    content: "\e003";
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-weight: normal;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.input-group-addon {
+    display: none;
+}
+
+.active.search .input-group-addon {
+    display: block;
+    position: absolute;
+    top: -2px;
+    left: 25px;
+    color: rgba(201, 201, 206, 0.9);
+    z-index: 125;
+}
+
+.search input {
+    border: 1px solid rgb(200, 199, 204);
+    background-color: #ffffff;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    margin: 4px auto 6px auto;
+    width: 98%;
+    padding-left: 37px;
+}
+
+.search.overlay {
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    text-align: center;
+    z-index: 100;
+    color: rgba(201, 201, 206, 0.9);
+}
+
+.active.search .search.cancel{
+    display: inline-block;
+}
+
+.active.search .clear_input_div{
+    display: inline-block;
+    width: 92%;
+}
+
+.search.cancel {
+    display: none;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	color:rgb(21, 125, 251);
+    font-weight: bold;
+}
+
+.overlay .content {
+    line-height: 1em;
+    margin: 12px auto 10px auto;
+    font-weight: 400;
+}
+
+.search.icon:before {
+    content: "\e003";
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-weight: normal;
+}
+
+.clear_input {
+    width: 57px;
+    height: 57px;
+}
+
+.clear_input:before {
+    position: absolute;
+    top: 9px;
+    content: "\e083";
+    display: block;
+    font-family: 'Glyphicons Halflings';
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-weight: normal;
+    color: rgba(201, 201, 206, 0.9);
+}
+
 header button {
 	position: absolute;
 	top: 0;
@@ -173,7 +275,7 @@ h1 {
 .scrollMask {
 	width: 100%;
 	position: absolute;
-	top: 44px;
+	top: 90px;
 	bottom: 0;
 	background-color: rgb(255, 255, 255);
 	-webkit-box-shadow: -10px 0 10px -5px rgba(0, 0, 0, 0.1);
@@ -181,7 +283,7 @@ h1 {
 }
 .content {
 	line-height: 1em;
-	margin-top: 44px;
+	margin-top: 90px;
 	font-weight: 400;
 }
 input, textarea {
@@ -313,4 +415,9 @@ em {
   font-family: 'Glyphicons Halflings';
   src: url('../fonts/glyphicons-halflings-regular.eot');
   src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular') format('svg');
+}
+
+.hide {
+    display: none;
+    visibility: hidden;
 }
