@@ -510,3 +510,12 @@ em {
     content: "\e013";
     color: #0df63f;
 }
+
+.balance {
+    display: block;
+    position: absolute;
+    top: 22px;
+    right: 5%;
+    font-family: -apple-system-font, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	color: rgb(111, 111, 116);
+}
