@@ -34,7 +34,7 @@ def invite_serve(request, invite_key=None):
     if location_redirect.get('invite', False):
         request.session['invite_id'] = location_redirect.get('invite').pk
 
-        del location_redirect['invite']
+    del location_redirect['invite']
 
     return redirect(**location_redirect)
 

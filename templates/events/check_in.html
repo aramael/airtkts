@@ -45,6 +45,7 @@
                             <div class="swipeable ticket" data-pk="{{ ticket.pk }}">
                                 <div class="big">{{ ticket.name }}</div>
                                 <div class="light">{{ ticket.sale.name }}</div>
+                                {% if ticket.purchase.balance < 0.00 %}<div class="balance">{{ ticket.purchase.balance }}</div>{% endif %}
                             </div>
                         </li>
                         {% endfor %}
