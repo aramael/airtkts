@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="apple-mobile-web-app-title" content="My App">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+		<title>Check in for {{ event.name }}</title>
+		<link rel="stylesheet" href="{% static "css/checkin.css" %}" type="text/css" media="screen" />
+	</head>
+	<body class="ios7"> <!-- native | ios7 -->
+
+        <div class="ui page dimmer"></div>
+
+        <section id="view-home">
+            <header class="titlebar">
+                <button class="left arrow">
+                    <div class="label" onclick="window.history.back();"> Back</div>
+                </button>
+                <h1>All Invites</h1>
+            </header>
+            <header class="search">
+                <div class="search overlay">
+                    <div class="content"><i class="search icon"></i> Search</div>
+                </div>
+                <i class="search icon input-group-addon"></i>
+                <input type="search">
+                <span class="search cancel">Cancel</span>
+            </header>
+            <div class="scrollMask"></div>
+            <div class="scrollWrap">
+                <div class="scroll">
+                <div class="content tickets">
+                    <div class="item">
+                        <ul class="segmented control" id="ticket_filter">
+                            <li class="control state active" data-filter="absent">Check In</li>
+                            <li class="control state" data-filter="arrived">Arrived Guests</li>
+                            <li class="control state" data-filter="all">All Guests</li>
+                        </ul>
+                    </div>
+                    <ul class="arrowed">
+                        {% for ticket in tickets %}
+                        <li class="{% if ticket.validated %}arrived{% else %}absent{% endif %}">
+                            <div class="swipeable ticket" data-pk="{{ ticket.pk }}">
+                                <div class="big">{{ ticket.name }}</div>
+                                <div class="light">{{ ticket.sale.name }}</div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <script src="//code.jquery.com/jquery.js"></script>
+        <script src="{% static 'js/vendor/django/jquery.cookie.js' %}"></script>
+        <script src="{% static 'js/vendor/django/csrf.js' %}"></script>
+        <script src="{% static 'js/vendor/hammer/hammer.min.js' %}"></script>
+        <script src="{% static 'js/vendor/hammer/jquery.hammer.min.js' %}"></script>
+        <script src="{% static 'js/vendor/jquery/jquery.clearsearch.js' %}"></script>
+        <script src="{% static 'js/vendor/jquery/jquery.textchange.js' %}"></script>
+        <script src="{% static 'js/vendor/jquery/jquery.hashchange.js' %}"></script>
+
+        <script>
+            _checkin_url = '{% url "check_in" event.pk %}';
+            location.hash = 'absent';
+        </script>
+        <script src="{% static 'js/checkin.js' %}"></script>
+	</body>
+</html>
