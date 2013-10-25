@@ -49,6 +49,9 @@ urlpatterns = patterns('',
         name='invites_edit'),
     url(r'^accounts/event/(?P<event_id>[0-9]+)/invites/new/$', 'airtkts.views.invites_form', name='invites_new'),
 
+    # Check In
+    url(r'^accounts/event/(?P<event_id>[0-9]+)/checkin/$', 'airtkts.views.check_in_home', name='check_in'),
+
     url(r'^admin/', include(admin.site.urls)),
 
     # Account Pages
