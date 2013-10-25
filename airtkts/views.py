@@ -385,8 +385,6 @@ def check_in_home(request, event_id=None):
 
     if request.is_ajax() and 'action' in request.POST:
 
-        print request.POST
-
         errors = []
         computer_errors = []
         if request.POST['action'] == 'checkin' and 'ticket' in request.POST:
