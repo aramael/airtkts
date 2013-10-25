@@ -421,3 +421,92 @@ em {
     display: none;
     visibility: hidden;
 }
+
+.item {
+    padding-top: 5px;
+}
+
+.segmented.control {
+    display: table;
+    width: 90%;
+    margin: 10px auto;
+    border-collapse: separate;
+    table-layout: fixed;
+}
+
+.segmented.control .control.state {
+    border: 1px solid rgb(21, 125, 251);
+    font-size: 12px;
+    line-height: 13px;
+    padding: 5px 10px;
+    color: rgb(21, 125, 251);
+    margin-left: -6px;
+
+    margin-bottom: 0;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    border-radius: 4px;
+    -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+       -o-user-select: none;
+          user-select: none;
+
+    display: table-cell;
+    float: none;
+    width: 1%;
+}
+
+.active.control.state {
+    background-color: rgb(21, 125, 251);
+    color: #ffffff !important;
+}
+
+.segmented.control > .control.state:not(:first-child):not(:last-child) {
+    border-radius: 0;
+}
+
+.segmented.control > .control.state:first-child {
+    margin-left: 0;
+}
+
+.segmented.control > .control.state:first-child:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.segmented.control > .control.state:last-child:not(:first-child) {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.arrived .ticket,
+.declined .ticket {
+    padding-left: 65px;
+}
+
+.arrived .ticket:before,
+.declined .ticket:before {
+    position: absolute;
+    top: 5px;
+    display: block;
+    font-family: 'Glyphicons Halflings';
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    font-size: 40px;
+    left: 15px;
+}
+
+.declined .ticket:before {
+    content: "\e014";
+    color: #d51531;
+}
+
+.arrived .ticket:before {
+    content: "\e013";
+    color: #0df63f;
+}

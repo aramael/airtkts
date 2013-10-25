@@ -1,32 +1,92 @@
+var _query = '';
+var _section = '';
+var sections = ['absent','arrived','all'];
+
+var default_section = 'all';
+
+
 $(document).ready(function (){
 
     // ==============================================================================
-    // Search Events
+    // Search & Filter Events
     // ==============================================================================
 
     function filter_results(query, section){
+
+        query = (query != undefined)? query : _query;
+        section = (section != undefined)? section : _section;
+        // Section should already be valid so this should yield a valid class
+        var section_class = (section === 'all')? '': section;
+
         $(".ticket").filter(function (){
 
             var parent = $(this).closest('li');
+            var correct_section = ((section_class != '' && parent.hasClass(section_class)) || section_class == '');
 
             if (query === ""){
-                if (parent.hasClass('hide')){
+                if (parent.hasClass('hide') && correct_section){
                     parent.removeClass('hide');
+                }else if(section_class != '' && !parent.hasClass(section_class)){
+                    parent.addClass('hide');
                 }
             }else{
                 query = query.toLowerCase();
+                var found_query = !($(".big",this).text().toLowerCase().indexOf(query) === -1);
 
-                if ($(".big",this).text().toLowerCase().indexOf(query) === -1) {
+                if (!found_query || !correct_section) {
                     parent.addClass('hide');
+                }else if (found_query && correct_section){
+                    parent.removeClass('hide');
                 }
             }
         })
     }
 
+
+    // =======================================
+    // Filter Events
+    // =======================================
+
+    // Bind an event to window.onhashchange that, when the hash changes, gets the
+    // hash and adds the class "selected" to any matching nav link.
+    $( window ).hashchange(function() {
+        var hash = location.hash;
+
+        hash = hash.replace( /^#/, "" ) || 1;
+        _section = (sections.indexOf(hash) >= 0)? hash : default_section;
+
+        filter_results(_query, _section);
+
+    });
+    // Since the event is only triggered when the hash changes, we need to trigger
+    // the event now, to handle the hash the page may have loaded with.
+    $( window ).hashchange();
+
+    var ticket_filter = $('#ticket_filter');
+
+    $('.control.state', ticket_filter).click(function (){
+
+        // Change Display
+        $('.active.control.state', ticket_filter).removeClass('active');
+        $(this).addClass('active');
+
+        location.hash = $(this).data('filter');
+
+    });
+
+    // =======================================
+    // Search Events
+    // =======================================
+
     var search_input = $('.search input[type=search]');
     var current_target = null;
 
-    search_input.clearSearch({linkText: ''});
+    search_input.clearSearch({
+        linkText: '',
+        callback: function (){
+            search_input.val('').trigger('textchange');
+        }
+    });
 
     $(".search.overlay").click( function (event){
         $(this).hide(); // Hide the Overlay
@@ -48,7 +108,8 @@ $(document).ready(function (){
         $(this).parents('header.search').removeClass('active');
 
         // Remove Search Bar Active Styling
-        search_input.prop('placeholder','').val('').trigger('keyup');
+        search_input.prop('placeholder','').val('').trigger('textchange');
+        _query = '';
 
         // Add Titlebar and Move Search to bottom
         $('.titlebar').animate({height: 44}, {duration: 'fast', queue: false});
@@ -63,6 +124,7 @@ $(document).ready(function (){
         clearTimeout(timeout);
         var self = $(this);
         timeout = setTimeout(function () {
+            _query = self.val();
             filter_results(self.val());
         }, 500);
     });
@@ -115,7 +177,10 @@ $(document).ready(function (){
 
                             element.animate({ "margin-left": "+=" + distance_left + "px" }, "slow" , function (){
                                 parent.animate({ "height": 0}, "slow", function (){
-                                    parent.remove();
+                                    // Hide Parent Class Before Manipulations
+                                    parent.addClass('hide arrived').removeClass('success absent').css('height', 'auto');
+                                    // Add Child Manipulations
+                                    element.css('margin-left', '0');
                                 });
                             });
                         }else{
@@ -148,7 +213,6 @@ $(document).ready(function (){
                     break;
                 default:
                     break;
-
             }
 
             $(this).css('margin-left', event.gesture.deltaX);

@@ -32,9 +32,16 @@
             <div class="scrollWrap">
                 <div class="scroll">
                 <div class="content tickets">
+                    <div class="item">
+                        <ul class="segmented control" id="ticket_filter">
+                            <li class="control state active" data-filter="absent">Check In</li>
+                            <li class="control state" data-filter="arrived">Arrived Guests</li>
+                            <li class="control state" data-filter="all">All Guests</li>
+                        </ul>
+                    </div>
                     <ul class="arrowed">
                         {% for ticket in tickets %}
-                        <li>
+                        <li class="{% if ticket.validated %}arrived{% else %}absent{% endif %}">
                             <div class="swipeable ticket" data-pk="{{ ticket.pk }}">
                                 <div class="big">{{ ticket.name }}</div>
                                 <div class="light">{{ ticket.sale.name }}</div>
@@ -54,8 +61,11 @@
         <script src="{% static 'js/vendor/hammer/jquery.hammer.min.js' %}"></script>
         <script src="{% static 'js/vendor/jquery/jquery.clearsearch.js' %}"></script>
         <script src="{% static 'js/vendor/jquery/jquery.textchange.js' %}"></script>
+        <script src="{% static 'js/vendor/jquery/jquery.hashchange.js' %}"></script>
+
         <script>
             _checkin_url = '{% url "check_in" event.pk %}';
+            location.hash = 'absent';
         </script>
         <script src="{% static 'js/checkin.js' %}"></script>
 	</body>
