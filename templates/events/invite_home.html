@@ -46,9 +46,10 @@
                         {% for invite in invites %}
                             {% url 'invite_serve' invite.invite_key as invite_url%}
                             {% url_create request invite_url as invite_url%}
+
                             <tr>
                                 <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ invite.pk }}"></td>
-                                <td>{% if user has 'events.view_invitation' of invite %}<a href="{% url "invites_edit" event.pk invite.pk %}">{{ invite.first_name }} {{ invite.last_name }}</a>{% else %}{{ invite.first_name }} {{ invite.last_name }}{% endif %} {% copy_to_clipboard invite_url %}</td>
+                                <td>{% if user has 'events.view_invitation' of invite %}<a href="{% url "invites_edit" event.pk invite.pk %}">{{ invite.first_name }} {{ invite.last_name }}</a>{% else %}{{ invite.first_name }} {{ invite.last_name }}{% endif %} {% if forloop.counter0|divisibleby:2 %}{% copy_to_clipboard invite_url "#f9f9f9"%}{% else %}{% copy_to_clipboard invite_url "#ffffff" %}{% endif %}</td>
                                 <td>{{ invite.email }}</td>
                                 <td>{{ invite.invited_by.first_name }} {{ invite.invited_by.last_name }}</td>
                                 <td>{{ invite.max_guest_count }}</td>
