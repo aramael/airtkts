@@ -1,7 +1,17 @@
 {% extends 'base.html' %}
 
+{% load staticfiles %}
+
 {% block title %} {{ event.name }} Dashboard{% endblock %}
 
+{% block extra_css %}
+    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/vendor/rickshaw/rickshaw.min.css' %}" rel="stylesheet" media="screen">
+    <style>		.rickshaw_graph .detail .x_label { display: none }
+		.rickshaw_graph .detail .item { line-height: 1.4; padding: 0.5em }
+		.detail_swatch { float: right; display: inline-block; width: 10px; height: 10px; margin: 0 4px 0 0 }
+		.rickshaw_graph .detail .date { color: #a0a0a0 }</style>
+{% endblock %}
 {% block container %}
 
     <h1>{{ event.name }} Dashboard</h1>
@@ -16,4 +26,80 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="dashboard widget">
+                <div class="content">
+                    <div class="top left">Today</div>
+                    <div class="top right">12&deg;</div>
+                    <div class="huge numbers">{% now "H:i" %}<small>{% now "a" %}</small></div>
+                    <div class="small text">{% now "l / M d / Y" %}</div>
+                </div>
+                <div class="footer">
+                    <div class="title">New York, NY</div>
+                    <a class="settings"></a>
+                </div>
+            </div>
+            <div class="dashboard widget">
+                <div class="content">
+                    <div class="huge numbers"><span class="increase">{{ revenue }}</span></div>
+                    <div class="small text ">dollars in revenue</div>
+                </div>
+                <div class="footer">
+                    <div class="title">Revenue</div>
+                    <a class="settings"></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="dashboard widget double height">
+                <div class="content">
+                    <div class="huge numbers">{{ ticketcount }}</div>
+                    <div class="small text">tickets purchased</div>
+                    <div id="ticketsales_chart"></div>
+                </div>
+                <div class="footer">
+                    <div class="title">New York, NY</div>
+                    <a class="settings"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'js/vendor/rickshaw/d3.min.js' %}"></script>
+    <script src="{% static 'js/vendor/rickshaw/d3.layout.min.js' %}"></script>
+    <script src="{% static 'js/vendor/rickshaw/rickshaw.min.js' %}"></script>
+    <script src=""></script>
+    <script>
+    $(document).ready(function (){
+       var graph = new Rickshaw.Graph( {
+            element: document.getElementById("ticketsales_chart"),
+            renderer: 'line',
+            height: 350,
+            width: 800,
+            series: [
+                {
+                    data: [ {% for tickets in ticketsales %} { x: {{ tickets.purchase_date|date:"U" }}, y: {{tickets.created_count}} },{% endfor %} ],
+                    color: "#c05020",
+                    name: "Tickets Sold"
+                }
+            ]
+        } );
+
+        var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+            graph: graph,
+            formatter: function(series, x, y) {
+                var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+                var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+                var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+                return content;
+            }
+        } );
+
+        graph.render();
+    });
+
+    </script>
 {% endblock %}

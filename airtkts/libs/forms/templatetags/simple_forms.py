@@ -17,3 +17,15 @@ def bootstrap_field(field):
     return tpl.render(Context({
         'field': field
     }))
+
+@register.simple_tag
+def copy_to_clipboard(text, bgcolour='#ffffff'):
+    tpl = get_template('forms/clippy.html')
+    return tpl.render(Context({
+        'text': text,
+        'bgcolour': bgcolour
+    }))
+
+@register.assignment_tag
+def url_create(request, path):
+    return request.build_absolute_uri(path)
