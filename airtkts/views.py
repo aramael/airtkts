@@ -8,7 +8,7 @@ import json
 from airtkts.apps.events.forms import EventForm, HostForm, InviteForm, QuickInviteForm, \
     TicketOfficeSaleForm, TicketSaleForm, LimitedInviteForm, GuestInviteForm
 from airtkts.apps.events.helpers import get_events
-from airtkts.apps.events.models import Event, Invitation, TicketSale, Ticket
+from airtkts.apps.events.models import Event, Invitation, TicketSale, Ticket, TicketOrder
 from airtkts.libs.users.forms import UserCreationForm, UserEditForm
 from airtkts.libs.users.managers import UserManager, send_new_event_email
 from django.conf import settings
@@ -161,9 +161,24 @@ def event_dashboard(request, event_id=None):
     if not request.user.has_perm('events.view_event', event):
         return HttpResponseForbidden('403 Forbidden')
 
+    # Processing for Graphics on Dashboard
+    from django.db.models import Count
+    ticketsales = TicketOrder.objects.all().extra({'purchase_date': "date(purchase_time)"}).\
+        values('purchase_date').annotate(created_count=Count('id'))
+
+    ticketsales = sorted(ticketsales, key=lambda tickets: tickets['purchase_date'])
+
+    ticketcount = Ticket.objects.all().count()
+
+    from django.db.models import Sum
+    revenue = TicketOrder.objects.all().aggregate(Sum('balance'))['balance__sum']
+
     context = {
         'event': event,
         'events': get_events(request.user),
+        'ticketsales': ticketsales,
+        'ticketcount': ticketcount,
+        'revenue': abs(revenue)
     }
 
     return render(request, 'events/event_dashboard.html', context)

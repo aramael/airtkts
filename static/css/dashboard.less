@@ -1,0 +1,142 @@
+.dashboard.widget {
+  border: 1px solid rgb(237, 236, 228);
+  padding-bottom: 0;
+  background:#fff;
+  -webkit-box-shadow: 0 8px 6px -6px rgb(237, 236, 228);
+  -moz-box-shadow: 0 8px 6px -6px rgb(237, 236, 228);
+  box-shadow: 0 8px 6px -6px rgb(237, 236, 228);
+  margin: 30px 0;
+  display: block;
+  position: relative;
+
+  .footer {
+    border-top: 1px solid rgb(237, 236, 228);
+    padding: 5px 0 0 10px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+
+    .title {
+      font-family: -apple-system-font, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: rgb(111, 111, 116);
+      display: table-cell;
+    }
+
+    .settings {
+      position: relative;
+      top: 1px;
+      font-family: 'Glyphicons Halflings';
+      -webkit-font-smoothing: antialiased;
+      font-style: normal;
+      font-weight: normal;
+      line-height: 1;
+      display: table-cell;
+      float: right;
+      margin-top: -27px;
+      border-left: 1px solid rgb(237, 236, 228);
+      padding: 9px;
+      color: rgb(111, 111, 116);
+      text-decoration: none;
+
+      &:before {
+        content: "\1f527";
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+    }
+
+  }
+
+  .content {
+    padding: 15px;
+    font-family: -apple-system-font, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin-bottom: 31px;
+
+    /* Increase & Decrease Displays */
+    .increase, .decrease {
+      &:before {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+    }
+
+    .increase {
+      color: #0df63f;
+
+      &:before {
+        content: "+";
+      }
+    }
+
+    .decrease {
+      color: #d51531;
+
+      &:before {
+        content: "-";
+      }
+    }
+
+    /* Positioning */
+    .top, .right, .bottom, .left {
+      display: table-cell;
+    }
+
+    .left {
+      float: left;
+    }
+
+    .right {
+      float: right;
+    }
+
+    /* Content Sizing */
+
+    .huge {
+      margin-top: 25px;
+      font-weight: bold;
+      font-size: 48px;
+
+      small {
+          font-weight: normal;
+          font-size: 24px;
+      }
+    }
+
+    .small {
+        font-weight: normal;
+        font-size: 14px;
+        color: #b2b2b2;
+    }
+
+  }
+
+}
+
+@media (min-width: 992px) {
+    .dashboard.widget {
+        min-height: 200px;
+    }
+    .dashboard.widget.double.height {
+        min-height: 430px;
+    }
+}
+
+.dashboard.widget.double.height {
+
+  .huge, .small {
+    position: absolute;
+    z-index: 100;
+  }
+
+  .huge {
+    font-size: 100px;
+    font-weight: bold;
+  }
+  .small {
+    font-weight: 48px;
+    top: 150px;
+    left: 15px;
+  }
+}
